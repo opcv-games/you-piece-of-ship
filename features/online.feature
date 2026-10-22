@@ -17,3 +17,15 @@ Feature: Online multiplayer, host-authoritative  (#14)
   Scenario: Couch play is unchanged
     Given nobody hosts or joins
     Then the dock and voyages work exactly as before
+
+  Scenario: Hosting over the internet (Olivier, 2026-10-22)
+    Given a player clicks Host
+    Then the game asks the router (UPnP) to open UDP port 7777 and looks up the public address
+    And the dock says in plain words whether friends elsewhere can join, with a Copy button
+    And it detects a shared provider address (CGNAT) and says to let the friend host instead
+    And the router mapping is removed when hosting stops or the game quits
+
+  Scenario: Joining
+    Given the Join box remembers the last address
+    When a player types the host's address and clicks Join
+    Then they come aboard as the next free player

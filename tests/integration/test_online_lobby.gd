@@ -34,3 +34,19 @@ func test_offline_voyage_has_no_network_role() -> void:
 	await wait_physics_frames(2)
 	assert_eq(level.get_node("NetSync").role, "offline")
 	assert_false(level.net_puppet)
+
+
+func test_shared_addresses_are_detected_as_cgnat() -> void:
+	assert_true(Net.is_shared_address("100.72.160.1"), "provider-shared range (CGNAT)")
+	assert_true(Net.is_shared_address("192.168.0.1"))
+	assert_false(Net.is_shared_address("179.152.174.239"), "a real public address")
+	assert_false(Net.is_shared_address(""))
+
+
+func test_host_report_messages() -> void:
+	Net.host_report = {"state": "open", "public": "203.0.113.7", "router": "203.0.113.7", "local": "192.168.0.2"}
+	assert_string_contains(Net.host_message(), "203.0.113.7")
+	assert_eq(Net.join_address(), "203.0.113.7")
+	Net.host_report = {"state": "cgnat", "public": "203.0.113.7", "router": "100.72.0.9", "local": "192.168.0.2"}
+	assert_string_contains(Net.host_message(), "Ask your friend to host")
+	Net.host_report = {}

@@ -31,8 +31,7 @@ static func crew_texture(tint: Variant) -> Texture2D:
 	var key := str(tint)
 	if _crew_textures.has(key):
 		return _crew_textures[key]
-	var image := Image.load_from_file(ProjectSettings.globalize_path(SHEET))
-	image.convert(Image.FORMAT_RGBA8)
+	var image := _image(SHEET)
 	if tint is Color:
 		for y in image.get_height():
 			for x in image.get_width():
@@ -48,9 +47,17 @@ static func crew_texture(tint: Variant) -> Texture2D:
 ## A cut texture from assets/art/export/pixel/ (deck, hull, trim, crate, plank, pin, coal, sail...).
 static func texture(name: String) -> Texture2D:
 	if not _textures.has(name):
-		var image := Image.load_from_file(ProjectSettings.globalize_path(EXPORT + name + ".png"))
-		_textures[name] = ImageTexture.create_from_image(image)
+		_textures[name] = ImageTexture.create_from_image(_image(EXPORT + name + ".png"))
 	return _textures[name]
+
+
+## An imported image as plain RGBA pixels (works in the editor and in exported builds alike).
+static func _image(path: String) -> Image:
+	var image := (load(path) as Texture2D).get_image()
+	if image.is_compressed():
+		image.decompress()
+	image.convert(Image.FORMAT_RGBA8)
+	return image
 
 
 ## Sheet column for a facing direction on screen (x right, y down).
