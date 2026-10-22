@@ -17,15 +17,17 @@ func _load(contract: Resource) -> void:
 	await wait_physics_frames(3)
 
 
-func test_four_contracts_rising_pay() -> void:
+func test_contracts_keep_their_save_slots_and_pay_rises_along_the_map() -> void:
 	var titles := []
-	var pay := []
 	for contract in ContractLibrary.all_contracts():
 		titles.append(contract.title)
-		pay.append(contract.pay_per_crate)
-	assert_eq(titles, ["Maiden Voyage", "Reef Run", "The Narrows", "Fog Bank"])
+	assert_eq(titles.slice(0, 4), ["Maiden Voyage", "Reef Run", "The Narrows", "Fog Bank"], "old saves still match")
+	var pay := []
+	for ocean in load("res://scripts/systems/progress.gd").OCEANS:
+		for index in ocean.routes:
+			pay.append(ContractLibrary.by_index(index).pay_per_crate)
 	for i in range(1, pay.size()):
-		assert_gt(pay[i], pay[i - 1])
+		assert_gt(pay[i], pay[i - 1], "each route on the map pays more than the one before")
 
 
 func test_given_maiden_voyage_then_lessons_happen_and_cannot_sink() -> void:

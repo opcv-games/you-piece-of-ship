@@ -21,6 +21,10 @@ func _run() -> void:
 	session.ai_crew = {}
 	for index in range(1, 5):
 		session.enable_ai(index)
+	if args.has("stars"): # pretend progress: e.g. stars=0:3,4:2
+		session.stars = {}
+		for pair in String(args.stars).split(",", false):
+			session.stars[pair.get_slice(":", 0)] = int(pair.get_slice(":", 1))
 	var scene: PackedScene = load(args.get("scene", "res://scenes/levels/voyage.tscn"))
 	var level := scene.instantiate()
 	root.add_child(level)
@@ -28,7 +32,7 @@ func _run() -> void:
 	if level.has_method("_apply_crew"):
 		level._apply_crew([] as Array[int])
 	await create_timer(float(args.get("wait", "3"))).timeout
-	for event in String(args.get("events", "")).split(",", false):
+	for event in String(args.get("events", "")).split(",", false) if level.has_method("dev_event") else []:
 		level.dev_event(event)
 	if args.has("dev"):
 		level.get_node("PauseMenu").open_dev()

@@ -1,6 +1,6 @@
 # You Piece of Ship — Design Document
 
-> **Current phase:** 3 — Ugly Prototype. Milestone A and the Milestone B systems were built overnight on 2026-10-22 but nobody has played them yet: the fun gate (a real 4-player couch playtest) comes next.
+> **Current phase:** 4 — Art & content (2026-10-22 evening: painted-kawaii look, battles, fishing, stars, world map). Before that: 3 — Ugly Prototype. Milestone A and the Milestone B systems were built overnight on 2026-10-22 but nobody has played them yet: the fun gate (a real 4-player couch playtest) comes next.
 > **Last updated:** 2026-10-22
 > This file is the Committee's memory. Read it before every Godot or Blender action. Update it after every approved decision.
 

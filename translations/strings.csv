@@ -325,6 +325,64 @@ Pirates sunk! Sail through the floating loot to scoop it up.,Pirates sunk! Sail 
 Spawn: pirates (port),Spawn: pirates (port),Ajouter : pirates (bâbord)
 Spawn: pirates (starboard),Spawn: pirates (starboard),Ajouter : pirates (tribord)
 Gunner,Gunner,Canonnier
+World Map,World Map,Carte du monde
+"Oceans, ports and routes","Oceans, ports and routes","Océans, ports et routes"
+WORLD MAP,WORLD MAP,CARTE DU MONDE
+★ %d stars,★ %d stars,★ %d étoiles
+Set sail!,Set sail!,Larguez les amarres !
+The host picks the route,The host picks the route,L'hôte choisit la route
+Crew & shop (dock),Crew & shop (dock),Équipage et boutique (quai)
+Aye aye!,Aye aye!,À vos ordres !
+NEW OCEAN: %s,NEW OCEAN: %s,NOUVEL OCÉAN : %s
+Calm Cove,Calm Cove,Crique Tranquille
+Whale Waters,Whale Waters,Eaux des Baleines
+Pirate Sea,Pirate Sea,Mer des Pirates
+"Learn the ropes: steering, coal, leaks, the chart. Wrecks and atolls to steer around.","Learn the ropes: steering, coal, leaks, the chart. Wrecks and atolls to steer around.","Apprenez les bases : barre, charbon, fuites, carte. Des épaves et des atolls à contourner."
+"Whales cross your path, sirens sing to your helmsman, and big swells shift the cargo.","Whales cross your path, sirens sing to your helmsman, and big swells shift the cargo.","Les baleines croisent votre route, les sirènes chantent pour votre barreur et la houle déplace la cargaison."
+"Pirates! Fog, storms, a ship without a sail and engines that fail.","Pirates! Fog, storms, a ship without a sail and engines that fail.","Des pirates ! Brouillard, tempêtes, un navire sans voile et des moteurs qui lâchent."
+Deadline %s    %d coins a chest,Deadline %s    %d coins a chest,Limite %s    %d pièces le coffre
+Danger: %s,Danger: %s,Danger : %s
+Watch out for: %s,Watch out for: %s,Attention : %s
+"Best: %d points, %s","Best: %d points, %s","Record : %d points, %s"
+Locked. Earn %d stars to open this route (you have %d).,Locked. Earn %d stars to open this route (you have %d).,Verrouillé. Gagnez %d étoiles pour ouvrir cette route (vous en avez %d).
+whales,whales,baleines
+sirens,sirens,sirènes
+wrecks,wrecks,épaves
+atolls,atolls,atolls
+pirates,pirates,pirates
+fog,fog,brouillard
+a storm,a storm,une tempête
+no sail,no sail,pas de voile
+shifting cargo,shifting cargo,cargaison qui glisse
+engine failure,engine failure,panne moteur
+flooding,flooding,inondation
+Unlocks: ,Unlocks: ,À débloquer : 
+%s hat at %d★,%s hat at %d★,%s à %d★
+Captain,Captain,Chapeau de capitaine
+Crown,Crown,Couronne
+Tricorn,Tricorn,Tricorne
+Bandana,Bandana,Bandana
+Beanie,Beanie,Bonnet
+Straw,Straw,Chapeau de paille
+Hat: %s,Hat: %s,Chapeau : %s
+🔒 %d★,🔒 %d★,🔒 %d★
+WORLD MAP: choose a route  ★ %d,WORLD MAP: choose a route  ★ %d,CARTE DU MONDE : choisir une route  ★ %d
+Locked: earn %d stars to open it.,Locked: earn %d stars to open it.,Verrouillé : gagnez %d étoiles pour l'ouvrir.
+%d. LOCKED (%d stars needed),%d. LOCKED (%d stars needed),%d. VERROUILLÉ (%d étoiles nécessaires)
+Enter / A: world map     R / Start: sail again     J: change crew,Enter / A: world map     R / Start: sail again     J: change crew,Entrée / A : carte     R / Start : repartir     J : changer d'équipage
+Coral Hop,Coral Hop,Saut de Corail
+Siren Strait,Siren Strait,Détroit des Sirènes
+Whale Road,Whale Road,Route des Baleines
+Smugglers' Run,Smugglers' Run,Route des Contrebandiers
+Kraken's Gate,Kraken's Gate,Porte du Kraken
+Pineapples for the atoll market. Short and sweet: steer round the old wreck.,Pineapples for the atoll market. Short and sweet: steer round the old wreck.,Des ananas pour le marché de l'atoll. Court et doux : contournez la vieille épave.
+Love letters for the lighthouse. Two sirens sing in the strait. Don't listen!,Love letters for the lighthouse. Two sirens sing in the strait. Don't listen!,Des lettres d'amour pour le phare. Deux sirènes chantent dans le détroit. N'écoutez pas !
+"Delicate porcelain along the whales' road. When the big swell comes, the cargo shifts.","Delicate porcelain along the whales' road. When the big swell comes, the cargo shifts.","De la porcelaine fragile sur la route des baleines. Quand la houle arrive, la cargaison glisse."
+"Hush-hush cargo on a sail-less smuggler's ship. If the engine stops, so do you. Pirates know you're coming.","Hush-hush cargo on a sail-less smuggler's ship. If the engine stops, so do you. Pirates know you're coming.","Une cargaison secrète sur un navire de contrebande sans voile. Si le moteur s'arrête, vous aussi. Les pirates vous attendent."
+"The crown jewels, through the worst storm in years. Everything that can go wrong will.","The crown jewels, through the worst storm in years. Everything that can go wrong will.","Les joyaux de la couronne, dans la pire tempête depuis des années. Tout ce qui peut mal tourner tournera mal."
+The swell shifted the cargo! Tie the chests back down.,The swell shifted the cargo! Tie the chests back down.,La houle a déplacé la cargaison ! Rattachez les coffres.
+The engine coughed and died! Fix the cooling pipe and get it going again.,The engine coughed and died! Fix the cooling pipe and get it going again.,Le moteur a toussé et calé ! Réparez le tuyau et relancez-le.
+A wave broke over the bow: the deck is flooding! Pump! Patch!,A wave broke over the bow: the deck is flooding! Pump! Patch!,Une vague a déferlé sur la proue : le pont est inondé ! Pompez ! Colmatez !
 Sardine,Sardine,Sardine
 Goldfish,Goldfish,Poisson doré
 Squid,Squid,Calamar

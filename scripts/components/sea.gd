@@ -44,6 +44,19 @@ func _process(delta: float) -> void:
 		global_position = Vector3(snappedf(at.x, 2.0), 0.0, snappedf(at.z, 2.0))
 
 
+## Storm colours: a slate-grey sea, whiter foam, rougher water.
+func set_storm(on: bool) -> void:
+	if on:
+		_material.set_shader_parameter("deep_color", Color(0.12, 0.2, 0.32))
+		_material.set_shader_parameter("shallow_color", Color(0.3, 0.45, 0.55))
+		_material.set_shader_parameter("horizon_color", Color(0.45, 0.5, 0.6))
+		_material.set_shader_parameter("crest_foam", 0.7)
+		_material.set_shader_parameter("glints", 0.0)
+		glints = 0.0
+		wave_height = 0.6
+		wave_speed = 1.4
+
+
 ## A big swell rolls in from one side toward a point (the ship), for the big-wave hazard.
 func swell(toward: Vector3, from_side: Vector3, height := 1.6) -> void:
 	var origin := toward - from_side.normalized() * 45.0

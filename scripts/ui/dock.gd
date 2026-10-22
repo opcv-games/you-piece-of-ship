@@ -7,12 +7,14 @@ signal contract_started(index: int)
 
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
+const Progress = preload("res://scripts/systems/progress.gd")
 const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const VOYAGE_SCENE := "res://scenes/levels/voyage.tscn"
 const MENU_SCENE := "res://scenes/ui/main_menu.tscn"
-const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo"]
+const WORLD_MAP_SCENE := "res://scenes/ui/world_map.tscn"
+const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo", "gunner"]
 const JOB_NAMES := {"helm": "Helm", "navigator": "Navigator", "engine": "Engine", "pump": "Pump",
-		"carpenter": "Carpenter", "cargo": "Cargo", "": "nothing"}
+		"carpenter": "Carpenter", "cargo": "Cargo", "gunner": "Gunner", "": "nothing"}
 const COLORS := [Color(0.9, 0.25, 0.2), Color(0.2, 0.45, 0.95), Color(0.95, 0.8, 0.15), Color(0.25, 0.75, 0.3)]
 
 var joined: Array[int] = []
@@ -29,6 +31,7 @@ var _crew_slots: Array[Panel] = []
 var ai_buttons: Array[Button] = []
 var primary_buttons: Array[Button] = []
 var secondary_buttons: Array[Button] = []
+var hat_buttons: Array[Button] = []
 
 
 func _ready() -> void:
@@ -44,7 +47,8 @@ func _ready() -> void:
 	Net.host_checked.connect(func(_report): refresh())
 	refresh()
 	if not contract_buttons.is_empty():
-		contract_buttons[clampi(Session.unlocked - 1, 0, contract_buttons.size() - 1)].grab_focus()
+		var open: Array = Session.open_contracts()
+		contract_buttons[open[-1] if not open.is_empty() else 0].grab_focus()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -107,8 +111,8 @@ func start_contract(index: int) -> bool:
 	if Net.role == "client":
 		_message.text = tr("The host chooses the contract.")
 		return false
-	if index >= Session.unlocked:
-		_message.text = tr("Locked: deliver the previous contract first.")
+	if not Session.is_open(index):
+		_message.text = tr("Locked: earn %d stars to open it.") % Progress.stars_needed(index)
 		return false
 	if joined.is_empty() and Session.ai_crew.is_empty():
 		_message.text = tr("Nobody aboard! At least one player presses Use (E, Right Shift or X) to join.")
@@ -163,13 +167,14 @@ func refresh() -> void:
 		ai_buttons[i].disabled = human
 		primary_buttons[i].text = tr("Job: %s") % tr(JOB_NAMES[ai.get("primary", "")]) if not ai.is_empty() else tr("Job: -")
 		secondary_buttons[i].text = tr("Then: %s") % tr(JOB_NAMES[ai.get("secondary", "")]) if not ai.is_empty() else tr("Then: -")
+		hat_buttons[i].text = tr("Hat: %s") % tr(Session.outfit_for(index).capitalize())
 		primary_buttons[i].disabled = ai.is_empty()
 		secondary_buttons[i].disabled = ai.is_empty()
 	var contracts := ContractLibrary.all_contracts()
 	for i in contracts.size():
 		var c: Resource = contracts[i]
 		var button := contract_buttons[i]
-		if i < Session.unlocked:
+		if Session.is_open(i):
 			var best: int = int(Session.best_scores.get(str(i), 0))
 			var fastest: String = _clock(float(Session.best_times[str(i)])) if Session.best_times.has(str(i)) else ""
 			var record := ""
@@ -179,7 +184,7 @@ func refresh() -> void:
 			button.text = tr("%d. %s   %s   %d coins/crate   %s%s") % [i + 1, tr(c.title), "★".repeat(got) + "☆".repeat(3 - got),
 					c.pay_per_crate, _clock(c.deadline), record]
 		else:
-			button.text = tr("%d. LOCKED (deliver the previous contract)") % (i + 1)
+			button.text = tr("%d. LOCKED (%d stars needed)") % [i + 1, Progress.stars_needed(i)]
 	for id in Upgrades.ORDER:
 		var data: Dictionary = Upgrades.DATA[id]
 		var owned := Session.upgrades.has(id)
@@ -241,7 +246,7 @@ func _build() -> void:
 		_crew_slots.append(slot)
 		var row := HBoxContainer.new()
 		column.add_child(row)
-		for kind in ["ai", "primary", "secondary"]:
+		for kind in ["ai", "primary", "secondary", "hat"]:
 			var button := _button()
 			button.add_theme_font_size_override("font_size", 12)
 			button.custom_minimum_size = Vector2(0, 26)
@@ -256,6 +261,9 @@ func _build() -> void:
 				"secondary":
 					button.pressed.connect(cycle_job.bind(i + 1, "secondary"))
 					secondary_buttons.append(button)
+				"hat":
+					button.pressed.connect(func(): Session.cycle_hat(i + 1); refresh())
+					hat_buttons.append(button)
 			row.add_child(button)
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -264,13 +272,27 @@ func _build() -> void:
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(left)
-	left.add_child(_label("CONTRACTS", 20, Color(1, 1, 1, 0.8)))
+	var map_button := _button()
+	map_button.text = tr("WORLD MAP: choose a route  ★ %d") % Session.total_stars()
+	map_button.custom_minimum_size = Vector2(0, 48)
+	map_button.add_theme_font_size_override("font_size", 20)
+	map_button.pressed.connect(func(): UI.go(WORLD_MAP_SCENE))
+	left.add_child(map_button)
+	left.add_child(_label("CONTRACTS", 16, Color(1, 1, 1, 0.8)))
+	var list_scroll := ScrollContainer.new()
+	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	left.add_child(list_scroll)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_scroll.add_child(list)
 	var contracts := ContractLibrary.all_contracts()
 	for i in contracts.size():
 		var button := _button()
+		button.add_theme_font_size_override("font_size", 13)
 		button.pressed.connect(start_contract.bind(i))
 		button.focus_entered.connect(func(): _details.text = tr(contracts[i].blurb))
-		left.add_child(button)
+		list.add_child(button)
 		contract_buttons.append(button)
 	_details = _label("", 15, Color(1, 1, 1, 0.75))
 	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

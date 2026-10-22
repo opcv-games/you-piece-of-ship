@@ -97,7 +97,7 @@ func _fill() -> void:
 		var stamp := "%d:%02d" % [int(entry.time) / 60, int(entry.time) % 60]
 		var color := BAD if entry.kind == "bad" else (GOOD if entry.kind == "good" else Color.WHITE)
 		_story.add_child(_line(stamp, _translate(entry), color))
-	_footer.text = tr("Enter / A: back to the dock     R / Start: sail again     J: change crew")
+	_footer.text = tr("Enter / A: world map     R / Start: sail again     J: change crew")
 
 
 func _translate(entry: Dictionary) -> String:
