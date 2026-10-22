@@ -4,6 +4,7 @@ extends Node3D
 ## runs the clock.
 
 signal port_reached
+signal hint_shown(text: String)
 signal voyage_over(delivered: bool)
 
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
@@ -20,6 +21,7 @@ var finished := false
 var delivered := false
 var elapsed := 0.0
 var _crash_flash := 0.0
+var net_puppet := false ## online client: the host runs the game, this copy only shows it
 var _next_event := 0
 var _hint_left := 0.0
 
@@ -48,6 +50,8 @@ func _ready() -> void:
 	_banner.visible = false
 	_spawn_foam()
 	$HUD/CrewJoin.crew_ready.connect(_on_crew_ready)
+	if Net.role != "offline":
+		$NetSync.setup(Net.role, Net.my_index, Net.peers)
 	if not Session.joined_players.is_empty():
 		_apply_crew(Session.joined_players) # restart: same crew, straight back to sea
 	elif get_tree().current_scene == self:
@@ -84,19 +88,21 @@ func _physics_process(delta: float) -> void:
 	if _crash_flash > 0.0:
 		_crash_flash -= delta
 		_banner.visible = _crash_flash > 0.0
-	$HazardDirector.set_physics_process(started and not finished)
-	if not started:
-		_handling.throttle = 0.0 # moored until the crew sets sail
 	if _hint_left > 0.0:
 		_hint_left -= delta
 		$HUD/Hint.visible = _hint_left > 0.0
+	_status.text = "%s    Time %s / %s" % [contract.title, _clock(elapsed), _clock(contract.deadline)]
+	_status.modulate = Color(1, 0.35, 0.3) if elapsed > contract.deadline else Color.WHITE
+	if net_puppet:
+		return # online client: the host's snapshots move everything
+	$HazardDirector.set_physics_process(started and not finished)
+	if not started:
+		_handling.throttle = 0.0 # moored until the crew sets sail
 	if started and not finished:
 		_run_events()
 		elapsed += delta
 		if _ship.global_position.x >= finish_x:
 			_finish()
-	_status.text = "%s    Time %s / %s" % [contract.title, _clock(elapsed), _clock(contract.deadline)]
-	_status.modulate = Color(1, 0.35, 0.3) if elapsed > contract.deadline else Color.WHITE
 
 
 static func _clock(seconds: float) -> String:
@@ -106,10 +112,18 @@ static func _clock(seconds: float) -> String:
 func _unhandled_input(event: InputEvent) -> void:
 	var restart: bool = (event is InputEventKey and event.pressed and event.physical_keycode == KEY_R) \
 			or (event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START)
+	if Net.role == "client":
+		return # online: the host decides when to sail again or go back to the dock
 	if restart:
-		get_tree().reload_current_scene()
+		if Net.role == "host":
+			Net.start_voyage(Session.contract_index)
+		else:
+			get_tree().reload_current_scene()
 	if finished and event.is_action_pressed("ui_accept"):
-		get_tree().change_scene_to_file(DOCK_SCENE) # back to the dock: spend, pick the next contract
+		if Net.role == "host":
+			Net.back_to_dock()
+		else:
+			get_tree().change_scene_to_file(DOCK_SCENE) # back to the dock: spend, pick the next contract
 	var change_crew: bool = finished and event is InputEventKey and event.pressed and event.physical_keycode == KEY_J
 	if change_crew:
 		Session.joined_players.clear()
@@ -135,6 +149,7 @@ func _run_events() -> void:
 
 
 func show_hint(text: String, seconds := 7.0) -> void:
+	hint_shown.emit(text)
 	$HUD/Hint.text = text
 	$HUD/Hint.visible = true
 	_hint_left = seconds

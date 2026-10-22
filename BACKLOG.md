@@ -9,7 +9,6 @@
 ## Next (likely, not committed)
 
 ## Later (deliberately vague)
-- Online play
 - Art, sound, juice
 
 ## Parked (good ideas that are out of scope until the core loop is proven)
@@ -18,6 +17,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #14 Online multiplayer, host-authoritative, lobby on the dock (2026-10-22, built and checked on one Mac over localhost; not yet tested between two computers)
 - #13 Dock: contract choice, upgrade shop with four trade-off upgrades, saved progress, voyage-to-voyage loop (2026-10-22, built, not yet player-tested)
 - #12 Fog and the bow telescope (2026-10-22, built, not yet player-tested)
 - #11 Four hand-made contracts with the Maiden voyage tutorial (2026-10-22, built, not yet player-tested)
@@ -41,3 +41,5 @@
 - The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?
 - Upgrade prices (300-500 coins) and pay (60-160 per crate) are first guesses. After a full 4-contract session, do you want to buy all four by the end, or only two?
 - Simulated crews (perfect navigator, venting engineer, pumper, but nobody repairing) finished the Maiden Voyage in 4:05, the Reef Run in 4:53 and the Fog Bank in 5:42, and sank in The Narrows near the end. Is The Narrows the right kind of hard once real crews repair things?
+- Online play has only been checked on one Mac (localhost). The first test between two computers on your Wi-Fi may need macOS to allow incoming connections for Godot. Do you want to try it with a friend?
+- Online clients don't earn coins in their own save; the host's save holds the crew's progress. OK?

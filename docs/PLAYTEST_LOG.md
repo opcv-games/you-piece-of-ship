@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Online multiplayer  (#14)
+Hypothesis: If remote friends can join a crew with an address and their own keyboard, then groups that can't share a couch still get the callout chaos, increasing Social interaction.
+Variable: snapshot rate 20 per second
+Sessions: 0 players; technical check on one Mac over localhost passed (tests/net/)
+Observed: pending
+Biggest weakness: pending (latency between real computers untested)
+Decision: merged to main; couch play unchanged
+
 ## 2026-10-22 — Dock and upgrade shop  (#13)
 Hypothesis: If every upgrade has a visible catch, then crews will argue at the dock about what to buy and the next voyage will feel different, increasing Social interaction without reducing Comedy.
 Variable: prices 300-500 coins
