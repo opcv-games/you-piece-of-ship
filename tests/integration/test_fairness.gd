@@ -2,6 +2,7 @@ extends GutTest
 ## features/fairness.feature
 
 const LevelScene = preload("res://scenes/levels/voyage.tscn")
+const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 
 var _level: Node3D
 var _ship: Node3D
@@ -10,6 +11,7 @@ var _director: Node
 
 func before_each() -> void:
 	_level = LevelScene.instantiate()
+	_level.contract = ContractLibrary.reef_run()
 	add_child_autofree(_level)
 	_ship = _level.get_node("Ship")
 	_director = _level.get_node("HazardDirector")

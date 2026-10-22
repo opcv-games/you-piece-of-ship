@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/components/rudder_system.gd" id="13_rudder"]
 [ext_resource type="Script" path="res://scripts/components/load_system.gd" id="14_load"]
 [ext_resource type="Script" path="res://scripts/components/overboard_rail.gd" id="15_rail"]
+[ext_resource type="Script" path="res://scripts/components/telescope_station.gd" id="16_telescope"]
 
 [sub_resource type="StandardMaterial3D" id="mat_hull"]
 albedo_color = Color(0.42, 0.31, 0.23, 1)
@@ -143,6 +144,12 @@ size = Vector3(0.16, 0.16, 0.16)
 [sub_resource type="Curve" id="curve_grow"]
 _data = [Vector2(0, 0.4), 0.0, 0.0, 0, 0, Vector2(1, 1.6), 0.0, 0.0, 0, 0]
 point_count = 2
+
+[sub_resource type="CylinderMesh" id="mesh_telescope"]
+material = SubResource("mat_bow")
+top_radius = 0.12
+bottom_radius = 0.18
+height = 1.2
 
 [node name="Ship" type="AnimatableBody3D"]
 sync_to_physics = false
@@ -480,3 +487,26 @@ script = ExtResource("14_load")
 
 [node name="OverboardRail" type="Node" parent="."]
 script = ExtResource("15_rail")
+
+[node name="Telescope" type="Node3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.3, 0, 0)
+script = ExtResource("16_telescope")
+station_name = "TELESCOPE"
+prompt = "Use: spot rocks in the fog"
+
+[node name="Post" type="MeshInstance3D" parent="Telescope"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.5, 0)
+mesh = SubResource("mesh_post")
+
+[node name="Tube" type="MeshInstance3D" parent="Telescope"]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0.6, 1.2, 0)
+mesh = SubResource("mesh_telescope")
+
+[node name="Label" type="Label3D" parent="Telescope"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+billboard = 1
+no_depth_test = true
+font_size = 56
+outline_size = 12
+text = "TELESCOPE"

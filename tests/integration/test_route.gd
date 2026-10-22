@@ -9,6 +9,7 @@ var _level: Node3D
 
 func before_each() -> void:
 	_level = LevelScene.instantiate()
+	_level.contract = ContractLibrary.reef_run()
 	add_child_autofree(_level)
 	for player in _level.get_tree().get_nodes_in_group("crew"):
 		player.get_node("PlayerInput").enabled = false

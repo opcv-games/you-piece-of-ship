@@ -18,6 +18,8 @@ var finished := false
 var delivered := false
 var elapsed := 0.0
 var _crash_flash := 0.0
+var _next_event := 0
+var _hint_left := 0.0
 
 @onready var _ship: Node3D = $Ship
 @onready var _handling: Node = $Ship/ShipHandling
@@ -34,6 +36,10 @@ func _ready() -> void:
 	$HUD/MapChart.port_x = finish_x
 	$Music.finish_x = finish_x
 	$HazardDirector.setup(contract.waves)
+	$HUD/MapChart.range_metres = contract.chart_range
+	_apply_fog(contract.fog)
+	if contract.tutorial:
+		$Ship/HullSystem.sink_grace_seconds = INF # the Maiden voyage can't be lost
 	_handling.rock_hit.connect(_on_rock_hit)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
@@ -78,7 +84,11 @@ func _physics_process(delta: float) -> void:
 	$HazardDirector.set_physics_process(started and not finished)
 	if not started:
 		_handling.throttle = 0.0 # moored until the crew sets sail
+	if _hint_left > 0.0:
+		_hint_left -= delta
+		$HUD/Hint.visible = _hint_left > 0.0
 	if started and not finished:
+		_run_events()
 		elapsed += delta
 		if _ship.global_position.x >= finish_x:
 			_finish()
@@ -99,6 +109,45 @@ func _unhandled_input(event: InputEvent) -> void:
 	if change_crew:
 		Session.joined_players.clear()
 		get_tree().reload_current_scene()
+
+
+# --- Contract events and fog --------------------------------------------------------
+
+func _run_events() -> void:
+	while _next_event < contract.events.size() and _ship.global_position.x >= contract.events[_next_event][0]:
+		var event: Array = contract.events[_next_event]
+		_next_event += 1
+		match event[1]:
+			"leak":
+				$Ship/HullSystem.add_breach(Vector3(randf_range(-4.0, 6.0), 0.0, 3.0 * (1.0 if randf() < 0.5 else -1.0)))
+			"rudder":
+				$Ship/RudderSystem.try_damage(1.0)
+			"heat":
+				var engine := $Ship/EngineSystem
+				engine.heat = maxf(engine.heat, 0.85)
+		if event.size() > 2 and event[2] != "":
+			show_hint(event[2])
+
+
+func show_hint(text: String, seconds := 7.0) -> void:
+	$HUD/Hint.text = text
+	$HUD/Hint.visible = true
+	_hint_left = seconds
+
+
+func _apply_fog(on: bool) -> void:
+	var telescope := $Ship/Telescope
+	telescope.enabled = on
+	telescope.visible = on
+	var environment: Environment = $WorldEnvironment.environment
+	environment.fog_enabled = on
+	if on:
+		# Light enough that the deck (about 30 m from the camera) stays readable; the sea beyond fades.
+		environment.fog_light_color = Color(0.72, 0.75, 0.78)
+		environment.fog_density = 0.016
+		environment.background_color = Color(0.72, 0.75, 0.78)
+	else:
+		environment.background_color = Color(0.62, 0.8, 0.93)
 
 
 # --- Route ---------------------------------------------------------------------

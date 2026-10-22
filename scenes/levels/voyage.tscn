@@ -16,6 +16,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/music/drunken_sailor_loop.wav" id="9_shanty"]
 
 [sub_resource type="Environment" id="env"]
+resource_local_to_scene = true
 background_mode = 1
 background_color = Color(0.62, 0.8, 0.93, 1)
 ambient_light_source = 2
@@ -125,6 +126,25 @@ mouse_filter = 2
 script = ExtResource("10_gauge")
 station = NodePath("../../Ship/Engine")
 engine = NodePath("../../Ship/EngineSystem")
+
+[node name="Hint" type="Label" parent="HUD"]
+visible = false
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -560.0
+offset_top = -110.0
+offset_right = 160.0
+offset_bottom = -20.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.1, 0.2, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = ""
 
 [node name="Banner" type="Label" parent="HUD"]
 anchor_left = 0.5

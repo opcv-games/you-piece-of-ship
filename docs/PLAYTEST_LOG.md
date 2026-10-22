@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Contracts, tutorial, fog and telescope  (#11, #12)
+Hypothesis: If the first contract teaches each system by doing and the last one blinds the chart, then new crews learn without a manual and the fog run forces a new split of roles, increasing Social interaction.
+Variable: fog chart range 30 m; telescope range 90 m
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main
+
 ## 2026-10-22 — Results and recap  (#10)
 Hypothesis: If the results screen replays the chain of accidents with timestamps, then players will laugh about who caused what and immediately press R, increasing Comedy and replay desire.
 Variable: recap length 12 lines
