@@ -64,3 +64,12 @@ func test_given_rock_to_the_side_when_sailing_past_then_no_hit() -> void:
 	_sail(8.0)
 	assert_signal_not_emitted(_handling, "rock_hit")
 	assert_false(rock.revealed)
+
+
+func test_given_rock_dead_ahead_when_hit_then_ship_glances_off_and_gets_past() -> void:
+	var rock: Node3D = RockScene.instantiate()
+	rock.position = Vector3(25, 0, 0.3)
+	add_child_autofree(rock)
+	_handling.throttle = 1.0
+	_sail(40.0)
+	assert_gt(_ship.position.x, 30.0, "a straight course doesn't stay stuck on the rock")

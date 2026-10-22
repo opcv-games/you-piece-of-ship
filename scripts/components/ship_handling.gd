@@ -3,6 +3,7 @@ extends Node
 ## along the sea (yaw and travel only; WaveMotion owns roll, pitch and heave).
 ## Only the crew member at the helm can drive it: the captain's job (Social, Thrill of danger).
 
+signal impact(rock: Node3D) ## emitted first, so the voyage log tells cause before effect
 signal rock_hit(rock: Node3D)
 
 @export var helm: Node3D ## the station the captain uses
@@ -15,6 +16,8 @@ signal rock_hit(rock: Node3D)
 @export var hull_half_width := 3.5
 @export var impact_pushback := 2.5 ## metres the ship bounces back off a rock
 @export var impact_cooldown := 1.5 ## seconds before the next rock can hit
+@export var impact_sidestep := 1.5 ## metres the ship is shoved sideways, away from the rock
+@export var deflect_degrees := 10.0 ## the bow glances away from the rock, so a straight course doesn't stick
 
 var speed_limits := {} ## system name -> top speed factor (water, heat...), multiplied together
 var turn_limits := {} ## system name -> turning factor
@@ -103,7 +106,14 @@ func _check_rocks() -> void:
 func _hit(rock: Node3D) -> void:
 	impact_speed = speed
 	speed = 0.0
-	_ship.position -= forward() * impact_pushback
+	# Glance off: back away, step sideways away from the rock and turn the bow away from it.
+	var fwd := forward()
+	var right := Vector3(-fwd.z, 0.0, fwd.x) # starboard
+	var across := (rock.global_position - _ship.global_position).dot(right)
+	var away := -1.0 if across >= 0.0 else 1.0 # +1 = toward starboard
+	_ship.position += -fwd * impact_pushback + right * away * impact_sidestep
+	_ship.rotation.y -= deg_to_rad(deflect_degrees) * away # positive yaw turns the bow to port
 	_cooldown = impact_cooldown
 	rock.reveal()
+	impact.emit(rock)
 	rock_hit.emit(rock)

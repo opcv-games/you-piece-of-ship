@@ -13,6 +13,7 @@ const RockScene = preload("res://scenes/greybox/rock.tscn")
 
 var finish_x := 1300.0
 var hits := 0
+var started := false ## the clock runs once the crew has set sail
 var finished := false
 var delivered := false
 var elapsed := 0.0
@@ -37,6 +38,35 @@ func _ready() -> void:
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
 	_spawn_foam()
+	$HUD/CrewJoin.crew_ready.connect(_on_crew_ready)
+	if not Session.joined_players.is_empty():
+		_apply_crew(Session.joined_players) # restart: same crew, straight back to sea
+	elif get_tree().current_scene == self:
+		$HUD/CrewJoin.visible = true # first launch: choose the crew
+	else:
+		_start() # running inside tests: everyone aboard
+
+
+func _start() -> void:
+	started = true
+	$HUD/CrewJoin.visible = false
+
+
+func _on_crew_ready(players: Array[int]) -> void:
+	Session.joined_players = players
+	_apply_crew(players)
+
+
+## Takes anyone who didn't join off the ship; small crews get a slow automatic pump.
+func _apply_crew(players: Array[int]) -> void:
+	for player in get_tree().get_nodes_in_group("crew"):
+		if not players.has(player.player_index):
+			player.remove_from_group("crew")
+			player.remove_from_group("camera_focus")
+			player.queue_free()
+	var hull := $Ship/HullSystem
+	hull.auto_pump_rate = hull.pump_rate * 0.3 if players.size() <= 3 else 0.0
+	_start()
 
 
 func _physics_process(delta: float) -> void:
@@ -45,7 +75,10 @@ func _physics_process(delta: float) -> void:
 	if _crash_flash > 0.0:
 		_crash_flash -= delta
 		_banner.visible = _crash_flash > 0.0
-	if not finished:
+	$HazardDirector.set_physics_process(started and not finished)
+	if not started:
+		_handling.throttle = 0.0 # moored until the crew sets sail
+	if started and not finished:
 		elapsed += delta
 		if _ship.global_position.x >= finish_x:
 			_finish()
@@ -61,6 +94,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	var restart: bool = (event is InputEventKey and event.pressed and event.physical_keycode == KEY_R) \
 			or (event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START)
 	if restart:
+		get_tree().reload_current_scene()
+	var change_crew: bool = finished and event is InputEventKey and event.pressed and event.physical_keycode == KEY_J
+	if change_crew:
+		Session.joined_players.clear()
 		get_tree().reload_current_scene()
 
 
@@ -138,8 +175,8 @@ func _on_sunk() -> void:
 	finished = true
 	_crash_flash = 0.0
 	_handling.throttle = 0.0
-	_banner.text = "SHIP SUNK after %s!\nPress R (or Start) to try again" % _clock(elapsed)
-	_banner.visible = true
+	_banner.visible = false
+	_show_results()
 	voyage_over.emit(false)
 
 
@@ -148,10 +185,29 @@ func _finish() -> void:
 	delivered = true
 	_crash_flash = 0.0
 	_handling.throttle = 0.0
-	_banner.text = "PORT REACHED in %s!\nPress R (or Start) to sail again" % _clock(elapsed)
-	_banner.visible = true
+	_banner.visible = false
+	_show_results()
 	port_reached.emit()
 	voyage_over.emit(true)
+
+
+func _show_results() -> void:
+	var cargo := $Ship/LoadSystem
+	var water: float = $Ship/HullSystem.water
+	var results := $HUD/Results
+	var outcome := {
+		"delivered": delivered,
+		"contract": contract.title,
+		"time_text": _clock(elapsed),
+		"deadline_text": _clock(contract.deadline),
+		"on_time": elapsed <= contract.deadline,
+		"crates": cargo.crates().size(),
+		"crates_loaded": maxi(cargo._loaded_crates, cargo.crates().size()),
+		"water": water,
+		"progress": clampf(_ship.global_position.x / finish_x, 0.0, 1.0),
+		"score": results.score(delivered, cargo.cargo_value(), water, elapsed, contract.deadline),
+	}
+	results.show_results(outcome, $VoyageLog.recap())
 
 
 func _spawn_foam() -> void:

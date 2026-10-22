@@ -10,6 +10,9 @@
 [ext_resource type="Script" path="res://scripts/components/music.gd" id="8_music"]
 [ext_resource type="Script" path="res://scripts/components/engine_gauge.gd" id="10_gauge"]
 [ext_resource type="Script" path="res://scripts/systems/hazard_director.gd" id="11_director"]
+[ext_resource type="Script" path="res://scripts/systems/voyage_log.gd" id="12_log"]
+[ext_resource type="Script" path="res://scripts/ui/results_screen.gd" id="13_results"]
+[ext_resource type="Script" path="res://scripts/ui/crew_join.gd" id="14_join"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/drunken_sailor_loop.wav" id="9_shanty"]
 
 [sub_resource type="Environment" id="env"]
@@ -155,3 +158,21 @@ ship = NodePath("../Ship")
 [node name="HazardDirector" type="Node" parent="." node_paths=PackedStringArray("ship")]
 script = ExtResource("11_director")
 ship = NodePath("../Ship")
+
+[node name="VoyageLog" type="Node" parent="." node_paths=PackedStringArray("ship")]
+script = ExtResource("12_log")
+ship = NodePath("../Ship")
+
+[node name="Results" type="Control" parent="HUD"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("13_results")
+
+[node name="CrewJoin" type="Control" parent="HUD"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14_join")
