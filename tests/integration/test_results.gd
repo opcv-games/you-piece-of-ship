@@ -2,6 +2,7 @@ extends GutTest
 ## features/results.feature
 
 const LevelScene = preload("res://scenes/levels/voyage.tscn")
+const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const RockScene = preload("res://scenes/greybox/rock.tscn")
 const ResultsScreen = preload("res://scripts/ui/results_screen.gd")
 
@@ -10,6 +11,7 @@ var _level: Node3D
 
 func _load_level() -> void:
 	_level = LevelScene.instantiate()
+	_level.contract = ContractLibrary.reef_run()
 	add_child_autofree(_level)
 	for player in _level.get_tree().get_nodes_in_group("crew"):
 		player.get_node("PlayerInput").enabled = false

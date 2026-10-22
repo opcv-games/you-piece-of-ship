@@ -1,7 +1,47 @@
 extends RefCounted
-## All hand-made contracts. Milestone A uses the Reef Run; Milestone B adds the others.
+## All hand-made contracts, in the order they unlock (DESIGN.md section 7: four contracts of
+## rising intensity; the last one in fog).
 
 const Contract = preload("res://scripts/contracts/contract.gd")
+
+
+static func all_contracts() -> Array:
+	return [maiden_voyage(), reef_run(), the_narrows(), fog_bank()]
+
+
+static func by_index(index: int) -> Resource:
+	var all := all_contracts()
+	return all[clampi(index, 0, all.size() - 1)]
+
+
+## Contract 1 (DESIGN.md section 8): teaches by doing and cannot be lost.
+static func maiden_voyage() -> Resource:
+	var contract := Contract.new()
+	contract.title = "Maiden Voyage"
+	contract.blurb = "A short hop with spare sails. Learn the ropes; nobody sinks today."
+	contract.length = 1100.0
+	contract.deadline = 420.0
+	contract.tutorial = true
+	contract.difficulty = 1
+	contract.pay_per_crate = 60
+	# Buoy lane at 0:45: small hidden markers only the map table shows.
+	contract.rock_rows = [
+		[190, [-9, 9], 1.5], [215, [-9, 9], 1.5], [240, [-6, 12], 1.5], [265, [-3, 15], 1.5],
+		[290, [0, 18], 1.5], [315, [-3, 15], 1.5],
+		[930, [6], 2.5],
+	]
+	contract.waves = [[700, 1]]
+	contract.events = [
+		[0, "hint", "Welcome aboard! Walk to a station and press Use. Captain: HELM, hold UP for throttle."],
+		[120, "hint", "Buoys ahead! Navigator: stand at the MAP TABLE and call where they are."],
+		[360, "leak", "A wave cracked the hull! Fetch a PLANK, put it on the LEAK, hammer it. Someone: PUMP!"],
+		[520, "heat", "Headwind! The engine runs hot. Engineer: at the ENGINE, Jump vents steam (stand clear!)."],
+		[680, "hint", "Big wave coming: grab a station so you don't fall over!"],
+		[880, "rudder", "Rudder trouble! Bring the PIN to the HELM. Two problems at once: split up!"],
+		[880, "leak", ""],
+		[1040, "hint", "Port ahead! Steer between the yellow buoys."],
+	]
+	return contract
 
 
 static func reef_run() -> Resource:
@@ -10,6 +50,7 @@ static func reef_run() -> Resource:
 	contract.blurb = "Six crates of tinned sardines through the Gull Reef. Five minutes, if nothing breaks."
 	contract.length = 1300.0
 	contract.deadline = 330.0
+	contract.difficulty = 2
 	# Pacing (DESIGN.md section 7): calm departure, first complication, calm, overlap, peak, port.
 	contract.rock_rows = [
 		[220, [0]],
@@ -34,10 +75,45 @@ static func reef_run() -> Resource:
 	return contract
 
 
-static func by_index(index: int) -> Resource:
-	var all := all_contracts()
-	return all[clampi(index, 0, all.size() - 1)]
+static func the_narrows() -> Resource:
+	var contract := Contract.new()
+	contract.title = "The Narrows"
+	contract.blurb = "Fragile glassware through a channel barely wider than the ship. Mind the walls."
+	contract.length = 1400.0
+	contract.deadline = 345.0
+	contract.coast_half_width = 26.0
+	contract.difficulty = 3
+	contract.pay_per_crate = 130
+	contract.rock_rows = [
+		[200, [-8]], [250, [8]], [300, [-12, 6]], [350, [12, -4]], [400, [0]],
+		[470, [-14, 10]], [560, [6]], [610, [-8, 16]], [660, [2, -18]], [710, [-6, 12]],
+		[760, [16, -10]], [810, [0]], [900, [-14, 8]], [960, [12, -6]], [1010, [-2, 18]],
+		[1060, [-16, 6]], [1110, [10, -10]], [1160, [0, 18]], [1210, [-12, 8]], [1260, [14, -4]],
+		[1320, [-6, 10]],
+	]
+	contract.waves = [[330, -1], [640, 1], [980, -1], [1240, 1]]
+	return contract
 
 
-static func all_contracts() -> Array:
-	return [reef_run()]
+static func fog_bank() -> Resource:
+	var contract := Contract.new()
+	contract.title = "Fog Bank"
+	contract.blurb = "Medicine for the lighthouse keeper. The fog is so thick the chart can't help much: use the telescope."
+	contract.length = 1400.0
+	contract.deadline = 390.0
+	contract.coast_half_width = 40.0
+	contract.fog = true
+	contract.chart_range = 30.0
+	contract.difficulty = 4
+	contract.pay_per_crate = 160
+	contract.rock_rows = [
+		[220, [0, -20]], [290, [14, -10]], [360, [-4, 22]], [430, [10, -24]],
+		[520, [-14, 4]], [590, [18, -6]], [660, [-20, 8]], [720, [0, 26]],
+		[800, [-10, 14]], [870, [6, -18]], [940, [-24, 2, 22]], [1010, [12, -8]],
+		[1080, [-4, 20]], [1150, [16, -14]], [1220, [-8, 6]], [1290, [2, -22, 20]],
+	]
+	contract.waves = [[480, 1], [900, -1], [1200, 1]]
+	contract.events = [
+		[0, "hint", "Thick fog: the chart only sees 30 m. Navigator: the TELESCOPE at the bow spots rocks further ahead."],
+	]
+	return contract

@@ -10,7 +10,6 @@
 
 ## Later (deliberately vague)
 - Contracts and the upgrade shop
-- Fog and the telescope
 - Online play
 - Art, sound, juice
 
@@ -20,6 +19,8 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #12 Fog and the bow telescope (2026-10-22, built, not yet player-tested)
+- #11 Four hand-made contracts with the Maiden voyage tutorial (2026-10-22, built, not yet player-tested)
 - #10 Results screen with event recap, quick restart, crew join, 3-player auto pump (2026-10-22, built, not yet player-tested)
 - #8 Hazard director and fairness rules: wave timing with calm windows, two-failure cap, all failures warn 5 s, sinking grace (2026-10-22, built, not yet player-tested)
 - #9 One 5-minute route (Reef Run): contract-built rocks, cliffs, port and dock, deadline clock, chart port arrow (2026-10-22, built, not yet player-tested)

@@ -12,5 +12,10 @@ extends Resource
 ## Big waves: each entry is [x, side] (side +1 starboard, -1 port).
 @export var waves: Array = []
 @export var fog := false
+@export var chart_range := 70.0 ## metres the map table can show (fog makes the chart unreliable)
+## Scripted moments (the Maiden voyage's lessons): each entry is [x, type, text].
+## Types: "hint" (show text), "leak", "rudder", "heat" (each also shows its text, if any).
+@export var events: Array = []
 @export var pay_per_crate := 100
 @export var tutorial := false ## the Maiden voyage: can't be lost, teaches by doing
+@export var difficulty := 1 ## 1..4, shown on the dock

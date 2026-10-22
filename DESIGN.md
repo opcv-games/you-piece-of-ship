@@ -156,6 +156,8 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Crew screen on first launch: press Jump to join, Use to set sail; R restarts with the same crew in seconds; J changes crew; 3 or fewer players get a slow automatic pump (30% of the pump) | Quick restart under 10 s; 3-player rule of section 12 | #10 |
 | 2026-10-22 | Rocks deflect the ship (back off, sidestep, bow turns 10 degrees away); scraping along the coast or re-bumping a rock within 8 s is one accident | A simulated full voyage showed straight-ahead crashes trapping the ship against a rock until it sank | #10 |
 | 2026-10-22 | Reef Run deadline stays 5:30: a simulated crew at 80% throttle venting at 90% heat arrives in about 4:53; full throttle stalls repeatedly | Simulation calibration; real crews will be slower, check in the first playtest | #10 |
+| 2026-10-22 | Four contracts unlock in order: Maiden Voyage (tutorial, can't sink, scripted lessons with on-screen hints), Reef Run, The Narrows (26 m channel, 4 waves), Fog Bank (fog, 30 m chart, telescope); pay per crate 60/100/130/160 | Section 7 (four contracts of rising intensity, last in fog) and section 8 (Maiden voyage teaches by doing) | #11 |
+| 2026-10-22 | Fog: light haze over the sea, chart shrinks to 30 m; a bow telescope (only in fog) marks rocks up to 90 m ahead in a 35-degree cone with red markers everyone sees for 5 s; it is a separate station from the map table | Fog hides hazards from the helm; the navigator must choose between map and telescope (section 12) | #12 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.
