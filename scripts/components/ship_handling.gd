@@ -16,6 +16,7 @@ signal rock_hit(rock: Node3D)
 @export var sail_speed := 0.0 ## the sail always pushes this fast (m/s), engine or not; set when the voyage starts
 @export var hull_half_length := 9.0
 @export var hull_half_width := 3.5
+@export var hull_centre_x := 0.0 ## the hull's middle along the ship (the painted bow reaches further forward)
 @export var impact_pushback := 2.5 ## metres the ship bounces back off a rock
 @export var impact_cooldown := 1.5 ## seconds before the next rock can hit
 @export var impact_sidestep := 1.5 ## metres the ship is shoved sideways, away from the rock
@@ -27,6 +28,7 @@ var rudder_offset := 0.0 ## a broken rudder pulls the wheel this way (-1..1)
 var impact_speed := 0.0 ## speed just before the last rock hit
 var throttle := 0.0 ## -max_reverse..1 (negative = astern)
 var rudder := 0.0 ## -1 = full starboard (right), +1 = full port (left)
+var lures := {} ## sirens pulling the wheel: id -> pull (-1..1), added to the rudder
 var speed := 0.0
 
 var _ship: Node3D
@@ -92,7 +94,10 @@ func step(delta: float) -> void:
 	if absf(speed) > 0.05:
 		# Turning needs water flowing past the rudder; going astern turns the other way.
 		var turn_factor_now := signf(speed) * maxf(absf(speed) / max_speed, min_turn_factor) * turn_factor()
-		var wheel := clampf(rudder + rudder_offset, -1.0, 1.0)
+		var pull := 0.0
+		for amount in lures.values():
+			pull += amount
+		var wheel := clampf(rudder + rudder_offset + pull, -1.0, 1.0)
 		_ship.rotation.y += deg_to_rad(turn_rate_degrees) * wheel * turn_factor_now * delta
 	_ship.position += forward() * speed * delta
 	_cooldown = maxf(0.0, _cooldown - delta)
@@ -104,8 +109,10 @@ func _check_rocks() -> void:
 	var fwd := forward()
 	var right := Vector3(-fwd.z, 0.0, fwd.x)
 	for rock in get_tree().get_nodes_in_group("rocks"):
+		if rock.has_method("is_solid") and not rock.is_solid():
+			continue # a diving whale passes under the keel
 		var offset: Vector3 = rock.global_position - _ship.global_position
-		var along := offset.dot(fwd)
+		var along := offset.dot(fwd) - hull_centre_x
 		var across := offset.dot(right)
 		# Closest point of the (rectangular) hull to the rock, in the ship's flat frame.
 		var closest := Vector2(clampf(along, -hull_half_length, hull_half_length),

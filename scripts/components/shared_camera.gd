@@ -6,6 +6,7 @@ extends Camera3D
 @export var target_group := "camera_focus" ## crew members and the ship's corner markers
 @export_range(20.0, 85.0) var view_pitch_degrees := 55.0 ## how steeply we look down
 @export var margin := 2.5 ## metres of room around the outermost point
+@export var look_ahead := 14.0 ## metres of sea kept in view beyond the bow, to see what's coming
 @export_range(0.0, 0.5) var reserve_right := 0.0 ## share of the screen kept free on the right for the HUD (map chart)
 @export var min_distance := 12.0
 @export var max_distance := 45.0
@@ -42,9 +43,16 @@ func _frame(weight: float) -> void:
 		return
 	var lowest := Vector3.INF
 	var highest := -Vector3.INF
+	var points: Array[Vector3] = []
 	for target in targets:
-		lowest = lowest.min(target.global_position)
-		highest = highest.max(target.global_position)
+		points.append(target.global_position)
+	var ship := get_tree().get_first_node_in_group("player_ship") as Node3D
+	if ship and look_ahead > 0.0:
+		var bow := ship.global_position + ship.global_basis.x * (14.5 + look_ahead)
+		points.append(Vector3(bow.x, 0.0, bow.z))
+	for point in points:
+		lowest = lowest.min(point)
+		highest = highest.max(point)
 	var center := (lowest + highest) * 0.5
 	var half_width := (highest.x - lowest.x) * 0.5 + margin
 	var pitch := deg_to_rad(view_pitch_degrees)

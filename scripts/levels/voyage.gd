@@ -11,9 +11,11 @@ const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const RockScene = preload("res://scenes/greybox/rock.tscn")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
 const AICrew = preload("res://scripts/ai/ai_crew.gd")
+const Toon = preload("res://scripts/systems/toon.gd")
 const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const PauseMenu = preload("res://scripts/ui/pause_menu.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
+const OBSTACLE_RADIUS := {"wreck": 4.0, "whale": 3.5, "siren": 2.5, "atoll": 12.0, "rock": 3.5}
 
 @export var contract: Resource ## leave empty to use the session's chosen contract
 
@@ -57,13 +59,20 @@ func _ready() -> void:
 	engine.fuel_low.connect(func(): show_hint(tr("Coal low! Fill a shovel at the COAL pile (back corner) and press Use at the ENGINE.")))
 	engine.out_of_fuel.connect(func(): show_hint(tr("Out of coal: only the sail is pushing. Shovel coal from the pile into the ENGINE!")))
 	_handling.rock_hit.connect(_on_rock_hit)
+	$Ship/WaveMotion.wave_warning.connect(_on_wave_warning)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	pause.voyage = self
 	add_child(pause)
-	_spawn_foam()
+	_setup_sky()
+	var pill := StyleBoxFlat.new()
+	pill.bg_color = Color(0.09, 0.15, 0.27, 0.85)
+	pill.set_corner_radius_all(18)
+	pill.content_margin_left = 18
+	pill.content_margin_right = 18
+	_status.add_theme_stylebox_override("normal", pill)
 	$HUD/CrewJoin.crew_ready.connect(_on_crew_ready)
 	if Net.role != "offline":
 		$NetSync.setup(Net.role, Net.my_index, Net.peers)
@@ -123,8 +132,6 @@ func add_ai(index: int, primary: String, secondary := "") -> Node:
 
 
 func _physics_process(delta: float) -> void:
-	# Keep the (plain) sea under the ship; the foam flecks stay put and show the speed.
-	_water.global_position = Vector3(_ship.global_position.x, 0.0, _ship.global_position.z)
 	if _crash_flash > 0.0:
 		_crash_flash -= delta
 		_banner.visible = _crash_flash > 0.0
@@ -135,7 +142,7 @@ func _physics_process(delta: float) -> void:
 	var help: Label = $HUD/Controls
 	help.modulate.a = move_toward(help.modulate.a, 1.0 if _show_help or elapsed < 30.0 else 0.0, delta * 2.0)
 	_status.text = tr("%s    Time %s / %s") % [tr(contract.title), _clock(elapsed), _clock(contract.deadline)]
-	_status.modulate = Color(1, 0.35, 0.3) if elapsed > contract.deadline else Color.WHITE
+	_status.add_theme_color_override("font_color", Color(1, 0.5, 0.45) if elapsed > contract.deadline else Color(1, 0.96, 0.86))
 	if net_puppet:
 		return # online client: the host's snapshots move everything
 	$HazardDirector.set_physics_process(started and not finished)
@@ -264,6 +271,8 @@ func dev_event(event: String) -> bool:
 			Session.save_game()
 		"god_mode":
 			god_mode = not god_mode
+		"spawn_rock", "spawn_wreck", "spawn_whale", "spawn_siren", "spawn_atoll":
+			_spawn_ahead(event.trim_prefix("spawn_"))
 		_:
 			return false
 	return true
@@ -309,6 +318,35 @@ func _apply_fog(on: bool) -> void:
 		environment.background_color = Color(0.62, 0.8, 0.93)
 
 
+## A soft pastel sky, warm sunlight, a little glow on bright things (lanterns, glints).
+func _setup_sky() -> void:
+	var environment: Environment = $WorldEnvironment.environment
+	var sky_material := ProceduralSkyMaterial.new()
+	sky_material.sky_top_color = Color(0.36, 0.62, 0.92)
+	sky_material.sky_horizon_color = Color(0.8, 0.9, 0.98)
+	sky_material.ground_horizon_color = Color(0.7, 0.86, 0.95)
+	sky_material.ground_bottom_color = Color(0.2, 0.45, 0.7)
+	sky_material.sun_angle_max = 20.0
+	var sky := Sky.new()
+	sky.sky_material = sky_material
+	environment.sky = sky
+	if not contract.fog:
+		environment.background_mode = Environment.BG_SKY
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.ambient_light_color = Color(0.82, 0.86, 1.0)
+	environment.ambient_light_energy = 0.75
+	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.tonemap_white = 6.0
+	environment.glow_enabled = true
+	environment.glow_intensity = 0.5
+	environment.glow_bloom = 0.05
+	environment.glow_hdr_threshold = 1.1
+	var sun := $Sun as DirectionalLight3D
+	sun.light_color = Color(1.0, 0.95, 0.85)
+	sun.light_energy = 1.25
+	sun.shadow_blur = 2.0
+
+
 # --- Route ---------------------------------------------------------------------
 
 func _build_route() -> void:
@@ -319,6 +357,11 @@ func _build_route() -> void:
 		for z in row[1]:
 			count += 1
 			_add_rock(reef, "Rock%d" % count, Vector3(row[0], 0.0, z), radius, true)
+	for entry in contract.obstacles:
+		count += 1
+		var kind: String = entry[2]
+		var size: float = entry[3] if entry.size() > 3 else OBSTACLE_RADIUS.get(kind, 3.5)
+		_add_rock(reef, "%s%d" % [kind.capitalize(), count], Vector3(entry[0], 0.0, entry[1]), size, kind == "rock", kind)
 	# Visible cliffs along both sides keep the ship in the channel.
 	var x := -40.0
 	var i := 0
@@ -331,13 +374,15 @@ func _build_route() -> void:
 	_build_port()
 
 
-func _add_rock(parent: Node, rock_name: String, where: Vector3, radius: float, hidden: bool) -> void:
+func _add_rock(parent: Node, rock_name: String, where: Vector3, radius: float, hidden: bool, kind := "") -> Node3D:
 	var rock: Node3D = RockScene.instantiate()
 	rock.name = rock_name
 	rock.radius = radius
 	rock.hidden = hidden
+	rock.kind = kind if kind != "" else ("rock" if hidden else "cliff")
 	rock.position = where
 	parent.add_child(rock)
+	return rock
 
 
 func _build_port() -> void:
@@ -348,6 +393,16 @@ func _build_port() -> void:
 	var yellow := StandardMaterial3D.new()
 	yellow.albedo_color = Color(1, 0.85, 0.2)
 	buoy_mesh.material = yellow
+	if Toon.painted:
+		for side in [-1.0, 1.0]:
+			var buoy: Node3D = _ship.prop("buoy", "Buoy%s" % ("Port" if side < 0.0 else "Starboard"))
+			buoy.position = Vector3(finish_x, 0.0, side * 12.0)
+			buoy.add_to_group("finish")
+			add_child(buoy)
+		var harbour: Node3D = _ship.prop("port", "Dock")
+		harbour.position = Vector3(finish_x + 30.0, 0.0, 0.0)
+		add_child(harbour)
+		return
 	for side in [-1.0, 1.0]:
 		var buoy := MeshInstance3D.new()
 		buoy.name = "Buoy%s" % ("Port" if side < 0.0 else "Starboard")
@@ -368,6 +423,30 @@ func _build_port() -> void:
 
 
 # --- Events --------------------------------------------------------------------
+
+## A big wave: the sea shows the swell rolling in from that side.
+func _on_wave_warning(side: float) -> void:
+	if _water.has_method("swell"):
+		var starboard: Vector3 = _ship.global_basis * Vector3(0, 0, 1)
+		_water.swell(_ship.global_position, -starboard * side)
+
+
+## Developer events added by the obstacles: spawn each kind just ahead of the ship.
+func dev_extra_events() -> Array:
+	return [["spawn_rock", "Spawn: reef rock"], ["spawn_wreck", "Spawn: shipwreck"], ["spawn_whale", "Spawn: whale"],
+			["spawn_siren", "Spawn: siren"], ["spawn_atoll", "Spawn: atoll"]]
+
+
+func _spawn_ahead(kind: String) -> Node3D:
+	var ahead: Vector3 = _ship.global_position + _handling.forward() * (45.0 + OBSTACLE_RADIUS[kind])
+	ahead.y = 0.0
+	if kind == "siren":
+		ahead += Vector3(0, 0, 16.0) # beside the lane: she lures rather than blocks
+	var rock := _add_rock($Reef, "Dev%s%d" % [kind.capitalize(), $Reef.get_child_count()], ahead, OBSTACLE_RADIUS[kind],
+			kind == "rock", kind)
+	rock.home = ahead
+	return rock
+
 
 func _on_rock_hit(_rock: Node3D) -> void:
 	hits += 1

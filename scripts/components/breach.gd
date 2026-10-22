@@ -23,9 +23,9 @@ var has_plank := false
 var progress := 0.0 ## 0..1 of the plank patch
 var _warning_left := 0.0
 
-var _hole: MeshInstance3D
-var _plank: MeshInstance3D
-var _plug: MeshInstance3D
+var _hole: Node3D
+var _plank: Node3D
+var _plug: Node3D
 var _spray: CPUParticles3D
 
 
@@ -44,15 +44,31 @@ func _build_visuals() -> void:
 	_hole = _box("Hole", Vector3(0.9, 0.04, 0.55), Color(0.08, 0.06, 0.05), at_rail)
 	_plank = _box("Plank", Vector3(1.2, 0.12, 0.35), Color(0.82, 0.62, 0.38), at_rail + Vector3(0, 0.06, 0))
 	_plug = _box("Plug", Vector3(0.8, 0.8, 0.8), Color(0.78, 0.45, 0.2), at_rail + Vector3(0, 0.4, 0))
+	var ship := get_parent()
+	if "art_style" in ship and ship.art_style == "painted":
+		# Painted: a splintered hole, a nailed plank, a treasure chest stuffed in the hole.
+		for pair in [["_hole", "leak_hole", Vector3.ZERO], ["_plank", "plank", Vector3.ZERO], ["_plug", "chest", Vector3.ZERO]]:
+			var old: Node3D = get(pair[0])
+			var painted: Node3D = ship.prop(pair[1], old.name)
+			painted.position = at_rail
+			remove_child(old)
+			old.queue_free()
+			add_child(painted)
+			set(pair[0], painted)
 	_spray = CPUParticles3D.new()
 	_spray.name = "Spray"
 	_spray.position = at_rail
 	_spray.amount = 40
 	_spray.lifetime = 0.9
-	var drop := BoxMesh.new()
-	drop.size = Vector3(0.12, 0.12, 0.12)
+	var drop := SphereMesh.new()
+	drop.radius = 0.08
+	drop.height = 0.16
+	drop.radial_segments = 6
+	drop.rings = 3
 	var water := StandardMaterial3D.new()
-	water.albedo_color = Color(0.75, 0.9, 1.0)
+	water.albedo_color = Color(0.6, 0.88, 1.0, 0.85)
+	water.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	water.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	drop.material = water
 	_spray.mesh = drop
 	_spray.direction = Vector3.UP

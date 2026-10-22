@@ -60,7 +60,7 @@ func _draw() -> void:
 	for rock in get_tree().get_nodes_in_group("rocks"):
 		var mark := chart_point(rock.global_position)
 		if mark.length() < radius - 4.0:
-			draw_circle(center + mark, maxf(4.0, rock.radius * px), ROCK)
+			draw_obstacle(rock, center + mark, maxf(4.0, rock.radius * px))
 	# The ship: a triangle pointing up (the bow), drawn to scale.
 	var handling := ship.get_node("ShipHandling")
 	var bow: float = handling.hull_half_length * px
@@ -73,6 +73,36 @@ func _draw() -> void:
 		names.append("P%d" % reader.player_index)
 	draw_string(ThemeDB.fallback_font, Vector2(0, -8), tr("MAP TABLE  read by ") + ", ".join(names),
 			HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color(1, 1, 1))
+
+
+## Each kind of obstacle has its own little icon, so the navigator can say what it is.
+func draw_obstacle(rock: Node3D, at: Vector2, r: float) -> void:
+	var kind: String = rock.kind if "kind" in rock else "rock"
+	var ink := Color(0.05, 0.08, 0.15)
+	match kind:
+		"wreck":
+			draw_circle(at, r, Color(0.62, 0.42, 0.26))
+			draw_line(at + Vector2(-r * 0.3, r * 0.4), at + Vector2(r * 0.3, -r * 0.8), ink, 2.5)
+			draw_line(at + Vector2(-r * 0.6, -r * 0.2), at + Vector2(r * 0.5, -r * 0.4), ink, 2.0)
+		"whale":
+			var tint := Color(0.45, 0.62, 0.95) if rock.is_solid() else Color(0.45, 0.62, 0.95, 0.35)
+			draw_set_transform(at, 0.0, Vector2(1.6, 1.0))
+			draw_circle(Vector2.ZERO, r * 0.7, tint)
+			draw_set_transform(Vector2.ZERO)
+			draw_colored_polygon(PackedVector2Array([at + Vector2(r * 1.1, 0), at + Vector2(r * 1.6, -r * 0.5),
+					at + Vector2(r * 1.6, r * 0.5)]), tint)
+			draw_circle(at + Vector2(-r * 0.6, -r * 0.15), maxf(1.5, r * 0.12), ink)
+		"siren":
+			draw_circle(at, r, Color(1.0, 0.55, 0.72))
+			draw_string(ThemeDB.fallback_font, at + Vector2(-r, r * 0.45), "♪", HORIZONTAL_ALIGNMENT_CENTER, r * 2.0,
+					int(maxf(12.0, r * 1.5)), Color.WHITE)
+		"atoll":
+			draw_circle(at, r, Color(0.98, 0.86, 0.58))
+			draw_circle(at, r * 0.65, Color(0.35, 0.8, 0.85))
+			for i in 4:
+				draw_circle(at + Vector2.from_angle(i * TAU / 4.0 + 0.4) * r * 0.82, maxf(2.0, r * 0.14), Color(0.3, 0.7, 0.3))
+		_:
+			draw_circle(at, r, ROCK)
 
 
 ## When the port is beyond the chart's range, an arrow on the rim points to it with the distance.

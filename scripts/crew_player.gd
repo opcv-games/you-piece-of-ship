@@ -5,6 +5,8 @@ extends CharacterBody3D
 ## Knockdowns (big waves, steam vents, sliding crates) drop whatever you carry.
 
 const CrewSprite = preload("res://scripts/components/crew_sprite.gd")
+const CrewModel = preload("res://scripts/components/crew_model.gd")
+const DEFAULT_HATS := ["tricorn", "bandana", "beanie", "straw"]
 const ThoughtBubble = preload("res://scripts/components/thought_bubble.gd")
 
 signal jumped
@@ -26,6 +28,7 @@ const COLORS := [
 @export var knockdown_seconds := 1.4
 @export var knockdown_push := 3.0 ## metres per second you are shoved when knocked over
 @export var pixel_art := true ## draw as an animated pixel pirate (false: the grey-box capsule)
+@export var hat := "" ## hat style for the painted look (empty: the player's default)
 
 var move_input := Vector2.ZERO ## x = right, y = towards the camera
 var jump_requested := false
@@ -51,7 +54,11 @@ func _ready() -> void:
 	$Visual/Body.material_override = body_material
 	$Label.text = "P%d" % player_index
 	$Label.modulate = COLORS[player_index - 1].lightened(0.3)
-	if pixel_art:
+	var ship := get_parent().get_parent() if get_parent() else null
+	if ship and "art_style" in ship and ship.art_style == "painted":
+		_use_painted()
+		$Label.position.y = 2.6 # above the hat
+	elif pixel_art:
 		_use_pixel_art()
 		$Label.position.y = 3.05 # above the taller pixel pirate
 	bubble = ThoughtBubble.new()
@@ -171,6 +178,19 @@ func knock_down(push := Vector2.ZERO) -> bool:
 	think(tr("Whoa!"), 1.2, "shout")
 	knocked_down.emit()
 	return true
+
+
+## Swaps the grey-box capsule for a chubby painted sailor in the player's colour and hat.
+func _use_painted() -> void:
+	$Visual/Body.visible = false
+	$Visual/Nose.visible = false
+	var model := CrewModel.new()
+	model.name = "Sailor"
+	var style := hat
+	if style == "":
+		style = Session.outfit_for(player_index) if Session.has_method("outfit_for") else DEFAULT_HATS[player_index - 1]
+	model.setup(self, COLORS[player_index - 1], style)
+	_visual.add_child(model)
 
 
 ## Swaps the grey-box capsule for an animated pixel pirate in the player's colour, plus a soft

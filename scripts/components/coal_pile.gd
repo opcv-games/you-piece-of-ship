@@ -26,7 +26,9 @@ func _ready() -> void:
 
 
 func _build_visual(ship: Node) -> void:
-	if "pixel_art" in ship and ship.pixel_art:
+	if "art_style" in ship and ship.art_style == "painted":
+		add_child(ship.prop("coal_pile", "Lumps"))
+	elif "pixel_art" in ship and ship.pixel_art:
 		var lumps := PixelArt.make_sprite(PixelArt.texture("coal"), 0.09)
 		lumps.name = "Lumps"
 		add_child(lumps)

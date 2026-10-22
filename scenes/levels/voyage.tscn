@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/systems/net_sync.gd" id="15_net"]
 [ext_resource type="Script" path="res://scripts/ai/crew_brain.gd" id="16_brain"]
 [ext_resource type="Script" path="res://scripts/ui/alarm_flash.gd" id="17_alarm"]
+[ext_resource type="Script" path="res://scripts/components/sea.gd" id="18_sea"]
 
 [sub_resource type="Environment" id="env"]
 resource_local_to_scene = true
@@ -24,13 +25,6 @@ background_color = Color(0.62, 0.8, 0.93, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.85, 0.9, 1, 1)
 ambient_light_energy = 0.6
-
-[sub_resource type="StandardMaterial3D" id="mat_water"]
-albedo_color = Color(0.13, 0.42, 0.62, 1)
-
-[sub_resource type="PlaneMesh" id="mesh_water"]
-material = SubResource("mat_water")
-size = Vector2(400, 400)
 
 [sub_resource type="StandardMaterial3D" id="mat_buoy"]
 albedo_color = Color(1, 0.85, 0.2, 1)
@@ -47,12 +41,13 @@ script = ExtResource("1_level")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("env")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." groups=["sun"]]
 rotation_degrees = Vector3(-55, 30, 0)
 shadow_enabled = true
 
-[node name="Water" type="MeshInstance3D" parent="."]
-mesh = SubResource("mesh_water")
+[node name="Water" type="MeshInstance3D" parent="." node_paths=PackedStringArray("follow")]
+script = ExtResource("18_sea")
+follow = NodePath("../Ship")
 
 [node name="Ship" parent="." instance=ExtResource("2_ship")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
@@ -92,23 +87,28 @@ script = ExtResource("17_alarm")
 ship = NodePath("../../Ship")
 
 [node name="Controls" type="Label" parent="HUD"]
-anchor_right = 1.0
+anchor_top = 1.0
+anchor_right = 0.62
+anchor_bottom = 1.0
 offset_left = 16.0
-offset_top = 6.0
-offset_right = -360.0
-offset_bottom = 60.0
+offset_top = -150.0
+offset_bottom = -96.0
+grow_vertical = 0
 autowrap_mode = 3
-theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
 theme_override_font_sizes/font_size = 14
 text = "P1: W A S D (Z Q S D on French keyboard) move, Space jump, E use     P2: arrows, Enter jump, Right Shift use     Controllers: stick, A jump, X use
 Helm: left/right steer, up/down throttle (below 0 = astern)     Engine: coal pile, Use = shovel / feed, Jump at engine = vent     R: restart     M: music     H: show / hide this help"
 
 [node name="Status" type="Label" parent="HUD"]
-offset_left = 16.0
-offset_top = 58.0
-offset_right = 700.0
-offset_bottom = 90.0
-theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 10.0
+offset_right = 260.0
+offset_bottom = 48.0
+grow_horizontal = 2
+horizontal_alignment = 1
+vertical_alignment = 1
 theme_override_font_sizes/font_size = 20
 text = ""
 
