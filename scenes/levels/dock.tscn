@@ -1,8 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/dock.gd" id="1_dock"]
-[ext_resource type="Script" path="res://scripts/components/music.gd" id="2_music"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/drunken_sailor_loop.wav" id="3_shanty"]
+[ext_resource type="Script" path="res://scripts/components/adaptive_music.gd" id="2_music"]
 
 [node name="Dock" type="Control"]
 layout_mode = 3
@@ -11,8 +10,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_dock")
 
-[node name="Music" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("3_shanty")
-bus = &"Music"
+[node name="Music" type="Node" parent="."]
 script = ExtResource("2_music")
 music_volume_db = -12.0

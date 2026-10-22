@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Adaptive music
+Hypothesis: If the same shanty sounds more and more like a band having a breakdown as the ship falls apart, then players feel the danger before reading it and laugh at the band, increasing Comedy and Thrill of danger.
+Variable: stability thresholds 20/40/60/80, hysteresis 5
+Sessions: 0 — not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main
+
 ## 2026-10-22 — Second solo session feedback (Olivier)
 Observed: "Great!". AIs sometimes stand around doing nothing. Wants the engineer to have real work (coal pile, shovel, spills, wet coal), a sail for minimum speed, personal bests, adaptive music, HD cartoon UI and main menu, a French version, and online play with his dad abroad.
 Decision: gameplay changes built first (coal, sail, AI, bests). Simulated crews (1 idle human + 3 AIs): Maiden Voyage 4:46, Reef Run 5:24 (deadline 5:30), Fog Bank 5:43; The Narrows still beats them.
