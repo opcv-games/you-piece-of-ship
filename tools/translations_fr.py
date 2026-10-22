@@ -180,6 +180,10 @@ FR = {
     "Spawn: reef rock": "Ajouter : récif", "Spawn: shipwreck": "Ajouter : épave", "Spawn: whale": "Ajouter : baleine",
     "Spawn: siren": "Ajouter : sirène", "Spawn: atoll": "Ajouter : atoll", "Sea": "Mer", "Stars": "Étoiles",
     " + fish & loot %d": " + poissons et butin %d", "Next star at %d points": "Prochaine étoile à %d points",
+    # Fishing
+    "FISHING": "PÊCHE", "Use: fish": "Utiliser : pêcher", "%s +%d": "%s +%d", "Too early!": "Trop tôt !",
+    "It got away...": "Il s'est échappé...", "Gone fishing!": "Je vais pêcher !", "    Fish & loot +%d": "    Pêche et butin +%d",
+    "Sardine": "Sardine", "Goldfish": "Poisson doré", "Squid": "Calamar", "Pufferfish": "Poisson-globe", "Treasure!": "Trésor !",
 }
 
 

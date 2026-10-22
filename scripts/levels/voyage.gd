@@ -43,6 +43,7 @@ var bonus_points := 0 ## fish caught and loot scooped up on the way (added to th
 
 
 func _ready() -> void:
+	add_to_group("voyage")
 	if contract == null:
 		contract = ContractLibrary.by_index(Session.contract_index)
 	finish_x = contract.length
@@ -152,6 +153,8 @@ func _physics_process(delta: float) -> void:
 	var help: Label = $HUD/Controls
 	help.modulate.a = move_toward(help.modulate.a, 1.0 if _show_help or elapsed < 30.0 else 0.0, delta * 2.0)
 	_status.text = tr("%s    Time %s / %s") % [tr(contract.title), _clock(elapsed), _clock(contract.deadline)]
+	if bonus_points > 0:
+		_status.text += tr("    Fish & loot +%d") % bonus_points
 	_status.add_theme_color_override("font_color", Color(1, 0.5, 0.45) if elapsed > contract.deadline else Color(1, 0.96, 0.86))
 	if net_puppet:
 		return # online client: the host's snapshots move everything

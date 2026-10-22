@@ -84,7 +84,7 @@ static func the_narrows() -> Resource:
 	contract.blurb = "Fragile glassware through a channel barely wider than the ship. Mind the walls."
 	contract.length = 1400.0
 	contract.deadline = 345.0
-	contract.coast_half_width = 26.0
+	contract.coast_half_width = 28.0 # the painted ship is longer than the grey box was
 	contract.difficulty = 3
 	contract.pay_per_crate = 130
 	# Rocks near the walls sit against the cliffs, so there are no ship-sized pockets to wedge in.

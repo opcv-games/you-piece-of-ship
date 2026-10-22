@@ -7,6 +7,9 @@ extends AnimatableBody3D
 
 const PixelArt = preload("res://scripts/systems/pixel_art.gd")
 const EngineHeatVisual = preload("res://scripts/components/engine_heat_visual.gd")
+const FishingSpot = preload("res://scripts/components/fishing_spot.gd")
+## Fishing spots along the starboard rail, clear of the leak spots and stations.
+const FISHING_SPOTS := [Vector3(0.6, 0.0, 2.75), Vector3(5.6, 0.0, 2.75)]
 const Toon = preload("res://scripts/systems/toon.gd")
 const SHIP_MODEL := "res://assets/art/export/models/ship.glb"
 const MODELS := "res://assets/art/export/models/"
@@ -49,6 +52,11 @@ func _ready() -> void:
 	elif art_style == "painted":
 		_paint()
 	$Engine.add_child(EngineHeatVisual.new())
+	for i in FISHING_SPOTS.size():
+		var spot := FishingSpot.new()
+		spot.name = "FishingSpot%d" % (i + 1)
+		spot.position = FISHING_SPOTS[i]
+		add_child(spot)
 
 
 ## The painted ship model (tools/blender/build_ship.py) replaces the grey boxes; collision and
