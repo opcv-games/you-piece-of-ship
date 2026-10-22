@@ -37,7 +37,18 @@ func _initialize() -> void:
 		part.save_png(ProjectSettings.globalize_path(OUT + name + ".png"))
 		print("cut ", name, " ", part.get_size())
 	_make_shovel(sheet)
+	_make_menu_background()
 	quit()
+
+
+## The right part of Olivier's menu mockup (the painted deck, without the mockup's own buttons,
+## tagline and badge) becomes the menu background.
+func _make_menu_background() -> void:
+	var mock := Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/source/ui/main_menu_mockup.png"))
+	var part := mock.get_region(Rect2i(540, 0, 860, 941))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://assets/art/export/ui/"))
+	part.save_png(ProjectSettings.globalize_path("res://assets/art/export/ui/menu_background.png"))
+	print("cut menu_background")
 
 
 ## No shovel on the sheets: draw one (wooden handle, iron blade) and heap the coal lumps on it.
