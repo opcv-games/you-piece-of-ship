@@ -42,6 +42,8 @@ func _ready() -> void:
 	$HazardDirector.setup(contract.waves)
 	$HUD/MapChart.range_metres = contract.chart_range
 	_apply_fog(contract.fog)
+	for crate in get_tree().get_nodes_in_group("cargo"):
+		crate.value = contract.pay_per_crate # each contract pays its own rate
 	Upgrades.apply(_ship, Session.upgrades)
 	if contract.tutorial:
 		$Ship/HullSystem.sink_grace_seconds = INF # the Maiden voyage can't be lost

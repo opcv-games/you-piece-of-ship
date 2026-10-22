@@ -87,3 +87,9 @@ func test_given_reef_run_then_no_telescope() -> void:
 	await _load(ContractLibrary.reef_run())
 	assert_false(_level.get_node("Ship/Telescope").enabled)
 	assert_false(_level.get_node("WorldEnvironment").environment.fog_enabled)
+
+
+func test_given_maiden_voyage_then_crates_pay_its_rate() -> void:
+	await _load(ContractLibrary.maiden_voyage())
+	for crate in _level.get_tree().get_nodes_in_group("cargo"):
+		assert_eq(crate.value, 60)
