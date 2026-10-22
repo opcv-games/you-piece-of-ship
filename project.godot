@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="You Piece of Ship"
-run/main_scene="res://scenes/levels/voyage.tscn"
+run/main_scene="res://scenes/levels/dock.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [editor_plugins]

@@ -9,7 +9,6 @@
 ## Next (likely, not committed)
 
 ## Later (deliberately vague)
-- Contracts and the upgrade shop
 - Online play
 - Art, sound, juice
 
@@ -19,6 +18,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #13 Dock: contract choice, upgrade shop with four trade-off upgrades, saved progress, voyage-to-voyage loop (2026-10-22, built, not yet player-tested)
 - #12 Fog and the bow telescope (2026-10-22, built, not yet player-tested)
 - #11 Four hand-made contracts with the Maiden voyage tutorial (2026-10-22, built, not yet player-tested)
 - #10 Results screen with event recap, quick restart, crew join, 3-player auto pump (2026-10-22, built, not yet player-tested)
@@ -39,3 +39,4 @@
 - Plank patch: design says two players; I let one player patch slowly (12 s instead of 4 s) so small crews and solo tests aren't stuck. Keep, or make it strictly two players?
 - Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?
 - The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?
+- Upgrade prices (300-500 coins) and pay (60-160 per crate) are first guesses. After a full 4-contract session, do you want to buy all four by the end, or only two?

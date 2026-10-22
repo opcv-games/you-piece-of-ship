@@ -60,6 +60,9 @@ func _draw() -> void:
 		draw_string(font, Vector2(x + 120, y), line[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, GOOD if line[2] else BAD)
 		y += 28.0
 	draw_string(font, Vector2(x, y + 6), "SCORE %d" % s.total, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Color(1, 0.85, 0.3))
+	if outcome.has("earned"):
+		draw_string(font, Vector2(box.end.x - 230, y + 6), "+%d coins" % outcome.earned, HORIZONTAL_ALIGNMENT_RIGHT, 200, 24,
+				Color(1, 0.85, 0.3))
 	draw_string(font, Vector2(x + 220, y + 4), "cargo %d + dry hull %d + early %d" % [s.cargo, s.hull, s.time],
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.6))
 	y += 48.0
@@ -73,5 +76,5 @@ func _draw() -> void:
 		draw_string(font, Vector2(x, y), stamp, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.5))
 		draw_string(font, Vector2(x + 60, y), entry.text, HORIZONTAL_ALIGNMENT_LEFT, box.size.x - 120, 16, color)
 		y += 21.0
-	draw_string(font, Vector2(box.position.x, box.end.y - 22), "R / Start: sail again        J: change crew",
+	draw_string(font, Vector2(box.position.x, box.end.y - 22), "Enter / A: back to the dock     R / Start: sail again     J: change crew",
 			HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 18, Color(1, 0.85, 0.3))

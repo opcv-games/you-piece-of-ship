@@ -26,6 +26,7 @@ signal out_of_fuel
 @export var fuel_burn := 1.0 / 90.0 ## fuel used per second at full throttle
 @export var shovel_rate := 1.0 / 6.0 ## fuel added per second while shovelling
 @export_range(0.0, 1.0) var no_fuel_speed := 0.15
+@export var pump_coal_burn := 0.0 ## coal per second the pump uses while running (bigger pumps)
 @export_group("Vent")
 @export var vent_cooling := 0.5
 @export var vent_cooldown := 8.0
@@ -70,7 +71,14 @@ func is_pipe_burst() -> bool:
 
 func _physics_process(delta: float) -> void:
 	_shovel(delta)
+	_burn_pump_coal(delta)
 	step(delta)
+
+
+func _burn_pump_coal(delta: float) -> void:
+	var pump := _ship.get_node_or_null("Pump")
+	if pump_coal_burn > 0.0 and pump and pump.is_active():
+		fuel = maxf(0.0, fuel - pump_coal_burn * delta)
 
 
 func _shovel(delta: float) -> void:
