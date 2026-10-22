@@ -12,6 +12,7 @@ signal vented(player: Node3D)
 signal pipe_burst
 signal pipe_fixed
 signal out_of_fuel
+signal fuel_low
 
 @export_group("Heat")
 @export var heat_rise := 0.05 ## heat per second at full throttle above the cool point
@@ -23,8 +24,11 @@ signal out_of_fuel
 @export var water_heat_factor := 0.8 ## a full ship makes the engine heat this much faster
 @export var burst_pipe_factor := 1.6 ## heat builds this much faster with a burst pipe
 @export_group("Fuel")
-@export var fuel_burn := 1.0 / 90.0 ## fuel used per second at full throttle
-@export var shovel_rate := 1.0 / 6.0 ## fuel added per second while shovelling
+## The coal pile beside the engine never runs out: keeping the firebox full just takes someone's time.
+@export var fuel_burn := 1.0 / 150.0 ## firebox used per second at full throttle (a full one lasts 2.5 min)
+@export var shovel_rate := 1.0 / 5.0 ## firebox refilled per second while shovelling (empty to full in 5 s)
+@export var low_fuel := 0.25 ## below this, "COAL LOW!" shows over the engine for everyone
+@export_range(0.0, 1.0) var min_fuel := 0.0 ## the firebox never drops below this (the Maiden Voyage uses 0.3)
 @export_range(0.0, 1.0) var no_fuel_speed := 0.15
 @export var pump_coal_burn := 0.0 ## coal per second the pump uses while running (bigger pumps)
 @export_group("Vent")
@@ -98,7 +102,10 @@ func step(delta: float) -> void:
 			restarted.emit()
 	else:
 		var had_fuel := fuel > 0.0
-		fuel = maxf(0.0, fuel - fuel_burn * throttle * delta)
+		var was_low := fuel < low_fuel
+		fuel = maxf(min_fuel, fuel - fuel_burn * throttle * delta)
+		if not was_low and fuel < low_fuel:
+			fuel_low.emit()
 		if had_fuel and fuel <= 0.0:
 			out_of_fuel.emit()
 		var drive := throttle if fuel > 0.0 else 0.0
@@ -150,7 +157,9 @@ func _apply_effects() -> void:
 	elif heat > heat_cap_threshold:
 		_station.status_text = "HOT"
 	elif fuel <= 0.0:
-		_station.status_text = "NO COAL"
+		_station.status_text = "NO COAL! Use, then hold UP"
+	elif fuel < low_fuel:
+		_station.status_text = "COAL LOW! Use, then hold UP"
 	else:
 		_station.status_text = ""
 

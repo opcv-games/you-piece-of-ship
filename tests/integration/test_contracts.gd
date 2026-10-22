@@ -93,3 +93,14 @@ func test_given_maiden_voyage_then_crates_pay_its_rate() -> void:
 	await _load(ContractLibrary.maiden_voyage())
 	for crate in _level.get_tree().get_nodes_in_group("cargo"):
 		assert_eq(crate.value, 60)
+
+
+func test_given_maiden_voyage_then_never_runs_out_of_coal() -> void:
+	await _load(ContractLibrary.maiden_voyage())
+	var engine := _level.get_node("Ship/EngineSystem")
+	engine.set_physics_process(false)
+	_level.get_node("Ship/ShipHandling").throttle = 1.0
+	engine.heat_rise = 0.0
+	for i in 600 * 60:
+		engine.step(1.0 / 60.0)
+	assert_almost_eq(engine.fuel, 0.3, 0.001)

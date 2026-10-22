@@ -47,6 +47,10 @@ func _ready() -> void:
 	Upgrades.apply(_ship, Session.upgrades)
 	if contract.tutorial:
 		$Ship/HullSystem.sink_grace_seconds = INF # the Maiden voyage can't be lost
+		$Ship/EngineSystem.min_fuel = 0.3 # ...and never runs dry
+	var engine := $Ship/EngineSystem
+	engine.fuel_low.connect(func(): show_hint("Coal low! Someone at the ENGINE (back, right): press Use, then hold UP to shovel."))
+	engine.out_of_fuel.connect(func(): show_hint("Out of coal: the ship is crawling. ENGINE: press Use, then hold UP to shovel."))
 	_handling.rock_hit.connect(_on_rock_hit)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
