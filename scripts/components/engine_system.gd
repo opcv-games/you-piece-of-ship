@@ -89,7 +89,7 @@ func _shovel(delta: float) -> void:
 
 func step(delta: float) -> void:
 	vent_ready_in = maxf(0.0, vent_ready_in - delta)
-	var throttle: float = _handling.throttle
+	var throttle: float = absf(_handling.throttle) # going astern works the engine too
 	if is_stalled():
 		stall_left -= delta
 		heat = maxf(0.0, heat - 0.03 * delta)

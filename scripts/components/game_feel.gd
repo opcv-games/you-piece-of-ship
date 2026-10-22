@@ -64,7 +64,7 @@ func _exit_tree() -> void:
 func _physics_process(_delta: float) -> void:
 	wake_ratio = 0.0
 	if wake_enabled:
-		wake_ratio = clampf(_handling.speed / _handling.max_speed * wake_strength, 0.0, 1.0)
+		wake_ratio = clampf(absf(_handling.speed) / _handling.max_speed * wake_strength, 0.0, 1.0)
 	for wake in _wakes:
 		# Faster ship = bigger, faster-spreading foam.
 		wake.emitting = wake_ratio > 0.05

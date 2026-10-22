@@ -70,7 +70,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _status() -> String:
-	var throttle := "throttle %d%%" % roundi(_handling.throttle * 100.0)
+	var throttle: String = _handling.throttle_text()
 	match state:
 		1:
 			return "WHEEL SHUDDERS! %d\n%s" % [ceili(_warning_left), throttle]

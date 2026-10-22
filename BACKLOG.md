@@ -40,3 +40,4 @@
 - Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?
 - The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?
 - Upgrade prices (300-500 coins) and pay (60-160 per crate) are first guesses. After a full 4-contract session, do you want to buy all four by the end, or only two?
+- Simulated crews (perfect navigator, venting engineer, pumper, but nobody repairing) finished the Maiden Voyage in 4:05, the Reef Run in 4:53 and the Fog Bank in 5:42, and sank in The Narrows near the end. Is The Narrows the right kind of hard once real crews repair things?

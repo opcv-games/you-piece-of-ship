@@ -73,3 +73,10 @@ func test_given_rock_dead_ahead_when_hit_then_ship_glances_off_and_gets_past() -
 	_handling.throttle = 1.0
 	_sail(40.0)
 	assert_gt(_ship.position.x, 30.0, "a straight course doesn't stay stuck on the rock")
+
+
+func test_given_throttle_pulled_below_zero_then_ship_backs_off() -> void:
+	_handling.throttle = -_handling.max_reverse
+	_sail(5.0)
+	assert_lt(_ship.position.x, -2.0, "going astern")
+	assert_lt(_handling.speed, 0.0)
