@@ -9,12 +9,13 @@
 ## Next (likely, not committed)
 
 ## Later (deliberately vague)
+- Enemy AI ships to sink, with cannons (Olivier, 2026-10-22: "eventually there shall be enemy AI ships to sink and we'd have cannons")
 - Final sound effects; more pixel-art dressing (barrels, cannons on deck)
 
 ## Parked (good ideas that are out of scope until the core loop is proven)
 - Fire, crew overboard, floating cargo recovery
 - 2-player mode, split screen, mixed couch-plus-online groups
-- Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
+- Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
 - Pixel-art pass with Olivier's sprite sheet and ship tile set (2026-10-22; asset source and licence to confirm)

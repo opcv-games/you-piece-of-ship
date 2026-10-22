@@ -130,7 +130,9 @@ func refresh() -> void:
 		"client":
 			_online_status.text = "Online as P%d (your keyboard W A S D or controller). The host picks the contract." % Net.my_index
 		_:
-			_online_status.text = "Play online: one friend hosts, the others join with the host's address."
+			var addresses := Net.local_addresses()
+			_online_status.text = "Online: one friend hosts, the others join with the host's address. This computer: %s" % (
+					", ".join(addresses) if not addresses.is_empty() else "no network")
 	for i in 4:
 		var index := i + 1
 		var human := joined.has(index)

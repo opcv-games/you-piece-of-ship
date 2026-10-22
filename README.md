@@ -35,6 +35,20 @@ Big waves warn for 5 seconds: hold on to a station or you fall over and drop wha
 Carry a cargo crate to the rail and press Use to throw it overboard (lighter ship, less pay).
 M mutes the music. **Online:** one player clicks *Host online game* at the dock; friends type the host's address and click *Join*.
 
+## How to test online
+Online play has one **host** and up to three friends. Each computer needs a copy of the game (for now: this project opened in Godot 4.7.2).
+
+**On one Mac (quick check):** in Godot, *Debug → Customize Run Instances…*, tick *Enable Multiple Instances*, set 2, OK, then ▶. In window 1 click **Host online game**; in window 2 click **Join** (the address `127.0.0.1` means "this computer"). The host picks a contract. Click a window to play in it (W A S D, E, Space).
+
+**Two computers on the same Wi-Fi:**
+1. Both computers are on the same Wi-Fi network.
+2. Host: open the game; the dock shows *This computer: 192.168.x.x* in the online row. Read that address out to your friend. Click **Host online game**.
+3. The first time, macOS may ask whether Godot may *accept incoming network connections*: click **Allow**.
+4. Friend: type the host's address in the box next to **Join** and click **Join**. They become P2 (then P3, P4) and play with their own keyboard (W A S D, E, Space) or controller.
+5. Host: pick a contract. Everyone sails together; the host decides when to restart or go back to the dock.
+
+The game uses port **7777** (UDP). Playing over the internet (not the same Wi-Fi) needs port forwarding on the host's router and is out of scope for now.
+
 ## Getting started
 1. Install [Godot 4.7.2](https://godotengine.org/download) and [Git LFS](https://git-lfs.com) (`git lfs install`).
 2. Clone the repo and open `project.godot` in Godot.
