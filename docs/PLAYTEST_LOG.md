@@ -5,10 +5,10 @@ One entry per hypothesis. Newest first.
 ## 2026-10-22 — Background music (requested by Olivier)
 Hypothesis: If a lively shanty loops in the background, ducks on crashes and speeds up near port, then the crew will feel the mood (frantic, goofy) and the run's tension, increasing Comedy and Thrill of danger. Risk: music makes any build feel better, so it can hide whether the mechanics are fun; mute (M) during fun-gate tests.
 Variable: music on/off (M key or Music node "music_enabled")
-Sessions: pending
-Observed: pending
-Biggest weakness: pending
-Decision: pending
+Sessions: 1 (self: 1, others: 0)
+Observed: Olivier: "everything is excellent."
+Biggest weakness: none reported.
+Decision: KEPT.
 
 ## 2026-10-22 — Juice pass on existing moments (requested by Olivier)
 Hypotheses (one per effect; each has its own switch on the GameFeel node, so each is kept or removed on its own):
@@ -17,10 +17,10 @@ Hypotheses (one per effect; each has its own switch on the GameFeel node, so eac
 - Squash and stretch on jump/land: if jumps have weight, then players will hop around more, increasing Comedy.
 - Port confetti: if arriving is celebrated, then the crew will cheer, increasing Thrill of danger (the release).
 Variable: each effect on/off
-Sessions: pending
-Observed: pending
-Biggest weakness: pending
-Decision: pending
+Sessions: 1 (self: 1, others: 0)
+Observed: Olivier: "everything is excellent." No readability problems reported.
+Biggest weakness: none reported.
+Decision: KEPT, all four effects.
 
 ## 2026-10-22 — Station-bound information  (#2)
 Hypothesis: If submerged rocks are shown only on a map table at the bow while the wheel is at the stern, then the navigator will shout directions and the captain will steer by their calls, increasing Social interaction.
