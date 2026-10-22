@@ -5,9 +5,6 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[tech]` **Walk on a rocking ship, together** (#1)
-  As a player on the couch, I want to walk and jump on a deck that rolls with waves alongside three friends on one screen, so that the ship feels like a shared physical space (serves: Comedy, Social interaction).
-  - Given four local players with controllers on a rolling deck, When all walk to the bow, Then none slides off and the camera keeps all four in view.
 - [ ] `[innovation]` **Station-bound information** (#2)
   As the navigator, I want hidden rocks to show only on the map table, so that the captain needs my callouts (serves: Social interaction).
   - Given a submerged rock ahead, When the captain looks forward, Then it is not visible.
@@ -35,7 +32,7 @@
 - Contracts and the upgrade shop
 - Fog and the telescope
 - Online play
-- Art, sound, juice
+- Art, sound, juice (music requested by Olivier on 2026-10-22: comes with Phase 4)
 
 ## Parked (good ideas that are out of scope until the core loop is proven)
 - Fire, crew overboard, floating cargo recovery
@@ -43,4 +40,5 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #1 Walk on a rocking ship, together: grey ship on scripted waves, four couch players, shared camera (2026-10-22)
 - Phase 1: Committee Summary approved (2026-10-22)

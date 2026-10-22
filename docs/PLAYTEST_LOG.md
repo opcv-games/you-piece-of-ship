@@ -5,10 +5,10 @@ One entry per hypothesis. Newest first.
 ## 2026-10-22 — Walk on a rocking ship, together  (#1)
 Hypothesis: If four players share one deck that rolls ±8° on a slow swell, then they will stumble into each other and laugh while still feeling in control of where they go, increasing Comedy and Social interaction.
 Variable: wave roll amplitude (starting value 8°)
-Sessions: pending
-Observed: pending
-Biggest weakness: pending
-Decision: pending
+Sessions: 1 (self: 1, others: 0)
+Observed: Rocking strength "ok"; each player always knows which capsule is theirs and where it faces; bumping into each other and the mast is "fine" (neutral, not yet funny).
+Biggest weakness: there is nothing to do on deck yet. Expected at this step: posts and tasks arrive with #2 (map table), #3 (hull breach), #4 (engine heat), #5 (carry and drop).
+Decision: KEPT, roll stays at 8°. The deck works as a foundation; nothing to tune until there is a job to do on it.
 
 <!--
 ## YYYY-MM-DD — <hypothesis name>  (#issue)
