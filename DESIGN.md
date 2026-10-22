@@ -128,6 +128,8 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Roles become station-bound posts | Fixes role swapping, disconnects and couch play; gives the Crisis beat a cost | Design review of v0.1 |
 | 2026-10-22 | Four coupled systems; fire and overboard to Next | Fewer, deeper systems make cascades readable | Design review of v0.1 |
 | 2026-10-22 | Fog hides hazards from the helm | Gives the navigator unique, necessary information | Design review of v0.1 |
+| 2026-10-22 | Ship is one moving body rocked by scripted waves (roll 8°, pitch 3°, heave 0.3 m); crew are children of the ship | Players stay on board without a physics sim; the motion is predictable and ship-local, ready for networking (Risk 1) | #1, tests/integration/test_rocking_deck.gd |
+| 2026-10-22 | One shared camera, level with the horizon, always framing the whole ship and all crew | Couch play on one screen; nobody hunts for themselves; the deck visibly rocks against a steady view | #1 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.
