@@ -4,6 +4,8 @@ extends Node3D
 ## low side of the deck (deck comedy rule, DESIGN.md section 13). Lashed crates stay put.
 ## Lives under the ship's Items node, so its position is in ship space.
 
+const PixelArt = preload("res://scripts/systems/pixel_art.gd")
+
 signal picked_up(player: Node3D)
 signal dropped(player: Node3D)
 
@@ -44,6 +46,13 @@ func _ready() -> void:
 	if kind == "crate":
 		add_to_group("cargo")
 	ship = _find_ship()
+	if ship and "pixel_art" in ship and ship.pixel_art:
+		# Pixel-art sprite: a crate, a plank or the iron pin (sizes match the grey boxes).
+		var sizes := {"crate": 0.06, "plank": 0.06, "pin": 0.045}
+		var sprite := PixelArt.make_sprite(PixelArt.texture(kind), sizes[kind])
+		sprite.name = "Mesh"
+		add_child(sprite)
+		return
 	var mesh := BoxMesh.new()
 	mesh.size = KINDS[kind].size
 	var material := StandardMaterial3D.new()
@@ -124,12 +133,26 @@ func consume() -> void:
 
 func _physics_process(delta: float) -> void:
 	if carrier:
-		global_position = carrier.global_position + carrier.global_basis.y.normalized() * 1.75
+		global_position = carrier.global_position + carrier.global_basis.y.normalized() * _carry_height()
 		global_rotation = Vector3(carrier.global_rotation.x, carrier.global_rotation.y, carrier.global_rotation.z)
 		return
 	if lashed or ship == null:
 		return
 	slide(delta)
+
+
+## Held overhead: above the grey-box capsule, or above the (taller) pixel pirate's head.
+func _carry_height() -> float:
+	return 2.75 if get_node_or_null("Mesh") is Sprite3D else 1.75
+
+
+func _process(_delta: float) -> void:
+	var sprite := get_node_or_null("Mesh") as Sprite3D
+	if sprite:
+		# While carried, draw over the carrier's sprite so everyone sees what they hold.
+		sprite.no_depth_test = carrier != null
+		sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED if carrier else SpriteBase3D.ALPHA_CUT_DISCARD
+		sprite.render_priority = 0
 
 
 func slide(delta: float) -> void:

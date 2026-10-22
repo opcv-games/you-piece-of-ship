@@ -39,7 +39,7 @@ func _ready() -> void:
 	_rng.seed = _player.player_index * 31
 	_bubble = Label3D.new()
 	_bubble.name = "Bubble"
-	_bubble.position = Vector3(0, 2.75, 0)
+	_bubble.position = Vector3(0, 3.6, 0)
 	_bubble.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_bubble.no_depth_test = true
 	_bubble.font_size = 52
