@@ -26,8 +26,7 @@ godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs 
 
 ## Windows build for Dad
 Run `tools/build_windows.sh` after any change worth sharing: it exports the game, zips it with
-`docs/HOW_TO_PLAY_WITH_DAD.txt`, and overwrites `iCloud Drive/You Piece of Ship/YouPieceOfShip-Windows.zip`
-in place (Olivier shares that file's link with his dad; never delete it, or the link breaks).
+`docs/HOW_TO_PLAY_WITH_DAD.txt`, and drops a copy in `~/Downloads` (Olivier prefers Downloads to iCloud).
 
 ## Operating rules
 - Read the docs → write tests/code → update the docs. Every cycle ends with a commit.

@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Records the 45-second showreel (tools/record_demo.gd) with Godot's Movie Maker at 1920x1080,
-# 30 fps, music included, then makes an MP4 (H.264 + AAC) in builds/ and copies it to iCloud Drive.
+# 30 fps, music included, then makes an MP4 (H.264 + AAC) in builds/ and drops a copy in ~/Downloads.
 #   tools/record_demo.sh
 set -e
 cd "$(dirname "$0")/.."
@@ -14,9 +14,5 @@ rm -f "$RAW"
 ffmpeg -y -loglevel error -i "$RAW" -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart "$OUT"
 rm -f "$RAW"
 echo "Made $OUT"
-ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs/You Piece of Ship"
-if [ -d "$HOME/Library/Mobile Documents/com~apple~CloudDocs" ]; then
-	mkdir -p "$ICLOUD"
-	cp "$OUT" "$ICLOUD/"
-	echo "Copied to iCloud Drive: You Piece of Ship/$(basename "$OUT")"
-fi
+cp "$OUT" "$HOME/Downloads/" # Olivier picks it up from Downloads
+echo "Copied to ~/Downloads/$(basename "$OUT")"

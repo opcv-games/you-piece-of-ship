@@ -1,8 +1,6 @@
 #!/bin/zsh
-# Builds the Windows game and the zip for Dad, then refreshes the copy in iCloud Drive.
+# Builds the Windows game and the zip for Dad, then drops a copy in ~/Downloads.
 #   tools/build_windows.sh
-# The iCloud file is overwritten in place (never deleted), so a link Olivier shared keeps
-# pointing at the newest version.
 set -e
 cd "$(dirname "$0")/.."
 GODOT=${GODOT:-godot}
@@ -16,9 +14,5 @@ rm -f builds/YouPieceOfShip-Windows.zip
 (cd builds/staging && zip -qr ../YouPieceOfShip-Windows.zip YouPieceOfShip)
 rm -rf builds/staging
 echo "Built builds/YouPieceOfShip-Windows.zip"
-ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs/You Piece of Ship"
-if [ -d "$HOME/Library/Mobile Documents/com~apple~CloudDocs" ]; then
-	mkdir -p "$ICLOUD"
-	cp builds/YouPieceOfShip-Windows.zip "$ICLOUD/YouPieceOfShip-Windows.zip" # in place: the shared link stays valid
-	echo "Copied to iCloud Drive: You Piece of Ship/YouPieceOfShip-Windows.zip"
-fi
+cp "builds/YouPieceOfShip-Windows.zip" "$HOME/Downloads/" # Olivier picks it up from Downloads
+echo "Copied to ~/Downloads/$(basename "builds/YouPieceOfShip-Windows.zip")"
