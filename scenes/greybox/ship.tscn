@@ -1,0 +1,133 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ship.gd" id="1_ship"]
+[ext_resource type="Script" path="res://scripts/components/wave_motion.gd" id="2_waves"]
+
+[sub_resource type="StandardMaterial3D" id="mat_hull"]
+albedo_color = Color(0.42, 0.31, 0.23, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_deck"]
+albedo_color = Color(0.74, 0.62, 0.46, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_rail"]
+albedo_color = Color(0.33, 0.24, 0.17, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_bow"]
+albedo_color = Color(0.95, 0.55, 0.15, 1)
+
+[sub_resource type="BoxMesh" id="mesh_hull"]
+material = SubResource("mat_hull")
+size = Vector3(14, 2, 6)
+
+[sub_resource type="BoxMesh" id="mesh_deck"]
+material = SubResource("mat_deck")
+size = Vector3(14, 0.1, 6)
+
+[sub_resource type="BoxShape3D" id="shape_floor"]
+size = Vector3(14, 0.4, 6)
+
+[sub_resource type="BoxMesh" id="mesh_rail_long"]
+material = SubResource("mat_rail")
+size = Vector3(14, 0.7, 0.15)
+
+[sub_resource type="BoxMesh" id="mesh_rail_short"]
+material = SubResource("mat_rail")
+size = Vector3(0.15, 0.7, 6)
+
+[sub_resource type="BoxShape3D" id="shape_rail_long"]
+size = Vector3(14.6, 3, 0.3)
+
+[sub_resource type="BoxShape3D" id="shape_rail_short"]
+size = Vector3(0.3, 3, 6.6)
+
+[sub_resource type="CylinderMesh" id="mesh_mast"]
+material = SubResource("mat_rail")
+top_radius = 0.15
+bottom_radius = 0.25
+height = 6.0
+
+[sub_resource type="CylinderShape3D" id="shape_mast"]
+radius = 0.25
+height = 6.0
+
+[sub_resource type="BoxMesh" id="mesh_bowsprit"]
+material = SubResource("mat_bow")
+size = Vector3(3, 0.25, 0.25)
+
+[node name="Ship" type="AnimatableBody3D"]
+sync_to_physics = false
+script = ExtResource("1_ship")
+
+[node name="WaveMotion" type="Node" parent="."]
+script = ExtResource("2_waves")
+
+[node name="Hull" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.05, 0)
+mesh = SubResource("mesh_hull")
+
+[node name="Bowsprit" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.4, 0.5, 0)
+mesh = SubResource("mesh_bowsprit")
+
+[node name="DeckMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("mesh_deck")
+
+[node name="Floor" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+shape = SubResource("shape_floor")
+
+[node name="RailPortMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, -2.925)
+mesh = SubResource("mesh_rail_long")
+
+[node name="RailStarboardMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 2.925)
+mesh = SubResource("mesh_rail_long")
+
+[node name="RailBowMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.925, 0.35, 0)
+mesh = SubResource("mesh_rail_short")
+
+[node name="RailSternMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.925, 0.35, 0)
+mesh = SubResource("mesh_rail_short")
+
+[node name="RailPort" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -3.0)
+shape = SubResource("shape_rail_long")
+
+[node name="RailStarboard" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3.0)
+shape = SubResource("shape_rail_long")
+
+[node name="RailBow" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.0, 1.5, 0)
+shape = SubResource("shape_rail_short")
+
+[node name="RailStern" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.0, 1.5, 0)
+shape = SubResource("shape_rail_short")
+
+[node name="MastMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 3, 0)
+mesh = SubResource("mesh_mast")
+
+[node name="Mast" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 3, 0)
+shape = SubResource("shape_mast")
+
+[node name="CameraCornerStern1" type="Marker3D" parent="." groups=["camera_focus"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -3)
+
+[node name="CameraCornerStern2" type="Marker3D" parent="." groups=["camera_focus"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 3)
+
+[node name="CameraCornerBow1" type="Marker3D" parent="." groups=["camera_focus"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -3)
+
+[node name="CameraCornerBow2" type="Marker3D" parent="." groups=["camera_focus"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 3)
+
+[node name="CameraBowTip" type="Marker3D" parent="." groups=["camera_focus"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.9, 0.5, 0)

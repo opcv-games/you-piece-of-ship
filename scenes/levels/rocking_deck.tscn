@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/greybox/ship.tscn" id="1_ship"]
+[ext_resource type="PackedScene" path="res://scenes/greybox/crew_player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/components/shared_camera.gd" id="3_camera"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.62, 0.8, 0.93, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.85, 0.9, 1, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_water"]
+albedo_color = Color(0.13, 0.42, 0.62, 1)
+
+[sub_resource type="PlaneMesh" id="mesh_water"]
+material = SubResource("mat_water")
+size = Vector2(400, 400)
+
+[node name="RockingDeck" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, 30, 0)
+shadow_enabled = true
+
+[node name="Water" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh_water")
+
+[node name="Ship" parent="." instance=ExtResource("1_ship")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+
+[node name="Crew" type="Node3D" parent="Ship"]
+
+[node name="P1" parent="Ship/Crew" instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -2)
+player_index = 1
+
+[node name="P2" parent="Ship/Crew" instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -0.7)
+player_index = 2
+
+[node name="P3" parent="Ship/Crew" instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 0.7)
+player_index = 3
+
+[node name="P4" parent="Ship/Crew" instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 2)
+player_index = 4
+
+[node name="SharedCamera" type="Camera3D" parent="."]
+fov = 50.0
+script = ExtResource("3_camera")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Controls" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 900.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
+theme_override_font_sizes/font_size = 18
+text = "P1: W A S D (Z Q S D on a French keyboard) + Space to jump    P2: arrow keys + Enter    Controllers 1-4: left stick + A"
