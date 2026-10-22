@@ -32,7 +32,8 @@
 - Contracts and the upgrade shop
 - Fog and the telescope
 - Online play
-- Art, sound, juice (music requested by Olivier on 2026-10-22: comes with Phase 4)
+- Art, sound, juice
+- Background music (sea shanty loop): requested by Olivier 2026-10-22, comes with Phase 4
 
 ## Parked (good ideas that are out of scope until the core loop is proven)
 - Fire, crew overboard, floating cargo recovery
