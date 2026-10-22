@@ -145,6 +145,9 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Heat rises above 55% throttle and faster with water aboard; >80% caps top speed at 70%; 100% gives a 5 s warning then a 20 s stall that bursts the cooling pipe; venting cools 50% but knocks over crew within 3 m (8 s cooldown); burst pipe heats 1.6x faster until fixed (4 s with 2 crew, 12 s alone) | Conflicting urgency (speed vs heat) and coupling rule 3; emergency measure at a cost | #4 |
 | 2026-10-22 | Impacts above half speed damage an intact rudder instead of the hull (otherwise the hull cracks): one impact, one failure | Coupling rule 1 combined with fairness rule 'one impact starts at most one new failure' | #6 |
 | 2026-10-22 | Broken rudder: 5 s wheel shudder warning, then half steering response and a pull to one side even with nobody steering; fix by carrying the single spare rudder pin (half walking speed) to the helm | Rudder row of section 13; one spare makes a second rudder break a real crisis | #6 |
+| 2026-10-22 | Cargo position sets heel (1.2 degrees per crate-metre off centre, max 12) and trim; top speed is for a full load, +2% per crate lost | Load and balance row of section 13; throwing cargo is an emergency measure with a reward cost | #7 |
+| 2026-10-22 | Before each big wave one lashed crate's rope frays (label on the crate); if nobody takes it in hand before the wave hits, it breaks loose toward the low side | Crates rattle, ropes fray warning (section 13); the wave becomes a decision, not just a knockdown | #7 |
+| 2026-10-22 | Carry a crate to any rail and press Use to throw it overboard | Emergency measure: lower reward; a crate stuffed in a leak is also lost cargo | #7 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

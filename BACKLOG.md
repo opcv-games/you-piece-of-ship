@@ -5,7 +5,6 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[innovation]` **Load and balance** (#7)
 - [ ] `[standard]` **Hazard director and fairness rules** (#8)
 - [ ] `[standard]` **One 5-minute route with waves, rocks, port and deadline** (#9)
 - [ ] `[innovation]` **Results screen with event recap, quick restart, crew join** (#10)
@@ -24,6 +23,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #7 Load and balance: cargo heel and trim, fraying ropes before waves, loose crates, cargo overboard (2026-10-22, built, not yet player-tested)
 - Two-player tasks: plank patch and cooling pipe (fast with 2 crew, slow alone) — built with #3 and #4
 - #6 Rudder damage and the rudder pin swap (2026-10-22, built, not yet player-tested)
 - #4 Engine heat caps speed: engine room with coal and heat gauge, speed cap, warning then stall, vent knockdown, burst cooling pipe two-player fix, flooded ship heats faster (2026-10-22, built, not yet player-tested)
