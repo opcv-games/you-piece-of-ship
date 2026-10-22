@@ -5,10 +5,6 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[innovation]` **Engine heat caps speed** (#4)
-  As the engineer, I want to trade speed for heat, so that the crew argues about going fast (serves: Social interaction, Thrill of danger).
-  - Given full throttle, When heat passes 80%, Then top speed is capped.
-  - Given heat at 100%, When the 5 s warning ends, Then the engine stalls for 20 s.
 
 ## Next (likely, not committed)
 - [ ] Rudder damage and the throttle-steering workaround
@@ -29,6 +25,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #4 Engine heat caps speed: engine room with coal and heat gauge, speed cap, warning then stall, vent knockdown, burst cooling pipe two-player fix, flooded ship heats faster (2026-10-22, built, not yet player-tested)
 - #3 Hull breach changes handling: leaks with warning, crate plug, plank patch (1-2 crew), pump, water slows/sinks/lists the ship, sinking grace (2026-10-22, built, not yet player-tested)
 - #5 Carry and drop: planks, rudder pins, cargo crates; knockdowns drop items; items slide to the low side; big waves (2026-10-22, built, not yet player-tested)
 - Background music (placeholder sea shanty loop, M to mute): requested twice by Olivier, added early on 2026-10-22; final music still Phase 4
