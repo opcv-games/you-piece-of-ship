@@ -6,7 +6,6 @@
 
 ## Now (committed, top = highest priority) — Milestone A
 - [ ] `[standard]` **Hazard director and fairness rules** (#8)
-- [ ] `[standard]` **One 5-minute route with waves, rocks, port and deadline** (#9)
 - [ ] `[innovation]` **Results screen with event recap, quick restart, crew join** (#10)
 
 ## Next (likely, not committed)
@@ -23,6 +22,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #9 One 5-minute route (Reef Run): contract-built rocks, cliffs, port and dock, deadline clock, chart port arrow (2026-10-22, built, not yet player-tested)
 - #7 Load and balance: cargo heel and trim, fraying ropes before waves, loose crates, cargo overboard (2026-10-22, built, not yet player-tested)
 - Two-player tasks: plank patch and cooling pipe (fast with 2 crew, slow alone) — built with #3 and #4
 - #6 Rudder damage and the rudder pin swap (2026-10-22, built, not yet player-tested)

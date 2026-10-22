@@ -1,7 +1,7 @@
 extends GutTest
 ## features/engine_heat.feature
 
-const LevelScene = preload("res://scenes/levels/reef_run.tscn")
+const LevelScene = preload("res://scenes/levels/voyage.tscn")
 
 var _level: Node3D
 var _ship: Node3D

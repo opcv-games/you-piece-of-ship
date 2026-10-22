@@ -148,6 +148,9 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Cargo position sets heel (1.2 degrees per crate-metre off centre, max 12) and trim; top speed is for a full load, +2% per crate lost | Load and balance row of section 13; throwing cargo is an emergency measure with a reward cost | #7 |
 | 2026-10-22 | Before each big wave one lashed crate's rope frays (label on the crate); if nobody takes it in hand before the wave hits, it breaks loose toward the low side | Crates rattle, ropes fray warning (section 13); the wave becomes a decision, not just a knockdown | #7 |
 | 2026-10-22 | Carry a crate to any rail and press Use to throw it overboard | Emergency measure: lower reward; a crate stuffed in a leak is also lost cargo | #7 |
+| 2026-10-22 | Voyages are built from hand-made contracts (rocks, waves, deadline, pay); the Reef Run is the Milestone A route: 1300 m, deadline 5:30, calm first 200 m, peak rocks in the last third | Pacing of section 7; the same data drives Milestone B's four contracts | #9 |
+| 2026-10-22 | Visible cliffs line the channel 45 m either side; hitting them is a crash; the chart shows a PORT arrow with the distance when the port is beyond its range | Keeps the navigator's job about the reef, not about finding the way | #9 |
+| 2026-10-22 | Main scene is now scenes/levels/voyage.tscn; a Session autoload remembers the crew and chosen contract across restarts | Quick restart (< 10 s) and contract choice later | #9 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

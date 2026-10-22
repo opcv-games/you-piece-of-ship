@@ -1,7 +1,7 @@
 extends GutTest
 ## features/game_feel.feature
 
-const LevelScene = preload("res://scenes/levels/reef_run.tscn")
+const LevelScene = preload("res://scenes/levels/voyage.tscn")
 const RockScene = preload("res://scenes/greybox/rock.tscn")
 
 var _level: Node3D

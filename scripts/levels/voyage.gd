@@ -1,0 +1,175 @@
+extends Node3D
+## One voyage from the dock to port, built from a contract (rocks, cliffs, waves, deadline).
+## The route's pacing is hand-made (DESIGN.md section 7); this script only lays it out and
+## runs the clock.
+
+signal port_reached
+signal voyage_over(delivered: bool)
+
+const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
+const RockScene = preload("res://scenes/greybox/rock.tscn")
+
+@export var contract: Resource ## leave empty to use the session's chosen contract
+
+var finish_x := 1300.0
+var hits := 0
+var finished := false
+var delivered := false
+var elapsed := 0.0
+var _crash_flash := 0.0
+
+@onready var _ship: Node3D = $Ship
+@onready var _handling: Node = $Ship/ShipHandling
+@onready var _water: Node3D = $Water
+@onready var _status: Label = $HUD/Status
+@onready var _banner: Label = $HUD/Banner
+
+
+func _ready() -> void:
+	if contract == null:
+		contract = ContractLibrary.by_index(Session.contract_index)
+	finish_x = contract.length
+	_build_route()
+	$HUD/MapChart.port_x = finish_x
+	$Music.finish_x = finish_x
+	_handling.rock_hit.connect(_on_rock_hit)
+	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
+	_banner.visible = false
+	_spawn_foam()
+
+
+func _physics_process(delta: float) -> void:
+	# Keep the (plain) sea under the ship; the foam flecks stay put and show the speed.
+	_water.global_position = Vector3(_ship.global_position.x, 0.0, _ship.global_position.z)
+	if _crash_flash > 0.0:
+		_crash_flash -= delta
+		_banner.visible = _crash_flash > 0.0
+	if not finished:
+		elapsed += delta
+		if _ship.global_position.x >= finish_x:
+			_finish()
+	_status.text = "%s    Time %s / %s" % [contract.title, _clock(elapsed), _clock(contract.deadline)]
+	_status.modulate = Color(1, 0.35, 0.3) if elapsed > contract.deadline else Color.WHITE
+
+
+static func _clock(seconds: float) -> String:
+	return "%d:%02d" % [int(seconds) / 60, int(seconds) % 60]
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var restart: bool = (event is InputEventKey and event.pressed and event.physical_keycode == KEY_R) \
+			or (event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START)
+	if restart:
+		get_tree().reload_current_scene()
+
+
+# --- Route ---------------------------------------------------------------------
+
+func _build_route() -> void:
+	var reef := $Reef
+	var count := 0
+	for row in contract.rock_rows:
+		var radius: float = row[2] if row.size() > 2 else 3.5
+		for z in row[1]:
+			count += 1
+			_add_rock(reef, "Rock%d" % count, Vector3(row[0], 0.0, z), radius, true)
+	# Visible cliffs along both sides keep the ship in the channel.
+	var x := -40.0
+	var i := 0
+	while x < finish_x + 80.0:
+		for side in [-1.0, 1.0]:
+			i += 1
+			var wobble := sin(x * 0.07 + side) * 3.0
+			_add_rock(reef, "Cliff%d" % i, Vector3(x, 0.0, side * (contract.coast_half_width + 6.0 + wobble)), 6.0, false)
+		x += 11.0
+	_build_port()
+
+
+func _add_rock(parent: Node, rock_name: String, where: Vector3, radius: float, hidden: bool) -> void:
+	var rock: Node3D = RockScene.instantiate()
+	rock.name = rock_name
+	rock.radius = radius
+	rock.hidden = hidden
+	rock.position = where
+	parent.add_child(rock)
+
+
+func _build_port() -> void:
+	var buoy_mesh := CylinderMesh.new()
+	buoy_mesh.top_radius = 0.6
+	buoy_mesh.bottom_radius = 0.8
+	buoy_mesh.height = 3.0
+	var yellow := StandardMaterial3D.new()
+	yellow.albedo_color = Color(1, 0.85, 0.2)
+	buoy_mesh.material = yellow
+	for side in [-1.0, 1.0]:
+		var buoy := MeshInstance3D.new()
+		buoy.name = "Buoy%s" % ("Port" if side < 0.0 else "Starboard")
+		buoy.mesh = buoy_mesh
+		buoy.position = Vector3(finish_x, 1.0, side * 12.0)
+		buoy.add_to_group("finish")
+		add_child(buoy)
+	var dock_mesh := BoxMesh.new()
+	dock_mesh.size = Vector3(30, 3, 70)
+	var stone := StandardMaterial3D.new()
+	stone.albedo_color = Color(0.55, 0.53, 0.5)
+	dock_mesh.material = stone
+	var dock := MeshInstance3D.new()
+	dock.name = "Dock"
+	dock.mesh = dock_mesh
+	dock.position = Vector3(finish_x + 45.0, 1.0, 0.0)
+	add_child(dock)
+
+
+# --- Events --------------------------------------------------------------------
+
+func _on_rock_hit(_rock: Node3D) -> void:
+	hits += 1
+	if not finished:
+		_banner.text = "CRASH!"
+		_banner.visible = true
+		_crash_flash = 1.0
+
+
+func _on_sunk() -> void:
+	if finished:
+		return
+	finished = true
+	_crash_flash = 0.0
+	_handling.throttle = 0.0
+	_banner.text = "SHIP SUNK after %s!\nPress R (or Start) to try again" % _clock(elapsed)
+	_banner.visible = true
+	voyage_over.emit(false)
+
+
+func _finish() -> void:
+	finished = true
+	delivered = true
+	_crash_flash = 0.0
+	_handling.throttle = 0.0
+	_banner.text = "PORT REACHED in %s!\nPress R (or Start) to sail again" % _clock(elapsed)
+	_banner.visible = true
+	port_reached.emit()
+	voyage_over.emit(true)
+
+
+func _spawn_foam() -> void:
+	var flecks := MultiMeshInstance3D.new()
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.8, 0.04, 0.35)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.85, 0.93, 1.0)
+	mesh.material = material
+	multimesh.mesh = mesh
+	var area: float = (finish_x + 120.0) * contract.coast_half_width * 2.0
+	multimesh.instance_count = int(area / 25.0)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for i in multimesh.instance_count:
+		var spot := Vector3(rng.randf_range(-60.0, finish_x + 60.0), 0.03,
+				rng.randf_range(-contract.coast_half_width, contract.coast_half_width))
+		multimesh.set_instance_transform(i, Transform3D(Basis(Vector3.UP, rng.randf() * TAU), spot))
+	flecks.multimesh = multimesh
+	add_child(flecks)

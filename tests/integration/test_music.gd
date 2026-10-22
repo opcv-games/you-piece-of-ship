@@ -1,7 +1,7 @@
 extends GutTest
 ## Background music: plays on its own bus, loops, and M / Select toggles it.
 
-const LevelScene = preload("res://scenes/levels/reef_run.tscn")
+const LevelScene = preload("res://scenes/levels/voyage.tscn")
 
 var _level: Node3D
 var _music: AudioStreamPlayer

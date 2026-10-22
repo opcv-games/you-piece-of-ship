@@ -6,6 +6,7 @@ extends Control
 @export var station: Node3D ## the map table
 @export var ship: Node3D
 @export var range_metres := 70.0 ## about 12 s of warning at full speed
+@export var port_x := 1300.0 ## where the port buoys are (set by the voyage)
 
 const SEA := Color(0.07, 0.16, 0.3, 0.92)
 const RING := Color(1, 1, 1, 0.15)
@@ -66,8 +67,25 @@ func _draw() -> void:
 	var beam: float = handling.hull_half_width * px
 	draw_colored_polygon(PackedVector2Array([center + Vector2(0, -bow), center + Vector2(beam, bow),
 			center + Vector2(-beam, bow)]), SHIP)
+	_draw_port_arrow(center, radius)
 	var names := PackedStringArray()
 	for reader in station.readers():
 		names.append("P%d" % reader.player_index)
 	draw_string(ThemeDB.fallback_font, Vector2(0, -8), "MAP TABLE  read by " + ", ".join(names),
 			HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color(1, 1, 1))
+
+
+## When the port is beyond the chart's range, an arrow on the rim points to it with the distance.
+func _draw_port_arrow(center: Vector2, radius: float) -> void:
+	var port := Vector3(port_x, 0.0, 0.0)
+	var mark := chart_point(port)
+	var distance := maxf(0.0, port_x - ship.global_position.x)
+	if mark.length() < radius - 4.0 or distance <= 0.0:
+		return
+	var direction := mark.normalized()
+	var tip := center + direction * (radius - 6.0)
+	var side := Vector2(-direction.y, direction.x)
+	draw_colored_polygon(PackedVector2Array([tip, tip - direction * 22.0 + side * 11.0,
+			tip - direction * 22.0 - side * 11.0]), FINISH)
+	draw_string(ThemeDB.fallback_font, tip - direction * 50.0 - Vector2(40, -6), "PORT %d m" % roundi(distance),
+			HORIZONTAL_ALIGNMENT_CENTER, 80, 15, FINISH)
