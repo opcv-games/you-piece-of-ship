@@ -1,10 +1,12 @@
 extends CharacterBody3D
-## One crew member: walk, run and jump, Overcooked-style, and take over stations with Use.
-## Crew live inside the ship node, so the rocking deck carries them; they never need to
-## fight the waves to stay on board, only to walk where they want (Comedy without frustration).
+## One crew member: walk, run and jump, Overcooked-style; Use picks up, puts down, applies
+## items and takes over stations. Crew live inside the ship node, so the rocking deck carries
+## them; they only fight the waves to walk where they want (Comedy without frustration).
+## Knockdowns (big waves, steam vents, sliding crates) drop whatever you carry.
 
 signal jumped
 signal landed
+signal knocked_down
 
 const COLORS := [
 	Color(0.9, 0.25, 0.2), # player 1: red
@@ -18,11 +20,15 @@ const COLORS := [
 @export var acceleration := 40.0
 @export var jump_velocity := 6.0
 @export var gravity := 20.0
+@export var knockdown_seconds := 1.4
+@export var knockdown_push := 3.0 ## metres per second you are shoved when knocked over
 
 var move_input := Vector2.ZERO ## x = right, y = towards the camera
 var jump_requested := false
 var use_requested := false
 var station: Node3D = null ## the station this player is operating, if any
+var carried: Node3D = null ## the item above this player's head, if any
+var knocked := 0.0 ## seconds left lying on the deck
 
 var _air_time := 0.0
 
@@ -42,21 +48,36 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if knocked > 0.0:
+		_lie_down(delta)
+		return
 	if use_requested:
-		_toggle_station()
+		_interact()
 	use_requested = false
 	if station:
 		# Operating a station: stand at it, face the bow; the stick drives the station instead.
 		velocity = Vector3.ZERO
-		jump_requested = false
-		global_position = station.global_position
-		_visual.rotation.y = PI / 2.0
-		return
-	var direction := Vector3(move_input.x, 0.0, move_input.y).limit_length(1.0)
-	velocity.x = move_toward(velocity.x, direction.x * walk_speed, acceleration * delta)
-	velocity.z = move_toward(velocity.z, direction.z * walk_speed, acceleration * delta)
-	if is_on_floor():
 		if jump_requested:
+			station.secondary_action(self)
+		jump_requested = false
+		if station: # the secondary action may have released us
+			global_position = station.stand_point(self)
+			_visual.rotation.y = PI / 2.0
+		return
+	var speed: float = walk_speed * (carried.carry_speed if carried else 1.0)
+	var direction := Vector3(move_input.x, 0.0, move_input.y).limit_length(1.0)
+	velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
+	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
+	_fall_and_jump(delta, true)
+	if direction.length() > 0.1:
+		# Face where we walk; the ship may have turned, so convert to our own frame.
+		var facing := global_basis.inverse() * direction
+		_visual.rotation.y = atan2(facing.x, facing.z)
+
+
+func _fall_and_jump(delta: float, can_jump: bool) -> void:
+	if is_on_floor():
+		if jump_requested and can_jump:
 			velocity.y = jump_velocity
 			jumped.emit()
 	else:
@@ -69,16 +90,54 @@ func _physics_process(delta: float) -> void:
 		_air_time = 0.0
 	else:
 		_air_time += delta
-	if direction.length() > 0.1:
-		# Face where we walk; the ship may have turned, so convert to our own frame.
-		var facing := global_basis.inverse() * direction
-		_visual.rotation.y = atan2(facing.x, facing.z)
 
 
-func _toggle_station() -> void:
+func _lie_down(delta: float) -> void:
+	knocked -= delta
+	use_requested = false
+	velocity.x = move_toward(velocity.x, 0.0, 6.0 * delta)
+	velocity.z = move_toward(velocity.z, 0.0, 6.0 * delta)
+	_fall_and_jump(delta, false)
+	if knocked <= 0.0:
+		knocked = 0.0
+		_visual.rotation.x = 0.0
+		_visual.position.y = 0.0
+
+
+## Uses the nearest thing in reach: leave a station, apply or drop the carried item,
+## pick something up, or take over a station.
+func _interact() -> void:
 	if station:
 		station.release(self)
 		return
-	for candidate in get_tree().get_nodes_in_group("stations"):
-		if candidate.needs_use and candidate.crew_nearby().has(self) and candidate.occupy(self):
-			return
+	var best: Node = null
+	var best_distance := INF
+	for node in get_tree().get_nodes_in_group("interactables"):
+		if node == carried or not node.can_interact(self):
+			continue
+		var distance: float = node.distance_to_player(self)
+		if distance < best_distance:
+			best = node
+			best_distance = distance
+	if best:
+		best.interact(self)
+	elif carried:
+		carried.drop()
+
+
+## Knocks this player over, dropping what they carry. push is a ship-local x/z direction.
+## Players operating a station are holding on (braced) and stay up. Returns true if knocked.
+func knock_down(push := Vector2.ZERO) -> bool:
+	if station or knocked > 0.0:
+		return false
+	knocked = knockdown_seconds
+	if carried:
+		carried.drop(push * knockdown_push * 1.3)
+	var ship_basis := get_parent_node_3d().global_basis if get_parent_node_3d() else Basis.IDENTITY
+	var shove := ship_basis * Vector3(push.x, 0.0, push.y) * knockdown_push
+	velocity.x = shove.x
+	velocity.z = shove.z
+	_visual.rotation.x = -PI / 2.0
+	_visual.position.y = 0.35
+	knocked_down.emit()
+	return true

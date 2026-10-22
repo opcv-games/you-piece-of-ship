@@ -61,8 +61,9 @@ func _draw() -> void:
 		if mark.length() < radius - 4.0:
 			draw_circle(center + mark, maxf(4.0, rock.radius * px), ROCK)
 	# The ship: a triangle pointing up (the bow), drawn to scale.
-	var bow := 7.0 * px
-	var beam := 3.0 * px
+	var handling := ship.get_node("ShipHandling")
+	var bow: float = handling.hull_half_length * px
+	var beam: float = handling.hull_half_width * px
 	draw_colored_polygon(PackedVector2Array([center + Vector2(0, -bow), center + Vector2(beam, bow),
 			center + Vector2(-beam, bow)]), SHIP)
 	var names := PackedStringArray()

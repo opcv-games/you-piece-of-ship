@@ -135,6 +135,9 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Rock hits stop the ship, bounce it back and reveal the rock; no hull damage yet | Damage arrives with #3; this keeps #2 about callouts only | #2 |
 | 2026-10-22 | Small juice pass (crash, wake, squash, confetti) on the GameFeel node, each effect switchable | Requested by Olivier before Phase 4; kept small and reversible so each effect can be kept or cut | Olivier request |
 | 2026-10-22 | Placeholder music: synthesised "Drunken Sailor" loop (public-domain tune) on a Music bus; M / Select mutes; ducks on crash, speeds up near port | Requested twice by Olivier; mute it for fun-gate playtests so music doesn't mask the mechanics | Olivier request |
+| 2026-10-22 | Ship enlarged to 18 x 7 m with a fixed layout: helm (stern), map table (bow, port), spare-parts boxes (port, amidships), cargo bay of 6 lashed crates (forward of the mast) | Room for four stations, repairs and running around; side lanes stay clear so crew can cross the ship | #5 |
+| 2026-10-22 | Use is one context button: leave a station, apply or drop the carried item, pick up, take over a station (nearest in reach wins) | One button keeps couch controls learnable for mixed-skill groups (section 4) | #5 |
+| 2026-10-22 | Big waves warn for 5 s (sign + side), then roll the ship 14 degrees; anyone not holding a station is knocked down and drops what they carry; loose items slide downhill; fast crates bowl people over | Deck comedy rules and fairness rule (warning of at least 5 s), section 13 | #5 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

@@ -24,6 +24,10 @@ extends Node
 @export var squash_enabled := true
 @export_range(0.0, 0.6) var squash_strength := 0.25
 
+@export_group("Big waves")
+@export var wave_warning_enabled := true ## a sign and growing spray on the side the wave comes from
+@export var wave_splash_enabled := true
+
 @export_group("Port")
 @export var confetti_enabled := true
 @export_range(0, 400) var confetti_amount := 160
@@ -45,8 +49,12 @@ func _ready() -> void:
 	for player in get_tree().get_nodes_in_group("crew"):
 		player.jumped.connect(_on_jumped.bind(player))
 		player.landed.connect(_on_landed.bind(player))
-	_wakes.append(_make_wake("BowWake", Vector3(7.3, -1.0, 0.0), 0.4))
-	_wakes.append(_make_wake("SternWake", Vector3(-7.2, -1.0, 0.0), 2.5))
+	var half_length: float = ship.deck_length * 0.5
+	_wakes.append(_make_wake("BowWake", Vector3(half_length + 0.3, -1.0, 0.0), 0.4))
+	_wakes.append(_make_wake("SternWake", Vector3(-half_length - 0.2, -1.0, 0.0), ship.deck_width * 0.35))
+	var waves: Node = ship.get_node("WaveMotion")
+	waves.wave_warning.connect(_on_wave_warning)
+	waves.wave_struck.connect(_on_wave_struck)
 
 
 func _exit_tree() -> void:
@@ -122,6 +130,39 @@ func _make_wake(wake_name: String, local_position: Vector3, half_width: float) -
 	wake.emitting = false
 	ship.add_child(wake)
 	return wake
+
+
+# --- Big waves ----------------------------------------------------------------
+
+func _on_wave_warning(side: float) -> void:
+	if not wave_warning_enabled:
+		return
+	var waves: Node = ship.get_node("WaveMotion")
+	var sign := Label3D.new()
+	sign.text = "BIG WAVE!\nGrab a station!"
+	sign.font_size = 96
+	sign.outline_size = 18
+	sign.modulate = Color(1.0, 0.9, 0.3)
+	sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sign.no_depth_test = true
+	sign.position = Vector3(0.0, 2.8, side * (ship.deck_width * 0.5 + 1.5))
+	ship.add_child(sign)
+	var tween := sign.create_tween().set_loops(int(waves.wave_warning_seconds / 0.5))
+	tween.tween_property(sign, "scale", Vector3.ONE * 1.15, 0.25)
+	tween.tween_property(sign, "scale", Vector3.ONE, 0.25)
+	get_tree().create_timer(waves.wave_warning_seconds + 0.3).timeout.connect(sign.queue_free)
+
+
+func _on_wave_struck(side: float) -> void:
+	if not wave_splash_enabled:
+		return
+	# Spray bursts just outside the rail, so it reads as a wave without covering the deck.
+	var outside := ship.to_global(Vector3(0.0, 0.0, side * (ship.deck_width * 0.5 + 1.2)))
+	for x in [-6.0, 0.0, 6.0]:
+		_burst(outside + ship.global_basis.x * x, debris_amount / 2, _box(Vector3(0.3, 0.3, 0.3), Color(0.92, 0.97, 1.0)),
+				5.0, 8.0, 15.0, 14.0, 1.0)
+	if shake_enabled:
+		camera.add_trauma(shake_strength * 0.6)
 
 
 # --- Jumps ------------------------------------------------------------------
