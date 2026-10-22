@@ -8,6 +8,8 @@ signal voyage_over(delivered: bool)
 
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const RockScene = preload("res://scenes/greybox/rock.tscn")
+const Upgrades = preload("res://scripts/systems/upgrades.gd")
+const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 
 @export var contract: Resource ## leave empty to use the session's chosen contract
 
@@ -38,6 +40,7 @@ func _ready() -> void:
 	$HazardDirector.setup(contract.waves)
 	$HUD/MapChart.range_metres = contract.chart_range
 	_apply_fog(contract.fog)
+	Upgrades.apply(_ship, Session.upgrades)
 	if contract.tutorial:
 		$Ship/HullSystem.sink_grace_seconds = INF # the Maiden voyage can't be lost
 	_handling.rock_hit.connect(_on_rock_hit)
@@ -105,10 +108,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			or (event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START)
 	if restart:
 		get_tree().reload_current_scene()
+	if finished and event.is_action_pressed("ui_accept"):
+		get_tree().change_scene_to_file(DOCK_SCENE) # back to the dock: spend, pick the next contract
 	var change_crew: bool = finished and event is InputEventKey and event.pressed and event.physical_keycode == KEY_J
 	if change_crew:
 		Session.joined_players.clear()
-		get_tree().reload_current_scene()
+		get_tree().change_scene_to_file(DOCK_SCENE)
 
 
 # --- Contract events and fog --------------------------------------------------------
@@ -256,6 +261,7 @@ func _show_results() -> void:
 		"progress": clampf(_ship.global_position.x / finish_x, 0.0, 1.0),
 		"score": results.score(delivered, cargo.cargo_value(), water, elapsed, contract.deadline),
 	}
+	outcome.earned = Session.record_voyage(Session.contract_index, delivered, outcome.score.total)
 	results.show_results(outcome, $VoyageLog.recap())
 
 

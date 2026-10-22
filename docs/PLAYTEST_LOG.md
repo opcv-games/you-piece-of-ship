@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Dock and upgrade shop  (#13)
+Hypothesis: If every upgrade has a visible catch, then crews will argue at the dock about what to buy and the next voyage will feel different, increasing Social interaction without reducing Comedy.
+Variable: prices 300-500 coins
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main
+
 ## 2026-10-22 — Contracts, tutorial, fog and telescope  (#11, #12)
 Hypothesis: If the first contract teaches each system by doing and the last one blinds the chart, then new crews learn without a manual and the fog run forces a new split of roles, increasing Social interaction.
 Variable: fog chart range 30 m; telescope range 90 m
