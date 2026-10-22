@@ -2,6 +2,18 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Juice pass on existing moments (requested by Olivier)
+Hypotheses (one per effect; each has its own switch on the GameFeel node, so each is kept or removed on its own):
+- Crash (shake + 80 ms freeze + debris/spray + "CRASH!" pop): if a crash is felt, then the crew will groan and blame each other, increasing Comedy.
+- Wake foam at bow and stern: if speed shows on the water, then the captain will feel the speed without reading the HUD, increasing Thrill of danger.
+- Squash and stretch on jump/land: if jumps have weight, then players will hop around more, increasing Comedy.
+- Port confetti: if arriving is celebrated, then the crew will cheer, increasing Thrill of danger (the release).
+Variable: each effect on/off
+Sessions: pending
+Observed: pending
+Biggest weakness: pending
+Decision: pending
+
 ## 2026-10-22 — Station-bound information  (#2)
 Hypothesis: If submerged rocks are shown only on a map table at the bow while the wheel is at the stern, then the navigator will shout directions and the captain will steer by their calls, increasing Social interaction.
 Variable: chart visible only while someone stands at the map table (on/off)

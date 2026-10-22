@@ -10,6 +10,12 @@ extends Camera3D
 @export var min_distance := 12.0
 @export var max_distance := 45.0
 @export var follow_speed := 4.0
+@export var shake_max_offset := 0.8 ## metres the view jolts at full trauma
+@export var shake_decay := 1.5 ## trauma lost per second
+
+var trauma := 0.0 ## 0..1, raised by add_trauma(); the shake is trauma squared, so small hits stay subtle
+
+var _anchor := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -17,7 +23,12 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	trauma = maxf(0.0, trauma - shake_decay * delta)
 	_frame(1.0 - exp(-follow_speed * delta))
+
+
+func add_trauma(amount: float) -> void:
+	trauma = clampf(trauma + amount, 0.0, 1.0)
 
 
 ## Jump straight to the framing (used at start).
@@ -46,7 +57,15 @@ func _frame(weight: float) -> void:
 	var distance := maxf(half_height / tan_half_v, half_width / (tan_half_v * usable_aspect))
 	distance = clampf(distance, min_distance, max_distance)
 	var goal := center + Vector3(0.0, sin(pitch), cos(pitch)) * distance
-	global_position = global_position.lerp(goal, weight)
+	_anchor = _anchor.lerp(goal, weight)
+	global_position = _anchor + _shake_offset()
 	rotation = Vector3(-pitch, 0.0, 0.0)
 	# Slide the view right so the ship sits in the free part of the screen.
 	h_offset = reserve_right * distance * tan_half_v * aspect
+
+
+func _shake_offset() -> Vector3:
+	if trauma <= 0.0:
+		return Vector3.ZERO
+	var jolt := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0))
+	return jolt * trauma * trauma * shake_max_offset

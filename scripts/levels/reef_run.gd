@@ -2,6 +2,8 @@ extends Node3D
 ## First route: sail through a reef that only the map table can see, to the port buoys.
 ## A short, replayable run (about a minute) so the captain/navigator call-out loop can be judged.
 
+signal port_reached
+
 @export var finish_x := 300.0 ## the ship's bow side crosses this line to reach port
 
 var hits := 0
@@ -58,6 +60,7 @@ func _finish() -> void:
 	_banner.text = "PORT REACHED in %d s with %d rock hit%s!\nPress R (or Start) to sail again" % [
 		int(_time), hits, "" if hits == 1 else "s"]
 	_banner.visible = true
+	port_reached.emit()
 
 
 func _spawn_foam() -> void:
