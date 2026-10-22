@@ -153,7 +153,7 @@ if __name__ == "__main__":
     out = Path(__file__).resolve().parent.parent / "translations/strings.csv"
     out.parent.mkdir(exist_ok=True)
     with out.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow(["keys", "en", "fr"])
         for key, fr in FR.items():
             writer.writerow([escape(key), escape(key), escape(fr)])
