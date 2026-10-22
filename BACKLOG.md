@@ -5,13 +5,14 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
+- [ ] `[innovation]` **Rudder damage and the rudder pin swap** (#6)
+- [ ] `[innovation]` **Load and balance** (#7)
+- [ ] `[standard]` **Hazard director and fairness rules** (#8)
+- [ ] `[standard]` **One 5-minute route with waves, rocks, port and deadline** (#9)
+- [ ] `[innovation]` **Results screen with event recap, quick restart, crew join** (#10)
 
 ## Next (likely, not committed)
-- [ ] Rudder damage and the throttle-steering workaround
-- [ ] Load and balance (cargo shifting, deck tilt)
 - [ ] Two-player tasks (big patch, cooling pipe)
-- [ ] Results screen with event recap
-- [ ] One 5-minute route with rocks, waves and a port
 
 ## Later (deliberately vague)
 - Contracts and the upgrade shop
