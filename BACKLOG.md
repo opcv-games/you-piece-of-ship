@@ -29,7 +29,6 @@
 - Fog and the telescope
 - Online play
 - Art, sound, juice
-- Background music (sea shanty loop): requested by Olivier 2026-10-22, comes with Phase 4
 
 ## Parked (good ideas that are out of scope until the core loop is proven)
 - Fire, crew overboard, floating cargo recovery
@@ -37,6 +36,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Background music (placeholder sea shanty loop, M to mute): requested twice by Olivier, added early on 2026-10-22; final music still Phase 4
 - #2 Station-bound information: helm, heading-up map table chart, hidden reef run to port (2026-10-22)
 - #1 Walk on a rocking ship, together: grey ship on scripted waves, four couch players, shared camera (2026-10-22)
 - Phase 1: Committee Summary approved (2026-10-22)

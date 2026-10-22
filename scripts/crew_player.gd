@@ -3,6 +3,9 @@ extends CharacterBody3D
 ## Crew live inside the ship node, so the rocking deck carries them; they never need to
 ## fight the waves to stay on board, only to walk where they want (Comedy without frustration).
 
+signal jumped
+signal landed
+
 const COLORS := [
 	Color(0.9, 0.25, 0.2), # player 1: red
 	Color(0.2, 0.45, 0.95), # player 2: blue
@@ -20,6 +23,8 @@ var move_input := Vector2.ZERO ## x = right, y = towards the camera
 var jump_requested := false
 var use_requested := false
 var station: Node3D = null ## the station this player is operating, if any
+
+var _air_time := 0.0
 
 @onready var _visual: Node3D = $Visual
 
@@ -53,10 +58,17 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor():
 		if jump_requested:
 			velocity.y = jump_velocity
+			jumped.emit()
 	else:
 		velocity.y -= gravity * delta
 	jump_requested = false
 	move_and_slide()
+	if is_on_floor():
+		if _air_time > 0.15: # ignore tiny hops from the deck heaving
+			landed.emit()
+		_air_time = 0.0
+	else:
+		_air_time += delta
 	if direction.length() > 0.1:
 		# Face where we walk; the ship may have turned, so convert to our own frame.
 		var facing := global_basis.inverse() * direction
