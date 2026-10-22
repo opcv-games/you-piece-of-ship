@@ -94,12 +94,12 @@ func _start(contract_index: int, players: Array, ai_indexes: Array, upgrades: Ar
 	Session.joined_players = humans
 	remote_ai = ai_indexes
 	Session.upgrades = upgrades
-	get_tree().change_scene_to_file(VOYAGE_SCENE)
+	UI.go(VOYAGE_SCENE)
 
 
 @rpc("authority", "call_local", "reliable")
 func _to_dock() -> void:
-	get_tree().change_scene_to_file(DOCK_SCENE)
+	UI.go(DOCK_SCENE)
 
 
 @rpc("authority", "call_remote", "reliable")

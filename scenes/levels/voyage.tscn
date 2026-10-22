@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/systems/net_sync.gd" id="15_net"]
 [ext_resource type="Script" path="res://scripts/ai/crew_brain.gd" id="16_brain"]
 [ext_resource type="Script" path="res://scripts/ui/band_panel.gd" id="9_band"]
+[ext_resource type="Script" path="res://scripts/ui/alarm_flash.gd" id="17_alarm"]
 
 [sub_resource type="Environment" id="env"]
 resource_local_to_scene = true
@@ -84,6 +85,13 @@ reserve_right = 0.25
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
+[node name="AlarmFlash" type="TextureRect" parent="HUD" node_paths=PackedStringArray("ship")]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("17_alarm")
+ship = NodePath("../../Ship")
+
 [node name="Controls" type="Label" parent="HUD"]
 offset_left = 16.0
 offset_top = 10.0
@@ -92,7 +100,7 @@ offset_bottom = 60.0
 theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
 theme_override_font_sizes/font_size = 16
 text = "P1: W A S D (Z Q S D on French keyboard) move, Space jump, E use     P2: arrows, Enter jump, Right Shift use     Controllers: stick, A jump, X use
-Helm: left/right steer, up/down throttle (below 0 = astern)     Engine: coal pile, Use = shovel / feed, Jump at engine = vent     R: restart     M: music"
+Helm: left/right steer, up/down throttle (below 0 = astern)     Engine: coal pile, Use = shovel / feed, Jump at engine = vent     R: restart     M: music     H: show / hide this help"
 
 [node name="Status" type="Label" parent="HUD"]
 offset_left = 16.0

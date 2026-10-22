@@ -9,6 +9,7 @@ const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
 const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const VOYAGE_SCENE := "res://scenes/levels/voyage.tscn"
+const MENU_SCENE := "res://scenes/ui/main_menu.tscn"
 const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo"]
 const JOB_NAMES := {"helm": "Helm", "navigator": "Navigator", "engine": "Engine", "pump": "Pump",
 		"carpenter": "Carpenter", "cargo": "Cargo", "": "nothing"}
@@ -40,6 +41,11 @@ func _ready() -> void:
 	refresh()
 	if not contract_buttons.is_empty():
 		contract_buttons[clampi(Session.unlocked - 1, 0, contract_buttons.size() - 1)].grab_focus()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		UI.go(MENU_SCENE)
 
 
 func _process(_delta: float) -> void:
@@ -108,13 +114,17 @@ func start_contract(index: int) -> bool:
 		Net.start_voyage(index) # everyone sets sail together
 		return true
 	if is_inside_tree() and get_tree().current_scene == self:
-		get_tree().change_scene_to_file(VOYAGE_SCENE)
+		UI.go(VOYAGE_SCENE)
 	return true
 
 
 func buy(id: String) -> bool:
 	var ok := Session.buy(id)
-	_message.text = "Bought: %s" % Upgrades.DATA[id].title if ok else "Not enough coins."
+	_message.text = tr("Bought: %s") % tr(Upgrades.DATA[id].title) if ok else tr("Not enough coins.")
+	if ok and is_inside_tree():
+		UI.coin_burst(shop_buttons[id].get_global_rect().get_center())
+	elif not ok and is_inside_tree():
+		UI.play("error")
 	refresh()
 	return ok
 
@@ -176,8 +186,14 @@ static func _clock(seconds: float) -> String:
 
 func _build() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	var painting := TextureRect.new()
+	painting.texture = load("res://assets/art/export/ui/menu_background.png")
+	painting.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	painting.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	painting.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(painting)
 	var background := ColorRect.new()
-	background.color = Color(0.07, 0.13, 0.22)
+	background.color = Color(0.05, 0.1, 0.2, 0.86) # the painted deck shows through, faintly
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 	var root := VBoxContainer.new()
@@ -196,7 +212,9 @@ func _build() -> void:
 	header.add_child(spacer)
 	_money = _label("Coins: 0", 26, Color(1, 0.85, 0.3))
 	header.add_child(_money)
-	root.add_child(_label("CREW: each player presses Use (E, Right Shift or X) to come aboard. Empty slots can be AI crewmates: a job, then a backup job.", 15, Color.WHITE))
+	var crew_help := _label("CREW: each player presses Use (E, Right Shift or X) to come aboard. Empty slots can be AI crewmates: a job, then a backup job.", 15, Color.WHITE)
+	crew_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(crew_help)
 	var crew := HBoxContainer.new()
 	crew.add_theme_constant_override("separation", 12)
 	root.add_child(crew)
@@ -280,11 +298,14 @@ func _build() -> void:
 	leave_button.custom_minimum_size = Vector2(80, 36)
 	leave_button.pressed.connect(func(): Net.leave(); refresh())
 	online.add_child(leave_button)
-	_online_status = _label("", 15, Color(0.6, 0.85, 1.0))
+	_online_status = _label("", 14, Color(0.6, 0.85, 1.0))
+	_online_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_online_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_online_status.custom_minimum_size = Vector2(200, 0)
 	online.add_child(_online_status)
 	_message = _label("", 17, Color(1, 0.6, 0.5))
 	root.add_child(_message)
-	root.add_child(_label("Arrows / D-pad: choose     Enter / Space / A: confirm", 15, Color(1, 1, 1, 0.6)))
+	root.add_child(_label("Arrows / D-pad: choose     Enter / Space / A: confirm     Esc / B: back to the menu", 15, Color(1, 1, 1, 0.6)))
 
 
 func _host() -> void:

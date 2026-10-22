@@ -15,6 +15,11 @@ var unlocked := 1 ## how many contracts are open
 var best_scores := {} ## contract index (as text) -> best score
 var best_times := {} ## contract index (as text) -> fastest delivery in seconds
 var last_records := {"score": false, "time": false} ## did the last voyage set a personal best?
+var language := "" ## "en" or "fr"; empty = follow the computer's language
+var music_volume_db := -8.0
+var band_captions := true
+var fullscreen := false
+var last_join_address := "" ## the friend's address last used with Join
 var persist := true ## false while running automated tests: never touch the player's save
 
 
@@ -23,6 +28,18 @@ func _ready() -> void:
 		if arg.ends_with("gut_cmdln.gd"):
 			persist = false
 	load_game()
+	apply_settings()
+
+
+## Language, music volume and fullscreen from the saved settings.
+func apply_settings() -> void:
+	var locale := language if language != "" else OS.get_locale_language()
+	TranslationServer.set_locale("fr" if locale == "fr" else "en")
+	var bus := AudioServer.get_bus_index(&"Music")
+	if bus >= 0:
+		AudioServer.set_bus_volume_db(bus, music_volume_db + 8.0) # layers are mixed for -8 dB
+	if persist and DisplayServer.get_name() != "headless":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_MAXIMIZED)
 
 
 ## Records a finished voyage: earnings, best score, and the next contract unlocks on delivery.
@@ -95,7 +112,9 @@ func save_game() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify({"money": money, "upgrades": upgrades, "unlocked": unlocked,
-				"best_scores": best_scores, "best_times": best_times, "ai_crew": ai_crew}))
+				"best_scores": best_scores, "best_times": best_times, "ai_crew": ai_crew, "language": language,
+				"music_volume_db": music_volume_db, "band_captions": band_captions, "fullscreen": fullscreen,
+				"last_join_address": last_join_address}))
 
 
 func load_game() -> void:
@@ -108,6 +127,11 @@ func load_game() -> void:
 		unlocked = int(data.get("unlocked", 1))
 		best_scores = data.get("best_scores", {})
 		best_times = data.get("best_times", {})
+		language = data.get("language", "")
+		music_volume_db = float(data.get("music_volume_db", -8.0))
+		band_captions = bool(data.get("band_captions", true))
+		fullscreen = bool(data.get("fullscreen", false))
+		last_join_address = data.get("last_join_address", "")
 		ai_crew = {}
 		var saved_ai = data.get("ai_crew", {})
 		if saved_ai is Dictionary:

@@ -22,6 +22,7 @@ var finished := false
 var delivered := false
 var elapsed := 0.0
 var _crash_flash := 0.0
+var _show_help := false
 var net_puppet := false ## online client: the host runs the game, this copy only shows it
 var _next_event := 0
 var _hint_left := 0.0
@@ -123,6 +124,9 @@ func _physics_process(delta: float) -> void:
 	if _hint_left > 0.0:
 		_hint_left -= delta
 		$HUD/Hint.visible = _hint_left > 0.0
+	# The controls help fades after the first half minute (H brings it back).
+	var help: Label = $HUD/Controls
+	help.modulate.a = move_toward(help.modulate.a, 1.0 if _show_help or elapsed < 30.0 else 0.0, delta * 2.0)
 	_status.text = "%s    Time %s / %s" % [contract.title, _clock(elapsed), _clock(contract.deadline)]
 	_status.modulate = Color(1, 0.35, 0.3) if elapsed > contract.deadline else Color.WHITE
 	if net_puppet:
@@ -144,6 +148,8 @@ static func _clock(seconds: float) -> String:
 func _unhandled_input(event: InputEvent) -> void:
 	var restart: bool = (event is InputEventKey and event.pressed and event.physical_keycode == KEY_R) \
 			or (event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START)
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_H:
+		_show_help = not _show_help
 	if Net.role == "client":
 		return # online: the host decides when to sail again or go back to the dock
 	if restart:
@@ -155,11 +161,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if Net.role == "host":
 			Net.back_to_dock()
 		else:
-			get_tree().change_scene_to_file(DOCK_SCENE) # back to the dock: spend, pick the next contract
+			UI.go(DOCK_SCENE) # back to the dock: spend, pick the next contract
 	var change_crew: bool = finished and event is InputEventKey and event.pressed and event.physical_keycode == KEY_J
 	if change_crew:
 		Session.joined_players.clear()
-		get_tree().change_scene_to_file(DOCK_SCENE)
+		UI.go(DOCK_SCENE)
 
 
 # --- Contract events and fog --------------------------------------------------------
