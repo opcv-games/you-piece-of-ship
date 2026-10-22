@@ -74,6 +74,15 @@ func is_active() -> bool:
 	return not readers().is_empty()
 
 
+## Whether a human is getting this station's information (screens only show it to humans;
+## an AI crewmate reads it for itself and calls out what matters).
+func has_human_reader() -> bool:
+	for player in readers():
+		if not player.has_node("AICrew"):
+			return true
+	return false
+
+
 # --- Interaction (used by crew_player.gd) ------------------------------------
 
 func can_interact(player: Node3D) -> bool:
@@ -81,7 +90,10 @@ func can_interact(player: Node3D) -> bool:
 		return false
 	if player.carried:
 		return accepts_item(player.carried, player)
-	return needs_use and occupants.size() < max_occupants and not occupants.has(player)
+	if not needs_use or occupants.has(player):
+		return false
+	# Humans come first: a human can take over a station an AI is holding.
+	return occupants.size() < max_occupants or (_is_human(player) and _ai_occupant() != null)
 
 
 func interact(player: Node3D) -> void:
@@ -91,8 +103,23 @@ func interact(player: Node3D) -> void:
 		occupy(player)
 
 
+func _is_human(player: Node3D) -> bool:
+	return not player.has_node("AICrew")
+
+
+func _ai_occupant() -> Node3D:
+	for player in occupants:
+		if not _is_human(player):
+			return player
+	return null
+
+
 func occupy(player: Node3D) -> bool:
-	if not enabled or not needs_use or occupants.size() >= max_occupants or occupants.has(player):
+	if not enabled or not needs_use or occupants.has(player):
+		return false
+	if occupants.size() >= max_occupants and _is_human(player) and _ai_occupant() != null:
+		release(_ai_occupant()) # the AI steps aside for the human
+	if occupants.size() >= max_occupants:
 		return false
 	occupants.append(player)
 	player.station = self

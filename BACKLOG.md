@@ -17,6 +17,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- AI crewmates with jobs and backup jobs, set at the dock; navigator callouts; humans take priority (2026-10-22, built, not yet player-tested)
 - #14 Online multiplayer, host-authoritative, lobby on the dock (2026-10-22, built and checked on one Mac over localhost; not yet tested between two computers)
 - #13 Dock: contract choice, upgrade shop with four trade-off upgrades, saved progress, voyage-to-voyage loop (2026-10-22, built, not yet player-tested)
 - #12 Fog and the bow telescope (2026-10-22, built, not yet player-tested)
@@ -36,10 +37,8 @@
 - Phase 1: Committee Summary approved (2026-10-22)
 
 ## Questions for Olivier
-- Plank patch: design says two players; I let one player patch slowly (12 s instead of 4 s) so small crews and solo tests aren't stuck. Keep, or make it strictly two players?
 - Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?
 - The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?
-- Upgrade prices (300-500 coins) and pay (60-160 per crate) are first guesses. After a full 4-contract session, do you want to buy all four by the end, or only two?
 - Simulated crews (perfect navigator, venting engineer, pumper, but nobody repairing) finished the Maiden Voyage in 4:05, the Reef Run in 4:53 and the Fog Bank in 5:42, and sank in The Narrows near the end. Is The Narrows the right kind of hard once real crews repair things?
 - Online play has only been checked on one Mac (localhost). The first test between two computers on your Wi-Fi may need macOS to allow incoming connections for Godot. Do you want to try it with a friend?
 - Online clients don't earn coins in their own save; the host's save holds the crew's progress. OK?

@@ -10,6 +10,7 @@ signal voyage_over(delivered: bool)
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const RockScene = preload("res://scenes/greybox/rock.tscn")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
+const AICrew = preload("res://scripts/ai/ai_crew.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 
 @export var contract: Resource ## leave empty to use the session's chosen contract
@@ -76,16 +77,40 @@ func _on_crew_ready(players: Array[int]) -> void:
 	_apply_crew(players)
 
 
-## Takes anyone who didn't join off the ship; small crews get a slow automatic pump.
+## Takes anyone who didn't join (as a human or an AI) off the ship; small crews get a slow
+## automatic pump.
 func _apply_crew(players: Array[int]) -> void:
+	var ai_indexes: Array = Net.remote_ai if Net.role == "client" else Session.ai_crew.keys()
+	var aboard := 0
 	for player in get_tree().get_nodes_in_group("crew"):
-		if not players.has(player.player_index):
+		var index: int = player.player_index
+		if players.has(index):
+			aboard += 1
+		elif ai_indexes.has(index):
+			aboard += 1
+			if Net.role != "client": # online clients only show the host's AI
+				var jobs: Dictionary = Session.ai_crew[index]
+				add_ai(index, jobs.primary, jobs.get("secondary", ""))
+		else:
 			player.remove_from_group("crew")
 			player.remove_from_group("camera_focus")
 			player.queue_free()
 	var hull := $Ship/HullSystem
-	hull.auto_pump_rate = hull.pump_rate * 0.3 if players.size() <= 3 else 0.0
+	hull.auto_pump_rate = hull.pump_rate * 0.3 if aboard <= 3 else 0.0
 	_start()
+
+
+## Hands a crew member over to an AI with a primary and a secondary job.
+func add_ai(index: int, primary: String, secondary := "") -> Node:
+	for player in get_tree().get_nodes_in_group("crew"):
+		if player.player_index == index and not player.has_node("AICrew"):
+			var ai := AICrew.new()
+			ai.name = "AICrew"
+			ai.primary = primary
+			ai.secondary = secondary
+			player.add_child(ai)
+			return ai
+	return null
 
 
 func _physics_process(delta: float) -> void:

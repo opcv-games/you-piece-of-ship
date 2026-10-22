@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/ui/results_screen.gd" id="13_results"]
 [ext_resource type="Script" path="res://scripts/ui/crew_join.gd" id="14_join"]
 [ext_resource type="Script" path="res://scripts/systems/net_sync.gd" id="15_net"]
+[ext_resource type="Script" path="res://scripts/ai/crew_brain.gd" id="16_brain"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/drunken_sailor_loop.wav" id="9_shanty"]
 
 [sub_resource type="Environment" id="env"]
@@ -200,3 +201,7 @@ script = ExtResource("14_join")
 
 [node name="NetSync" type="Node" parent="."]
 script = ExtResource("15_net")
+
+[node name="CrewBrain" type="Node" parent="." node_paths=PackedStringArray("ship")]
+script = ExtResource("16_brain")
+ship = NodePath("../Ship")

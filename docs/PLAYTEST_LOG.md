@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — AI crewmates
+Hypothesis: If empty slots can be AI crewmates with a job and a backup job, then a solo player can finish voyages and still feel part of a crew (the navigator shouts callouts), increasing Social interaction even with fewer humans.
+Variable: AI on/off per slot
+Sessions: 0 humans yet. Simulated: one idle human + 3 AIs delivered Maiden Voyage, Reef Run and Fog Bank without hitting a rock; The Narrows still beats them.
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main
+
 ## 2026-10-22 — First solo playtest of the full game (Olivier)
 Sessions: 1 (self: 1, others: 0), Maiden Voyage, alone
 Observed: "extremely fun concept". Ran out of coal in the first round and couldn't finish the Maiden Voyage alone (one person can't steer and shovel). Leak patching "feels good" (two players faster). Shop prices: not the time to balance.

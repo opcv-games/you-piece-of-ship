@@ -15,6 +15,7 @@ const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 var role := "offline" ## "offline", "host" or "client"
 var peers := {} ## host: peer id -> player index
 var my_index := 1
+var remote_ai: Array = [] ## client: the host's AI crew indexes (shown, not simulated here)
 
 
 func host(port := PORT) -> Error:
@@ -66,7 +67,7 @@ func crew() -> Array[int]:
 func start_voyage(contract_index: int) -> void:
 	if role != "host":
 		return
-	_start.rpc(contract_index, crew(), Session.upgrades)
+	_start.rpc(contract_index, crew(), Session.ai_crew.keys(), Session.upgrades)
 
 
 ## Host: everyone back to the dock.
@@ -84,9 +85,14 @@ func local_addresses() -> PackedStringArray:
 
 
 @rpc("authority", "call_local", "reliable")
-func _start(contract_index: int, players: Array, upgrades: Array) -> void:
+func _start(contract_index: int, players: Array, ai_indexes: Array, upgrades: Array) -> void:
 	Session.contract_index = contract_index
-	Session.joined_players.assign(players)
+	var humans: Array[int] = []
+	for index in players:
+		if not ai_indexes.has(index): # a slot can't be both
+			humans.append(index)
+	Session.joined_players = humans
+	remote_ai = ai_indexes
 	Session.upgrades = upgrades
 	get_tree().change_scene_to_file(VOYAGE_SCENE)
 
@@ -107,7 +113,7 @@ func _on_peer_connected(id: int) -> void:
 		return
 	var taken := peers.values()
 	for index in range(2, 5):
-		if not taken.has(index):
+		if not taken.has(index) and not Session.ai_crew.has(index):
 			peers[id] = index
 			_assigned.rpc_id(id, index)
 			break

@@ -9,6 +9,9 @@ const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
 const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const VOYAGE_SCENE := "res://scenes/levels/voyage.tscn"
+const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo"]
+const JOB_NAMES := {"helm": "Helm", "navigator": "Navigator", "engine": "Engine", "pump": "Pump",
+		"carpenter": "Carpenter", "cargo": "Cargo", "": "nothing"}
 const COLORS := [Color(0.9, 0.25, 0.2), Color(0.2, 0.45, 0.95), Color(0.95, 0.8, 0.15), Color(0.25, 0.75, 0.3)]
 
 var joined: Array[int] = []
@@ -21,6 +24,9 @@ var _address: LineEdit
 var _details: Label
 var _message: Label
 var _crew_slots: Array[Panel] = []
+var ai_buttons: Array[Button] = []
+var primary_buttons: Array[Button] = []
+var secondary_buttons: Array[Button] = []
 
 
 func _ready() -> void:
@@ -50,7 +56,37 @@ func toggle_crew(index: int) -> void:
 	else:
 		joined.append(index)
 		joined.sort()
+		Session.disable_ai(index) # a human takes the slot
 	_message.text = ""
+	refresh()
+
+
+## Turns the AI crewmate in an empty slot on or off.
+func toggle_ai(index: int) -> void:
+	if joined.has(index):
+		_message.text = "P%d is a human player. Press their Use again to free the slot." % index
+		return
+	if Net.role == "client":
+		_message.text = "Only the host sets up AI crew."
+		return
+	if Session.ai_crew.has(index):
+		Session.disable_ai(index)
+	else:
+		Session.enable_ai(index)
+	_message.text = ""
+	refresh()
+
+
+## Cycles an AI's primary (or secondary) job.
+func cycle_job(index: int, which: String) -> void:
+	if not Session.ai_crew.has(index):
+		return
+	var options: Array = JOBS.duplicate()
+	if which == "secondary":
+		options.append("")
+	var current: String = Session.ai_crew[index].get(which, "")
+	Session.ai_crew[index][which] = options[(options.find(current) + 1) % options.size()]
+	Session.save_game()
 	refresh()
 
 
@@ -63,7 +99,7 @@ func start_contract(index: int) -> bool:
 		_message.text = "Locked: deliver the previous contract first."
 		return false
 	if joined.is_empty():
-		_message.text = "Nobody aboard! Each player presses Use (E, Right Shift or X) to join."
+		_message.text = "Nobody aboard! At least one player presses Use (E, Right Shift or X) to join."
 		return false
 	Session.contract_index = index
 	Session.joined_players = joined.duplicate()
@@ -96,11 +132,20 @@ func refresh() -> void:
 		_:
 			_online_status.text = "Play online: one friend hosts, the others join with the host's address."
 	for i in 4:
-		var on := joined.has(i + 1)
+		var index := i + 1
+		var human := joined.has(index)
+		var ai: Dictionary = Session.ai_crew.get(index, {})
 		var style := StyleBoxFlat.new()
-		style.bg_color = COLORS[i] if on else Color(1, 1, 1, 0.08)
+		style.bg_color = COLORS[i] if human else (COLORS[i].darkened(0.55) if not ai.is_empty() else Color(1, 1, 1, 0.08))
 		_crew_slots[i].add_theme_stylebox_override("panel", style)
-		(_crew_slots[i].get_child(0) as Label).text = "P%d\n%s" % [i + 1, "aboard" if on else "press Use"]
+		var status := "aboard" if human else ("AI crewmate" if not ai.is_empty() else "press Use")
+		(_crew_slots[i].get_child(0) as Label).text = "P%d\n%s" % [index, status]
+		ai_buttons[i].text = "AI: on" if not ai.is_empty() else "AI: off"
+		ai_buttons[i].disabled = human
+		primary_buttons[i].text = "Job: %s" % JOB_NAMES[ai.get("primary", "")] if not ai.is_empty() else "Job: -"
+		secondary_buttons[i].text = "Then: %s" % JOB_NAMES[ai.get("secondary", "")] if not ai.is_empty() else "Then: -"
+		primary_buttons[i].disabled = ai.is_empty()
+		secondary_buttons[i].disabled = ai.is_empty()
 	var contracts := ContractLibrary.all_contracts()
 	for i in contracts.size():
 		var c: Resource = contracts[i]
@@ -145,20 +190,41 @@ func _build() -> void:
 	header.add_child(spacer)
 	_money = _label("Coins: 0", 26, Color(1, 0.85, 0.3))
 	header.add_child(_money)
-	root.add_child(_label("CREW: each player presses Use (E, Right Shift or X) to come aboard", 16, Color.WHITE))
+	root.add_child(_label("CREW: each player presses Use (E, Right Shift or X) to come aboard. Empty slots can be AI crewmates: a job, then a backup job.", 15, Color.WHITE))
 	var crew := HBoxContainer.new()
 	crew.add_theme_constant_override("separation", 12)
 	root.add_child(crew)
 	for i in 4:
+		var column := VBoxContainer.new()
+		column.add_theme_constant_override("separation", 3)
+		crew.add_child(column)
 		var slot := Panel.new()
-		slot.custom_minimum_size = Vector2(120, 50)
-		var text := _label("", 16, Color.WHITE)
+		slot.custom_minimum_size = Vector2(150, 44)
+		var text := _label("", 15, Color.WHITE)
 		text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		text.set_anchors_preset(Control.PRESET_FULL_RECT)
 		slot.add_child(text)
-		crew.add_child(slot)
+		column.add_child(slot)
 		_crew_slots.append(slot)
+		var row := HBoxContainer.new()
+		column.add_child(row)
+		for kind in ["ai", "primary", "secondary"]:
+			var button := _button()
+			button.add_theme_font_size_override("font_size", 12)
+			button.custom_minimum_size = Vector2(0, 26)
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			match kind:
+				"ai":
+					button.pressed.connect(toggle_ai.bind(i + 1))
+					ai_buttons.append(button)
+				"primary":
+					button.pressed.connect(cycle_job.bind(i + 1, "primary"))
+					primary_buttons.append(button)
+				"secondary":
+					button.pressed.connect(cycle_job.bind(i + 1, "secondary"))
+					secondary_buttons.append(button)
+			row.add_child(button)
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 30)
