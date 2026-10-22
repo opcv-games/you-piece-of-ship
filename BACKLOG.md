@@ -18,6 +18,7 @@
 - Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Block 6 (2026-10-22 evening): Overcooked-style progression — World Map (main menu + dock + after every voyage) with 3 oceans x 3 routes (Calm Cove: Maiden Voyage, Coral Hop, Reef Run; Whale Waters: Siren Strait, The Narrows, Whale Road; Pirate Sea: Fog Bank, Smugglers' Run, Kraken's Gate); stars open routes (0/1/3, 5/7/9, 12/14/17); a "NEW OCEAN" card says what's new; new trouble: shifting cargo, engine failure, flooding bow, storm (rain, lightning, slate sea), a sail-less smuggler's ship; hats unlock with stars (captain 6, crown 15) and are picked per player at the dock; old saves get one star per delivered contract. Version 0.4.0.
 - Block 5 (2026-10-22 evening): sea battles — pirate ships come alongside on one side and fire a broadside when level with you (1 ball, half land on deck and crack the hull); two cannons a side plus a cannonball rack mid-deck; load (Use with a ball), aim (stick), fire (Jump); 3 hits sink them and leave 3 floating loot barrels (60 points each) to sail through; they're slower than full throttle and give up when left 45 m behind or after 75 s; AI "gunner" job (and the AI helm goes full speed to escape); camera pulls back to show the fight; Developer spawn buttons. Reef Run has pirates at 430 m.
 - Block 4 (2026-10-22 evening): fishing — two spots on the starboard rail; Use casts, Jump strikes when the float dips (sardine 20, goldfish 50, squid 40, pufferfish 35, rare treasure 150); points go into the score ("Fish & loot" in the timer pill, bonus line on the results); AI carpenters fish only when nothing needs doing and reel in for any trouble. The Narrows widened to 28 m (the painted ship is longer).
 - Block 3 (2026-10-22 evening): three stars per voyage from the score (1 = delivered, 2 and 3 = good and great scores; thresholds per contract or worked out from the pay; tunable live in Developer → Tune → Stars); stars pop in one by one on the results; best stars saved and shown on the dock.
@@ -50,6 +51,8 @@
 - Phase 1: Committee Summary approved (2026-10-22)
 
 ## Questions for Olivier
+- Star thresholds for routes and hats are first guesses: too stingy or too generous after a few evenings of play?
+- The Narrows still sometimes beats a crew of 3 AIs plus an idle human (the navigator is needed all the time, so nobody repairs). Fine as the hard one, or ease it?
 - Loot from sunk pirates currently just adds points (so coins). What should loot be for? Ideas: buy cosmetics, rare ship parts, a "treasure" star, crew outfits.
 - Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?
 - The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?

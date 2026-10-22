@@ -24,7 +24,8 @@ func _process(_delta: float) -> void:
 		var near := false
 		for player in get_tree().get_nodes_in_group("crew"):
 			near = near or distance_to_player(player) <= radius
-		label.text = "%s %d" % [tr(title), stock] + ("\n" + tr("Use: take one") if near and stock > 0 else "")
+		var count := " %d" % stock if stock < 100 else "" # the cannonball rack never runs out: no count
+		label.text = tr(title) + count + ("\n" + tr("Use: take one") if near and stock > 0 else "")
 
 
 func distance_to_player(player: Node3D) -> float:

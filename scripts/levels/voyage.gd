@@ -18,6 +18,7 @@ const Stars = preload("res://scripts/systems/stars.gd")
 const StarRules = preload("res://scripts/systems/star_rules.gd")
 const EnemyShip = preload("res://scripts/components/enemy_ship.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
+const WORLD_MAP_SCENE := "res://scenes/ui/world_map.tscn"
 const OBSTACLE_RADIUS := {"wreck": 4.0, "whale": 3.5, "siren": 2.5, "atoll": 12.0, "rock": 3.5}
 
 @export var contract: Resource ## leave empty to use the session's chosen contract
@@ -58,6 +59,12 @@ func _ready() -> void:
 	for crate in get_tree().get_nodes_in_group("cargo"):
 		crate.value = contract.pay_per_crate # each contract pays its own rate
 	Upgrades.apply(_ship, Session.upgrades)
+	if contract.equipment.has("no_sail"):
+		var model := _ship.get_node_or_null("Model")
+		for part in ["Sail", "SailStripe", "Jib"]:
+			var piece: Node = model.find_child(part, true, false) if model else null
+			if piece:
+				piece.visible = false # a smuggler's ship: engine only
 	if contract.tutorial:
 		$Ship/HullSystem.sink_grace_seconds = INF # the Maiden voyage can't be lost
 		$Ship/EngineSystem.min_fuel = 0.3 # ...and never runs dry
@@ -99,7 +106,8 @@ func _ready() -> void:
 
 func _start() -> void:
 	started = true
-	_handling.sail_speed = 1.2 # the sail keeps the ship moving even if the engine dies
+	# The sail keeps the ship moving even if the engine dies (not on a smuggler's sail-less ship).
+	_handling.sail_speed = 0.0 if contract.equipment.has("no_sail") else 1.2
 	$HUD/CrewJoin.visible = false
 
 
@@ -197,7 +205,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if Net.role == "host":
 			Net.back_to_dock()
 		else:
-			UI.go(DOCK_SCENE) # back to the dock: spend, pick the next contract
+			UI.go(WORLD_MAP_SCENE) # back to the map: see the stars, pick the next route
 	var change_crew: bool = finished and event is InputEventKey and event.pressed and event.physical_keycode == KEY_J
 	if change_crew:
 		Session.joined_players.clear()
@@ -326,6 +334,7 @@ func dev_event(event: String) -> bool:
 			Session.save_game()
 		"unlock_all":
 			Session.unlocked = ContractLibrary.all_contracts().size()
+			Session.unlock_everything = true
 			Session.save_game()
 		"god_mode":
 			god_mode = not god_mode
@@ -352,8 +361,30 @@ func _run_events() -> void:
 			"heat":
 				var engine := $Ship/EngineSystem
 				engine.heat = maxf(engine.heat, 0.85)
+			"stall":
+				dev_event("stall")
+			"cargo_shift":
+				_shift_cargo()
+			"flood":
+				# A wave over the bow: two leaks on the same side and water sloshing in.
+				var side := 1.0 if randf() < 0.5 else -1.0
+				$Ship/HullSystem.add_breach(Vector3(4.0, 0.0, side * 3.0))
+				$Ship/HullSystem.add_breach(Vector3(7.0, 0.0, side * 3.0))
+				$Ship/HullSystem.water = minf(0.9, $Ship/HullSystem.water + 0.15)
 		if event.size() > 2 and event[2] != "":
 			show_hint(tr(event[2]))
+
+
+## A swell shifts the cargo: every lashed chest breaks loose and slides.
+func _shift_cargo() -> void:
+	var bay := get_tree().get_first_node_in_group("cargo_bay")
+	var cargo := $Ship/LoadSystem
+	var push := 1.0 if randf() < 0.5 else -1.0
+	for crate in cargo.crates():
+		if crate.lashed and bay:
+			bay.unlash(crate)
+			crate.velocity = Vector2(randf_range(-1.0, 1.0), push * 3.5)
+			cargo.crate_loose.emit(crate)
 
 
 func show_hint(text: String, seconds := 7.0) -> void:
@@ -405,6 +436,59 @@ func _setup_sky() -> void:
 	sun.light_color = Color(1.0, 0.95, 0.85)
 	sun.light_energy = 1.25
 	sun.shadow_blur = 2.0
+	if contract.storm:
+		_setup_storm(sky_material, environment, sun)
+
+
+## A storm: bruised purple sky, dim light, rough sea, rain around the camera, lightning now and then.
+func _setup_storm(sky_material: ProceduralSkyMaterial, environment: Environment, sun: DirectionalLight3D) -> void:
+	sky_material.sky_top_color = Color(0.22, 0.2, 0.32)
+	sky_material.sky_horizon_color = Color(0.45, 0.45, 0.55)
+	sky_material.ground_horizon_color = Color(0.4, 0.42, 0.5)
+	environment.ambient_light_color = Color(0.6, 0.62, 0.78)
+	environment.ambient_light_energy = 0.6
+	sun.light_energy = 0.55
+	sun.light_color = Color(0.8, 0.82, 0.95)
+	if _water.has_method("set_storm"):
+		_water.set_storm(true)
+	var rain := CPUParticles3D.new()
+	rain.name = "Rain"
+	rain.amount = 1400
+	rain.lifetime = 0.9
+	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	rain.emission_box_extents = Vector3(30, 1, 22)
+	var streak := QuadMesh.new()
+	streak.size = Vector2(0.07, 1.4)
+	var wet := StandardMaterial3D.new()
+	wet.albedo_color = Color(0.85, 0.9, 1.0, 0.7)
+	wet.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	wet.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	wet.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+	streak.material = wet
+	rain.mesh = streak
+	rain.direction = Vector3(0.25, -1, 0)
+	rain.spread = 4.0
+	rain.gravity = Vector3(0, -30, 0)
+	rain.initial_velocity_min = 18.0
+	rain.initial_velocity_max = 24.0
+	rain.position = Vector3(0, 16, 0)
+	_ship.add_child(rain)
+	var lightning := Timer.new()
+	lightning.name = "Lightning"
+	lightning.wait_time = 9.0
+	lightning.autostart = true
+	lightning.timeout.connect(_lightning)
+	add_child(lightning)
+
+
+func _lightning() -> void:
+	var environment: Environment = $WorldEnvironment.environment
+	var flash := create_tween()
+	flash.tween_property(environment, "ambient_light_energy", 2.6, 0.05)
+	flash.tween_property(environment, "ambient_light_energy", 0.6, 0.12)
+	flash.tween_property(environment, "ambient_light_energy", 2.0, 0.05)
+	flash.tween_property(environment, "ambient_light_energy", 0.6, 0.4)
+	($Lightning as Timer).wait_time = randf_range(7.0, 15.0)
 
 
 # --- Route ---------------------------------------------------------------------

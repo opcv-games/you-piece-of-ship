@@ -3,7 +3,8 @@ extends Button
 
 @export var title := ""
 @export var subtitle := ""
-@export_enum("wheel", "people", "link", "crate", "gear", "door") var glyph := "wheel"
+@export var compact := false ## half width (two to a row)
+@export_enum("wheel", "people", "link", "crate", "gear", "door", "map") var glyph := "wheel"
 @export var highlight := false ## the big yellow Quick Play
 
 const INK := Color(0.07, 0.1, 0.18)
@@ -11,7 +12,7 @@ const INK := Color(0.07, 0.1, 0.18)
 
 func _ready() -> void:
 	text = ""
-	custom_minimum_size = Vector2(380, 64 if highlight else 52)
+	custom_minimum_size = Vector2(187 if compact else 380, 64 if highlight else 52)
 	if highlight:
 		add_theme_stylebox_override("normal", _yellow(UI.YELLOW))
 		add_theme_stylebox_override("hover", _yellow(UI.YELLOW.lightened(0.15)))
@@ -72,6 +73,15 @@ func _draw_icon(c: Vector2, r: float, color: Color) -> void:
 				draw_line(c + d * r * 0.7, c + d * r * 1.15, color, 6.0)
 			draw_arc(c, r * 0.75, 0, TAU, 24, color, 5.0)
 			draw_circle(c, r * 0.25, color)
+		"map":
+			var sheet := PackedVector2Array([c + Vector2(-r, -r * 0.8), c + Vector2(-r * 0.33, -r), c + Vector2(r * 0.33, -r * 0.8),
+					c + Vector2(r, -r), c + Vector2(r, r * 0.8), c + Vector2(r * 0.33, r), c + Vector2(-r * 0.33, r * 0.8),
+					c + Vector2(-r, r), c + Vector2(-r, -r * 0.8)])
+			draw_polyline(sheet, color, 3.0)
+			draw_line(c + Vector2(-r * 0.33, -r), c + Vector2(-r * 0.33, r * 0.8), color, 2.0)
+			draw_line(c + Vector2(r * 0.33, -r * 0.8), c + Vector2(r * 0.33, r), color, 2.0)
+			draw_line(c + Vector2(r * 0.4, -r * 0.2), c + Vector2(r * 0.75, r * 0.2), color, 3.0)
+			draw_line(c + Vector2(r * 0.75, -r * 0.2), c + Vector2(r * 0.4, r * 0.2), color, 3.0)
 		"door":
 			draw_rect(Rect2(c - Vector2(r * 0.8, r), Vector2(r * 1.1, r * 2)), color, false, 3.0)
 			draw_line(c + Vector2(0, 0), c + Vector2(r * 1.2, 0), color, 3.0)

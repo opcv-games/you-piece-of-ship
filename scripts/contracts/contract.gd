@@ -17,6 +17,9 @@ extends Resource
 ## Big waves: each entry is [x, side] (side +1 starboard, -1 port).
 @export var waves: Array = []
 @export var fog := false
+@export var storm := false ## dark skies, rain, rougher sea and more big waves
+## Ship rules for this route (its port's own ship): "no_sail" = engine only, no minimum speed.
+@export var equipment: Array = []
 @export var chart_range := 70.0 ## metres the map table can show (fog makes the chart unreliable)
 ## Scripted moments (the Maiden voyage's lessons): each entry is [x, type, text].
 ## Types: "hint" (show text), "leak", "rudder", "heat" (each also shows its text, if any).

@@ -21,7 +21,7 @@ func test_menu_has_the_six_buttons() -> void:
 	var menu: Control = MenuScene.instantiate()
 	add_child_autofree(menu)
 	await wait_physics_frames(2)
-	for key in ["quick", "host", "join", "ship", "settings", "quit"]:
+	for key in ["quick", "map", "host", "join", "ship", "settings", "quit"]:
 		assert_true(menu.buttons.has(key), key)
 
 
@@ -34,7 +34,7 @@ func test_quick_play_fills_empty_posts_with_ai() -> void:
 	menu.quick_play()
 	assert_eq(Session.joined_players, [1] as Array[int])
 	assert_eq(Session.ai_crew.size(), 3, "three AI crewmates")
-	assert_between(Session.contract_index, 0, Session.unlocked - 1)
+	assert_true(Session.is_open(Session.contract_index), "an open route")
 
 
 func test_language_switch_changes_locale_and_title_stays_english() -> void:

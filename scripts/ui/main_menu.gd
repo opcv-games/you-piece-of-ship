@@ -6,8 +6,9 @@ extends Control
 const MenuItem = preload("res://scripts/ui/menu_item.gd")
 const LogoSign = preload("res://scripts/ui/logo_sign.gd")
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
-const VERSION := "v0.3.0"
+const VERSION := "v0.4.0"
 const DOCK := "res://scenes/levels/dock.tscn"
+const WORLD_MAP := "res://scenes/ui/world_map.tscn"
 const VOYAGE := "res://scenes/levels/voyage.tscn"
 
 var buttons := {}
@@ -28,7 +29,7 @@ func _ready() -> void:
 	Net.connection_failed.connect(_on_join_failed)
 	await get_tree().process_frame
 	var delay := 0.15
-	for key in ["quick", "host", "join", "ship", "settings", "quit"]:
+	for key in ["quick", "map", "host", "join", "ship", "settings", "quit"]:
 		UI.pop_in(buttons[key], delay)
 		delay += 0.07
 	buttons.quick.grab_focus()
@@ -60,8 +61,8 @@ func quick_play() -> void:
 	if Session.joined_players.is_empty():
 		Session.joined_players = [1] as Array[int]
 	Session.fill_crew_with_ai()
-	var open := mini(Session.unlocked, ContractLibrary.all_contracts().size())
-	Session.contract_index = randi() % open
+	var open: Array = Session.open_contracts()
+	Session.contract_index = open[randi() % open.size()] if not open.is_empty() else 0
 	_go(VOYAGE)
 
 
@@ -189,6 +190,7 @@ func _build() -> void:
 	add_child(column)
 	for spec in [
 		["quick", "Quick Play", "Jump into a random voyage", "wheel", true, quick_play],
+		["map", "World Map", "Oceans, ports and routes", "map", false, func(): _go(WORLD_MAP)],
 		["host", "Host Game", "Start a game with friends", "people", false, host_game],
 		["join", "Join Game", "Enter your friend's address", "link", false, open_join],
 		["ship", "Ship & Upgrades", "Crew, contracts and the shop", "crate", false, func(): _go(DOCK)],
@@ -202,7 +204,18 @@ func _build() -> void:
 		item.glyph = spec[3]
 		item.highlight = spec[4]
 		item.pressed.connect(spec[5])
-		column.add_child(item)
+		if spec[0] in ["settings", "quit"]:
+			# Settings and Quit share the last row, so seven entries fit on any screen.
+			var last := column.get_node_or_null("LastRow") as HBoxContainer
+			if last == null:
+				last = HBoxContainer.new()
+				last.name = "LastRow"
+				last.add_theme_constant_override("separation", 6)
+				column.add_child(last)
+			item.compact = true
+			last.add_child(item)
+		else:
+			column.add_child(item)
 		buttons[spec[0]] = item
 
 	_tagline = Label.new()
