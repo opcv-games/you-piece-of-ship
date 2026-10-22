@@ -1,0 +1,149 @@
+extends Node3D
+## Something a crew member can carry: a plank, a rudder pin or a cargo crate.
+## Carried above the head; dropped on Use or when knocked down. Loose items slide to the
+## low side of the deck (deck comedy rule, DESIGN.md section 13). Lashed crates stay put.
+## Lives under the ship's Items node, so its position is in ship space.
+
+signal picked_up(player: Node3D)
+signal dropped(player: Node3D)
+
+const KINDS := {
+	"plank": {"size": Vector3(1.2, 0.12, 0.35), "color": Color(0.82, 0.62, 0.38), "carry_speed": 0.85, "name": "plank"},
+	"pin": {"size": Vector3(0.9, 0.22, 0.22), "color": Color(0.6, 0.62, 0.66), "carry_speed": 0.5, "name": "rudder pin"},
+	"crate": {"size": Vector3(0.8, 0.8, 0.8), "color": Color(0.78, 0.45, 0.2), "carry_speed": 0.6, "name": "cargo crate"},
+}
+
+@export_enum("plank", "pin", "crate") var kind := "plank"
+@export var value := 0 ## score value delivered to port (cargo crates)
+@export var static_friction := 0.09 ## deck tilt (as gravity fraction) needed before it starts sliding
+@export var slide_damping := 1.2
+@export var knock_speed := 1.6 ## a crate sliding faster than this knocks crew over
+
+var carrier: Node3D = null
+var lashed := false
+var velocity := Vector2.ZERO ## ship-local x/z metres per second while sliding
+var ship: Node3D
+
+var carry_speed: float:
+	get:
+		return KINDS[kind].carry_speed
+var display_name: String:
+	get:
+		return KINDS[kind].name
+
+
+func _ready() -> void:
+	add_to_group("items")
+	add_to_group("interactables")
+	if kind == "crate":
+		add_to_group("cargo")
+	ship = _find_ship()
+	var mesh := BoxMesh.new()
+	mesh.size = KINDS[kind].size
+	var material := StandardMaterial3D.new()
+	material.albedo_color = KINDS[kind].color
+	mesh.material = material
+	var body := MeshInstance3D.new()
+	body.name = "Mesh"
+	body.mesh = mesh
+	body.position.y = mesh.size.y * 0.5
+	add_child(body)
+
+
+func _find_ship() -> Node3D:
+	var node := get_parent()
+	while node and not node.has_method("local_gravity"):
+		node = node.get_parent()
+	return node as Node3D
+
+
+func half_extent() -> float:
+	var size: Vector3 = KINDS[kind].size
+	return maxf(size.x, size.z) * 0.5
+
+
+# --- Interaction ---------------------------------------------------------------
+
+func distance_to_player(player: Node3D) -> float:
+	var offset := player.global_position - global_position
+	offset.y = 0.0
+	return offset.length()
+
+
+func can_interact(player: Node3D) -> bool:
+	return carrier == null and player.carried == null and distance_to_player(player) <= 1.3
+
+
+func interact(player: Node3D) -> void:
+	pick_up(player)
+
+
+func pick_up(player: Node3D) -> void:
+	if lashed:
+		var bay := get_tree().get_first_node_in_group("cargo_bay")
+		if bay:
+			bay.unlash(self)
+	lashed = false
+	carrier = player
+	player.carried = self
+	velocity = Vector2.ZERO
+	picked_up.emit(player)
+
+
+## Puts the item down at the carrier's feet, optionally flung (ship-local metres per second).
+func drop(fling := Vector2.ZERO) -> void:
+	if carrier == null:
+		return
+	var player := carrier
+	carrier = null
+	player.carried = null
+	var feet := ship.to_local(player.global_position) if ship else player.position
+	position = Vector3(feet.x, 0.0, feet.z)
+	rotation = Vector3.ZERO
+	velocity = fling
+	dropped.emit(player)
+
+
+## Takes the item out of the game (used up as a patch, thrown overboard...).
+func consume() -> void:
+	if carrier:
+		carrier.carried = null
+		carrier = null
+	remove_from_group("interactables")
+	remove_from_group("cargo")
+	queue_free()
+
+
+# --- Motion --------------------------------------------------------------------
+
+func _physics_process(delta: float) -> void:
+	if carrier:
+		global_position = carrier.global_position + carrier.global_basis.y.normalized() * 1.75
+		global_rotation = Vector3(carrier.global_rotation.x, carrier.global_rotation.y, carrier.global_rotation.z)
+		return
+	if lashed or ship == null:
+		return
+	slide(delta)
+
+
+func slide(delta: float) -> void:
+	var gravity: Vector3 = ship.local_gravity()
+	var downhill := Vector2(gravity.x, gravity.z)
+	# Static friction: a small tilt doesn't move a resting item.
+	if velocity.length() > 0.05 or downhill.length() > static_friction * 9.8:
+		velocity += downhill * delta
+	velocity -= velocity * minf(slide_damping * delta, 1.0)
+	var next := Vector2(position.x, position.z) + velocity * delta
+	var limit_x: float = ship.deck_length * 0.5 - 0.2 - half_extent()
+	var limit_z: float = ship.deck_width * 0.5 - 0.2 - half_extent()
+	if absf(next.x) > limit_x:
+		next.x = clampf(next.x, -limit_x, limit_x)
+		velocity.x = 0.0
+	if absf(next.y) > limit_z:
+		next.y = clampf(next.y, -limit_z, limit_z)
+		velocity.y = 0.0
+	position = Vector3(next.x, 0.0, next.y)
+	if kind == "crate" and velocity.length() > knock_speed:
+		for player in get_tree().get_nodes_in_group("crew"):
+			if distance_to_player(player) < 0.75:
+				player.knock_down(velocity.normalized())

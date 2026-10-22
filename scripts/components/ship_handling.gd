@@ -11,8 +11,8 @@ signal rock_hit(rock: Node3D)
 @export var turn_rate_degrees := 14.0 ## degrees per second at full wheel and full speed
 @export var min_turn_factor := 0.35 ## a slow ship still turns a little, so you can steer off a rock
 @export var throttle_rate := 0.5 ## throttle change per second while holding up or down
-@export var hull_half_length := 7.0
-@export var hull_half_width := 3.0
+@export var hull_half_length := 9.0
+@export var hull_half_width := 3.5
 @export var impact_pushback := 2.5 ## metres the ship bounces back off a rock
 @export var impact_cooldown := 1.5 ## seconds before the next rock can hit
 
@@ -44,11 +44,8 @@ func _read_helm(delta: float) -> void:
 
 
 func _update_helm_label() -> void:
-	var label := helm.get_node_or_null("Label") as Label3D if helm else null
-	if label == null:
-		return
-	var who := "P%d" % helm.occupant.player_index if helm.occupant else "press Use"
-	label.text = "HELM %s\nthrottle %d%%" % [who, roundi(throttle * 100.0)]
+	if helm:
+		helm.status_text = "throttle %d%%" % roundi(throttle * 100.0)
 
 
 ## Direction the bow points, flat on the sea.

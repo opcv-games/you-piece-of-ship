@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Carry and drop  (#5)
+Hypothesis: If carried items drop when a wave knocks you over and then slide to the low side, then crew will chase runaway planks and yell "grab a station!" before waves, increasing Comedy.
+Variable: knockdown on big waves (on/off); wave roll 14 degrees
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main so later systems can build on it; keep or change after the first couch playtest
+
 ## 2026-10-22 — Background music (requested by Olivier)
 Hypothesis: If a lively shanty loops in the background, ducks on crashes and speeds up near port, then the crew will feel the mood (frantic, goofy) and the run's tension, increasing Comedy and Thrill of danger. Risk: music makes any build feel better, so it can hide whether the mechanics are fun; mute (M) during fun-gate tests.
 Variable: music on/off (M key or Music node "music_enabled")

@@ -13,9 +13,6 @@
   As the engineer, I want to trade speed for heat, so that the crew argues about going fast (serves: Social interaction, Thrill of danger).
   - Given full throttle, When heat passes 80%, Then top speed is capped.
   - Given heat at 100%, When the 5 s warning ends, Then the engine stalls for 20 s.
-- [ ] `[standard]` **Carry and drop** (#5)
-  As any player, I want to carry one item and drop it when knocked down, so that accidents happen (serves: Comedy).
-  - Given a player carrying a plank, When a wave knocks them down, Then the plank drops and slides toward the low side of the deck.
 
 ## Next (likely, not committed)
 - [ ] Rudder damage and the throttle-steering workaround
@@ -36,6 +33,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #5 Carry and drop: planks, rudder pins, cargo crates; knockdowns drop items; items slide to the low side; big waves (2026-10-22, built, not yet player-tested)
 - Background music (placeholder sea shanty loop, M to mute): requested twice by Olivier, added early on 2026-10-22; final music still Phase 4
 - #2 Station-bound information: helm, heading-up map table chart, hidden reef run to port (2026-10-22)
 - #1 Walk on a rocking ship, together: grey ship on scripted waves, four couch players, shared camera (2026-10-22)

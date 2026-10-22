@@ -45,19 +45,19 @@ func test_given_ship_stopped_when_wheel_turned_then_ship_does_not_spin() -> void
 
 func test_given_rock_ahead_when_hull_reaches_it_then_ship_stops_and_rock_revealed() -> void:
 	var rock: Node3D = RockScene.instantiate()
-	rock.position = Vector3(20, 0, 0)
+	rock.position = Vector3(25, 0, 0)
 	add_child_autofree(rock)
 	watch_signals(_handling)
 	_handling.throttle = 1.0
 	_sail(8.0)
 	assert_signal_emitted(_handling, "rock_hit")
 	assert_true(rock.revealed, "rock revealed after the hit")
-	assert_lt(_ship.position.x, 20.0 - rock.radius - 7.0 + 0.5, "the hull did not sail through the rock")
+	assert_lt(_ship.position.x, 25.0 - rock.radius - _handling.hull_half_length + 0.5, "the hull did not sail through the rock")
 
 
 func test_given_rock_to_the_side_when_sailing_past_then_no_hit() -> void:
 	var rock: Node3D = RockScene.instantiate()
-	rock.position = Vector3(20, 0, 8)
+	rock.position = Vector3(25, 0, 9)
 	add_child_autofree(rock)
 	watch_signals(_handling)
 	_handling.throttle = 1.0
