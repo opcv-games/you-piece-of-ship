@@ -18,6 +18,7 @@
 - Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Block 1 (2026-10-22 evening): Esc pause menu + Developer panel (live sliders for every tunable, forced events, time scale, presets in user://dev_presets.json); music simplified to the same tune climbing in pitch (0/+2/+4/+7/+12 semitones) as stability drops, band captions removed; comic thought/shout bubbles above crew (AI plans, navigator callouts, "Whoa!"); all 4 crew AI by default, humans take an AI's place at the dock, online, or mid-voyage by pressing Jump/Use; engine heat visible to all (glowing firebox, flickering light, dial, smoke, shimmer, rattle)
 - Windows build (zip with EN/FR "How to play with Dad" guide) via export_presets.cfg; Mac build waits for the Mac export template (2026-10-22)
 - Internet host check (UPnP, public address, CGNAT detection) with plain EN/FR messages and Copy button (2026-10-22)
 - French version with a language switch (2026-10-22)

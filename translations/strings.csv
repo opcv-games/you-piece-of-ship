@@ -223,3 +223,64 @@ port,port,bâbord
 the coast,the coast,la côte
 a rock,a rock,un rocher
 Someone,Someone,Quelqu'un
+Whoa!,Whoa!,Ouh là !
+I'm in!,I'm in!,Je prends la relève !
+To the helm!,To the helm!,À la barre !
+Pumping!,Pumping!,Je pompe !
+Too hot! Venting!,Too hot! Venting!,Trop chaud ! Vapeur !
+Coal for the furnace!,Coal for the furnace!,Du charbon pour la chaudière !
+Need coal!,Need coal!,Il faut du charbon !
+To the map!,To the map!,À la carte !
+Hammering the leak!,Hammering the leak!,Je cloue la fuite !
+Fixing the pipe!,Fixing the pipe!,Je répare le tuyau !
+Going to fix leak!,Going to fix leak!,Je vais réparer la fuite !
+Fetching a rudder pin!,Fetching a rudder pin!,Je cherche une goupille !
+Tying down cargo!,Tying down cargo!,J'attache la cargaison !
+Paused,Paused,Pause
+Resume,Resume,Reprendre
+Restart voyage,Restart voyage,Recommencer le voyage
+Back to the dock,Back to the dock,Retour au quai
+Main menu,Main menu,Menu principal
+Developer,Developer,Développeur
+Events,Events,Événements
+Tune,Tune,Réglages fins
+Time scale,Time scale,Vitesse du temps
+Time scale: %.1fx,Time scale: %.1fx,Vitesse du temps : %.1fx
+"Search (e.g. heat, speed, leak)","Search (e.g. heat, speed, leak)","Chercher (ex. heat, speed, leak)"
+Save %d,Save %d,Sauver %d
+Load %d,Load %d,Charger %d
+Reset all,Reset all,Tout réinitialiser
+Back to the defaults.,Back to the defaults.,Retour aux valeurs d'origine.
+Saved preset %d.,Saved preset %d.,Préréglage %d sauvé.
+Preset %d is empty.,Preset %d is empty.,Le préréglage %d est vide.
+Loaded preset %d.,Loaded preset %d.,Préréglage %d chargé.
+Forced: %s,Forced: %s,Forcé : %s
+God mode: %s,God mode: %s,Mode dieu : %s
+on,on,activé
+off,off,désactivé
+Crash into a rock,Crash into a rock,Percuter un rocher
+Open a leak,Open a leak,Ouvrir une fuite
+Flood +30%,Flood +30%,Inonder +30 %
+Overheat engine,Overheat engine,Surchauffe moteur
+Stall engine,Stall engine,Caler le moteur
+Empty the coal,Empty the coal,Vider le charbon
+Break the rudder,Break the rudder,Casser le gouvernail
+Big wave (port),Big wave (port),Grosse vague (bâbord)
+Big wave (starboard),Big wave (starboard),Grosse vague (tribord)
+Loose cargo,Loose cargo,Cargaison détachée
+Reach port,Reach port,Arriver au port
+Sink (fail),Sink (fail),Couler (échec)
++500 coins,+500 coins,+500 pièces
+Unlock everything,Unlock everything,Tout débloquer
+God mode on/off,God mode on/off,Mode dieu oui/non
+Ship handling,Ship handling,Pilotage
+Engine and coal,Engine and coal,Moteur et charbon
+Hull and leaks,Hull and leaks,Coque et fuites
+Waves,Waves,Vagues
+Rudder,Rudder,Gouvernail
+Hazards,Hazards,Dangers
+Music,Music,Musique
+Camera,Camera,Caméra
+Game feel,Game feel,Sensations
+Crew,Crew,Équipage
+AI crew,AI crew,Équipage IA

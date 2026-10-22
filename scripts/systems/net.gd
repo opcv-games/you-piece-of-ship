@@ -128,15 +128,19 @@ func _on_peer_connected(id: int) -> void:
 		return
 	var taken := peers.values()
 	for index in range(2, 5):
-		if not taken.has(index) and not Session.ai_crew.has(index):
+		if not taken.has(index):
 			peers[id] = index
+			Session.ai_crew.erase(index) # the friend takes this AI's place
 			_assigned.rpc_id(id, index)
 			break
 	peers_changed.emit()
 
 
 func _on_peer_disconnected(id: int) -> void:
+	var index: int = peers.get(id, 0)
 	peers.erase(id)
+	if index > 0 and role == "host":
+		Session.enable_ai(index) # an AI takes the empty place again
 	peers_changed.emit()
 
 

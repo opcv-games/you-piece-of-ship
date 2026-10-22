@@ -6,6 +6,7 @@ extends AnimatableBody3D
 ## Crew and items live in ship space, so "downhill" on the deck comes from local_gravity().
 
 const PixelArt = preload("res://scripts/systems/pixel_art.gd")
+const EngineHeatVisual = preload("res://scripts/components/engine_heat_visual.gd")
 
 @export var pixel_art := true ## dress the ship with Olivier's pixel-art tiles (false: grey box)
 
@@ -22,6 +23,7 @@ var deck_width: float:
 
 func _ready() -> void:
 	waves.wave_struck.connect(_on_wave_struck)
+	$Engine.add_child(EngineHeatVisual.new())
 	if pixel_art:
 		_dress()
 

@@ -161,3 +161,8 @@ Observed:
 Biggest weakness:
 Decision: KEPT / REVERTED — why
 -->
+
+## 2026-10-22 evening — Olivier's feedback batch
+- Music: "the music thing could be as simple as going up an octave" → band layers and captions removed; the tune now climbs in pitch with trouble.
+- "The dialogue does not really make sense (the accordionist?)" → replaced by thought bubbles above the crew that say what they are doing and what they see.
+- Wants: dev mode on Esc, AI by default, visible engine heat, painted kawaii ship that reads as a ship, rich sea, varied obstacles, chests, a real pump, 3 stars, fishing, sea battles, Overcooked-style progression.

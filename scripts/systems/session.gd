@@ -17,7 +17,6 @@ var best_times := {} ## contract index (as text) -> fastest delivery in seconds
 var last_records := {"score": false, "time": false} ## did the last voyage set a personal best?
 var language := "" ## "en" or "fr"; empty = follow the computer's language
 var music_volume_db := -8.0
-var band_captions := true
 var fullscreen := false
 var last_join_address := "" ## the friend's address last used with Join
 var persist := true ## false while running automated tests: never touch the player's save
@@ -28,6 +27,8 @@ func _ready() -> void:
 		if arg.ends_with("gut_cmdln.gd"):
 			persist = false
 	load_game()
+	if persist:
+		fill_crew_with_ai()
 	apply_settings()
 
 
@@ -94,6 +95,14 @@ func enable_ai(index: int) -> void:
 	save_game()
 
 
+## Every slot without a human gets an AI crewmate (Olivier, 2026-10-22: the four crew are AI by
+## default; players who come aboard take an AI's place).
+func fill_crew_with_ai() -> void:
+	for index in range(1, 5):
+		if not joined_players.has(index) and not ai_crew.has(index):
+			enable_ai(index)
+
+
 func disable_ai(index: int) -> void:
 	ai_crew.erase(index)
 	save_game()
@@ -115,7 +124,7 @@ func save_game() -> void:
 	if file:
 		file.store_string(JSON.stringify({"money": money, "upgrades": upgrades, "unlocked": unlocked,
 				"best_scores": best_scores, "best_times": best_times, "ai_crew": ai_crew, "language": language,
-				"music_volume_db": music_volume_db, "band_captions": band_captions, "fullscreen": fullscreen,
+				"music_volume_db": music_volume_db, "fullscreen": fullscreen,
 				"last_join_address": last_join_address}))
 
 
@@ -131,7 +140,6 @@ func load_game() -> void:
 		best_times = data.get("best_times", {})
 		language = data.get("language", "")
 		music_volume_db = float(data.get("music_volume_db", -8.0))
-		band_captions = bool(data.get("band_captions", true))
 		fullscreen = bool(data.get("fullscreen", false))
 		last_join_address = data.get("last_join_address", "")
 		ai_crew = {}
