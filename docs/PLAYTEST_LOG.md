@@ -5,10 +5,10 @@ One entry per hypothesis. Newest first.
 ## 2026-10-22 — Station-bound information  (#2)
 Hypothesis: If submerged rocks are shown only on a map table at the bow while the wheel is at the stern, then the navigator will shout directions and the captain will steer by their calls, increasing Social interaction.
 Variable: chart visible only while someone stands at the map table (on/off)
-Sessions: pending
-Observed: pending
-Biggest weakness: pending
-Decision: pending
+Sessions: 1 (self: 1, others: 0)
+Observed: The navigator could warn the captain in time; steering by the ship's own left/right was "fine"; difficulty (12 rocks, ~1 min run) "fine".
+Biggest weakness: none reported for the mechanic; Olivier asked for a higher resolution and more game feel (juice), handled as the next step.
+Decision: KEPT. Not yet tested with a second person, which is the real test of the callout loop.
 
 ## 2026-10-22 — Walk on a rocking ship, together  (#1)
 Hypothesis: If four players share one deck that rolls ±8° on a slow swell, then they will stumble into each other and laugh while still feeling in control of where they go, increasing Comedy and Social interaction.

@@ -5,10 +5,6 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[innovation]` **Station-bound information** (#2)
-  As the navigator, I want hidden rocks to show only on the map table, so that the captain needs my callouts (serves: Social interaction).
-  - Given a submerged rock ahead, When the captain looks forward, Then it is not visible.
-  - Given a submerged rock ahead, When a player stands at the map table, Then its position is shown.
 - [ ] `[innovation]` **Hull breach changes handling** (#3)
   As the crew, I want a leak to make the ship heavier and slower, so that damage changes what we must do (serves: Thrill of danger).
   - Given an open breach, When 20 s pass, Then the water level rises and top speed drops.
@@ -41,5 +37,6 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #2 Station-bound information: helm, heading-up map table chart, hidden reef run to port (2026-10-22)
 - #1 Walk on a rocking ship, together: grey ship on scripted waves, four couch players, shared camera (2026-10-22)
 - Phase 1: Committee Summary approved (2026-10-22)
