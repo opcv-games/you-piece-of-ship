@@ -49,6 +49,20 @@ func lashed_count() -> int:
 	return count
 
 
+## The free cargo spot closest to a point (for AI crew putting crates back).
+func nearest_free_spot(point: Vector3) -> Marker3D:
+	var best: Marker3D = null
+	var best_distance := INF
+	for spot in _spots:
+		if _spots[spot] != null and is_instance_valid(_spots[spot]):
+			continue
+		var distance: float = spot.global_position.distance_to(point)
+		if distance < best_distance:
+			best = spot
+			best_distance = distance
+	return best
+
+
 func _free_spot_near(player: Node3D) -> Marker3D:
 	var best: Marker3D = null
 	var best_distance := radius

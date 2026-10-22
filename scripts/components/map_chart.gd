@@ -16,7 +16,7 @@ const FINISH := Color(1, 0.85, 0.2)
 
 
 func _process(_delta: float) -> void:
-	visible = station != null and station.is_active()
+	visible = station != null and station.has_human_reader()
 	if visible:
 		queue_redraw()
 

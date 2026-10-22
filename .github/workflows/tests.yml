@@ -28,3 +28,8 @@ jobs:
 
       - name: Run GUT
         run: godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit
+
+      - name: AI crew delivers the Maiden Voyage and the Reef Run
+        run: |
+          godot --headless --fixed-fps 60 -s tests/ai/full_voyage_check.gd -- 0
+          godot --headless --fixed-fps 60 -s tests/ai/full_voyage_check.gd -- 1

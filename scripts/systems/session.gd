@@ -6,7 +6,8 @@ extends Node
 const SAVE_PATH := "user://save.json"
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
 
-var joined_players: Array[int] = [] ## player indexes 1..4; empty = not chosen yet
+var joined_players: Array[int] = [] ## human player indexes 1..4; empty = not chosen yet
+var ai_crew := {} ## player index -> {"primary": job, "secondary": job} for AI crewmates
 var contract_index := 0
 var money := 0
 var upgrades: Array = [] ## owned upgrade ids
@@ -48,6 +49,28 @@ func buy(id: String) -> bool:
 	return true
 
 
+## Turns an AI crewmate on for an empty slot, with sensible default jobs.
+func enable_ai(index: int) -> void:
+	var used := []
+	for other in ai_crew.values():
+		used.append(other.primary)
+	var primary := "carpenter"
+	for job in ["navigator", "engine", "helm", "carpenter", "pump", "cargo"]:
+		if not used.has(job):
+			primary = job
+			break
+	var backups := {"navigator": "carpenter", "engine": "carpenter", "helm": "pump", "carpenter": "pump",
+			"pump": "carpenter", "cargo": "carpenter"}
+	ai_crew[index] = {"primary": primary, "secondary": backups[primary]}
+	joined_players.erase(index)
+	save_game()
+
+
+func disable_ai(index: int) -> void:
+	ai_crew.erase(index)
+	save_game()
+
+
 func reset_progress() -> void:
 	money = 0
 	upgrades = []
@@ -62,7 +85,7 @@ func save_game() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify({"money": money, "upgrades": upgrades, "unlocked": unlocked,
-				"best_scores": best_scores}))
+				"best_scores": best_scores, "ai_crew": ai_crew}))
 
 
 func load_game() -> void:
@@ -74,3 +97,8 @@ func load_game() -> void:
 		upgrades = data.get("upgrades", [])
 		unlocked = int(data.get("unlocked", 1))
 		best_scores = data.get("best_scores", {})
+		ai_crew = {}
+		var saved_ai = data.get("ai_crew", {})
+		if saved_ai is Dictionary:
+			for key in saved_ai:
+				ai_crew[int(key)] = saved_ai[key] # JSON keys come back as text

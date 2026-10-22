@@ -117,3 +117,23 @@ func test_dock_shop_button_buys() -> void:
 	dock.shop_buttons["second_spares_crate"].emit_signal("pressed")
 	assert_eq(Session.money, 100)
 	assert_true(dock.shop_buttons["second_spares_crate"].disabled, "owned")
+
+
+func test_dock_ai_slots_toggle_and_cycle_jobs() -> void:
+	Session.ai_crew = {}
+	var dock: Control = DockScene.instantiate()
+	add_child_autofree(dock)
+	await wait_physics_frames(2)
+	dock.toggle_crew(1)
+	dock.toggle_ai(1)
+	assert_false(Session.ai_crew.has(1), "a human slot can't be AI")
+	dock.toggle_ai(2)
+	dock.toggle_ai(3)
+	assert_true(Session.ai_crew.has(2))
+	assert_ne(Session.ai_crew[2].primary, Session.ai_crew[3].primary, "different default jobs")
+	var before: String = Session.ai_crew[2].primary
+	dock.primary_buttons[1].emit_signal("pressed")
+	assert_ne(Session.ai_crew[2].primary, before, "job cycled")
+	dock.toggle_ai(2)
+	assert_false(Session.ai_crew.has(2), "AI off again")
+	Session.ai_crew = {}
