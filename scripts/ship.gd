@@ -37,13 +37,6 @@ func _dress() -> void:
 	$Pump/PumpMesh.material_override = PixelArt.tiled_material("hull", Vector2(1.2, 0.3))
 	for box in ["PlankBox/BoxMesh", "PinBox/BoxMesh"]:
 		get_node(box).material_override = PixelArt.tiled_material("crate", Vector2(1.0, 0.7))
-	var coal := get_node_or_null("Engine/CoalPile") as MeshInstance3D
-	if coal:
-		coal.visible = false
-		var lumps := PixelArt.make_sprite(PixelArt.texture("coal"), 0.06)
-		lumps.name = "CoalSprite"
-		lumps.position = coal.position - Vector3(0, coal.position.y, 0)
-		get_node("Engine").add_child(lumps)
 	var sail := PixelArt.make_sprite(PixelArt.texture("sail"), 0.02, false)
 	sail.name = "Sail"
 	sail.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
@@ -71,3 +64,23 @@ func knock_down_crew(push: Vector2) -> Array[Node3D]:
 func _on_wave_struck(side: float) -> void:
 	# The wave lifts its side, so everyone loose falls toward the other side.
 	knock_down_crew(Vector2(0.0, -side))
+
+
+## A black smudge of spilled coal on the deck (cosmetic; the oldest fade away after a while).
+func add_coal_mark(local: Vector3, size := 1.0) -> void:
+	var mark := MeshInstance3D.new()
+	mark.add_to_group("coal_marks")
+	var quad := PlaneMesh.new()
+	quad.size = Vector2(0.9, 0.7) * clampf(0.6 + size, 0.6, 1.6)
+	var soot := StandardMaterial3D.new()
+	soot.albedo_color = Color(0.05, 0.05, 0.06, 0.75)
+	soot.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	soot.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	quad.material = soot
+	mark.mesh = quad
+	mark.position = Vector3(local.x, 0.015, local.z)
+	mark.rotation.y = randf() * TAU
+	add_child(mark)
+	var marks := get_tree().get_nodes_in_group("coal_marks")
+	if marks.size() > 25:
+		marks[0].queue_free()

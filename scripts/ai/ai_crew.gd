@@ -21,7 +21,6 @@ var _bubble_left := 0.0
 var _use_cooldown := 0.0
 var _callout_left := 0.0
 var _reverse_left := 0.0
-var _shovelling := false
 var _progress_check := 0.6
 var _last_position := Vector3.ZERO
 var _sidestep_left := 0.0
@@ -70,7 +69,9 @@ func _physics_process(delta: float) -> void:
 		_press_use() # not my job any more: let go
 		return
 	match job:
-		"helm", "engine", "pump":
+		"engine":
+			_engineer(delta)
+		"helm", "pump":
 			_run_station(job, delta)
 		"navigator":
 			_navigate(delta)
@@ -125,6 +126,13 @@ func _press_use() -> void:
 		_use_cooldown = 0.5
 
 
+## Uses a specific thing (a station, a box, an item, the pile...), never just "whatever is nearest".
+func _use_on(thing: Node) -> void:
+	if _use_cooldown <= 0.0:
+		_player.interact_with(thing)
+		_use_cooldown = 0.5
+
+
 func _drop_carried() -> void:
 	if _player.carried:
 		_player.carried.drop()
@@ -135,35 +143,49 @@ func _drop_carried() -> void:
 func _run_station(station_job: String, delta: float) -> void:
 	var station := _ship.get_node(STATION_FOR[station_job])
 	if _player.station == station:
-		match station_job:
-			"helm":
-				_steer()
-			"engine":
-				_stoke()
+		if station_job == "helm":
+			_steer()
 		return
 	_drop_carried()
 	if _walk_to(station.global_position, delta, 0.9):
-		_press_use()
+		_use_on(station)
 
 
-func _stoke() -> void:
+## The engineer's loop: fill a shovel at the coal pile, carry it to the furnace, feed it. When the
+## engine runs hot, take the controls (empty-handed) and vent. With the firebox full, wait by the
+## furnace with a loaded shovel, ready.
+func _engineer(delta: float) -> void:
 	var engine := _ship.get_node("EngineSystem")
-	if engine.fuel < 0.6:
-		_shovelling = true
-	elif engine.fuel > 0.95:
-		_shovelling = false
-	_player.move_input = Vector2(0, -1) if _shovelling else Vector2.ZERO
-	if engine.heat > 0.9 and engine.vent_ready_in <= 0.0:
-		_player.jump_requested = true # vent steam
+	var furnace := _ship.get_node("Engine")
+	var carrying_coal: bool = _player.carried != null and _player.carried.kind == "coal"
+	var vent_at: float = engine.heat_cap_threshold # above this, top speed is capped: vent
+	if _player.station == furnace:
+		if engine.heat > vent_at and engine.vent_ready_in <= 0.0:
+			_player.jump_requested = true # vent steam
+		elif engine.heat < 0.6 or engine.vent_ready_in > 0.0 and engine.fuel < 0.7:
+			_press_use() # cool enough (or coal needed): let go of the controls
+		return
+	if engine.heat > vent_at and engine.vent_ready_in <= 0.0 and not carrying_coal:
+		if _walk_to(furnace.global_position, delta, 0.9):
+			_use_on(furnace)
+		return
+	if _player.carried and not carrying_coal:
+		_drop_carried()
+	if carrying_coal:
+		if _walk_to(furnace.global_position, delta, 1.0) and engine.fuel < 0.9:
+			_use_on(furnace) # feed the fire
+		return
+	var pile := _ship.get_node("CoalPile")
+	if _walk_to(pile.global_position, delta, 1.0):
+		_use_on(pile)
 
 
 func _steer() -> void:
 	var handling := _ship.get_node("ShipHandling")
 	var engine := _ship.get_node("EngineSystem")
 	var wanted := 0.8
-	var engineer_present: bool = _ship.get_node("Engine").is_active()
-	if engine.heat > 0.85:
-		wanted = 0.6 if engineer_present else 0.45
+	if engine.heat > 0.93 or engine.is_warning():
+		wanted = 0.45 # about to overheat: ease off until the engineer vents
 	if _reverse_left > 0.0:
 		wanted = -0.3 # just hit something: back off
 	var voyage := _ship.get_parent()
@@ -251,7 +273,7 @@ func _navigate(delta: float) -> void:
 	if telescope.enabled:
 		if _player.station != telescope:
 			if _walk_to(telescope.global_position, delta, 0.9):
-				_press_use()
+				_use_on(telescope)
 			return
 	else:
 		var table := _ship.get_node("MapTable")
@@ -311,7 +333,7 @@ func _carpentry(delta: float) -> void:
 	var task := _pick_task()
 	if task.is_empty():
 		target = null
-		_drop_carried()
+		_idle_work(delta)
 		return
 	target = task[1]
 	match task[0]:
@@ -320,7 +342,7 @@ func _carpentry(delta: float) -> void:
 			if _player.station == target:
 				return # working on it
 			if _walk_to(target.global_position, delta, 0.9):
-				_press_use()
+				_use_on(target)
 		"patch":
 			_patch(target, delta)
 		"rudder":
@@ -331,7 +353,7 @@ func _patch(breach: Node3D, delta: float) -> void:
 	var carried: Node3D = _player.carried
 	if carried and (carried.kind == "plank" or (carried.kind == "crate" and not breach.is_plugged)):
 		if _walk_to(breach.global_position, delta, 0.9):
-			_press_use()
+			_use_on(breach)
 		return
 	var box := _ship.get_node("PlankBox")
 	if box.stock > 0 or _brain.loose_item("plank") != null:
@@ -346,7 +368,7 @@ func _patch(breach: Node3D, delta: float) -> void:
 	if carried and carried != crate:
 		_drop_carried()
 	if _walk_to(crate.global_position, delta, 0.9):
-		_press_use()
+		_use_on(crate)
 
 
 ## Gets an item (a loose one on the deck, or one from its box) and brings it to a target.
@@ -354,13 +376,13 @@ func _fetch_and_bring(kind: String, box: Node3D, destination: Node3D, delta: flo
 	var carried: Node3D = _player.carried
 	if carried and carried.kind == kind:
 		if _walk_to(_approach_point(destination), delta, 0.6):
-			_press_use()
+			_use_on(destination)
 		return
 	_drop_carried()
 	var loose: Node3D = _brain.loose_item(kind)
 	var source: Node3D = loose if loose else box
-	if _walk_to(source.global_position, delta, 0.9):
-		_press_use()
+	if _walk_to(source.global_position, delta, 1.2): # items can be reached from 1.3 m
+		_use_on(source)
 
 
 ## The most urgent carpenter task nobody else is already on (two may hammer the same plank).
@@ -374,8 +396,52 @@ func _approach_point(station: Node3D) -> Vector3:
 	return station.global_position
 
 
+## Nothing to repair: still be useful. Pump any water, help keep the furnace fed, re-tie loose
+## cargo, or hold a plank ready near the middle of the deck for the next leak.
+func _idle_work(delta: float) -> void:
+	var hull := _ship.get_node("HullSystem")
+	var pump := _ship.get_node("Pump")
+	if hull.water > 0.01 and (pump.occupant == null or pump.occupant == _player):
+		_drop_carried()
+		if _player.station != pump and _walk_to(pump.global_position, delta, 0.9):
+			_use_on(pump)
+		return
+	if not _brain.loose_crates().is_empty() or _brain.fraying_crate() != null:
+		_cargo(delta)
+		return
+	var engine := _ship.get_node("EngineSystem")
+	var carrying: Node3D = _player.carried
+	if engine.fuel < 0.7 or (carrying and carrying.kind == "coal"):
+		_engineer(delta) # lend a hand with the coal
+		return
+	if carrying == null and _ship.get_node("PlankBox").stock > 1:
+		var box := _ship.get_node("PlankBox")
+		if _walk_to(box.global_position, delta, 0.9):
+			_use_on(box)
+		return
+	if carrying and carrying.kind != "plank":
+		_drop_carried()
+	_walk_to(_ship.to_global(Vector3(-1.0, 0.0, 1.6 if _player.player_index % 2 == 0 else -1.6)), delta, 0.8)
+
+
+## Whether this crewmate is busy right now: moving, working a station, carrying something, or
+## reading the chart (tests check that nobody stands around).
+func is_working() -> bool:
+	if _player.station or _player.carried or _player.knocked > 0.0:
+		return true
+	if Vector2(_player.velocity.x, _player.velocity.z).length() > 0.4:
+		return true
+	return job == "navigator" and _ship.get_node("MapTable").crew_nearby().has(_player)
+
+
 func _pick_task() -> Array:
 	var tasks: Array = _brain.carpenter_tasks()
+	# Already holding the right part? Finish that repair first (no dropping it halfway).
+	var carried: Node3D = _player.carried
+	if carried:
+		for task in tasks:
+			if (carried.kind == "pin" and task[0] == "rudder") or (carried.kind == "plank" and task[0] == "patch"):
+				return task
 	for task in tasks:
 		var others := 0
 		for ai in get_tree().get_nodes_in_group("ai_crew"):
@@ -405,7 +471,7 @@ func _cargo(delta: float) -> void:
 	if carried and carried.kind == "crate":
 		var spot: Marker3D = _ship.get_node("CargoBay").nearest_free_spot(_player.global_position)
 		if spot and _walk_to(spot.global_position, delta, 0.5):
-			_press_use()
+			_use_on(_ship.get_node("CargoBay"))
 		return
 	_drop_carried()
 	var crate: Node3D = _brain.fraying_crate()
@@ -414,4 +480,4 @@ func _cargo(delta: float) -> void:
 		crate = loose[0] if not loose.is_empty() else null
 	target = crate
 	if crate and _walk_to(crate.global_position, delta, 0.9):
-		_press_use()
+		_use_on(crate)

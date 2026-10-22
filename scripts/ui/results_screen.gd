@@ -55,6 +55,8 @@ func _draw() -> void:
 	]
 	if not outcome.delivered:
 		lines.append(["Distance", "%d%% of the way" % roundi(outcome.progress * 100.0), false])
+	if outcome.has("best_score"):
+		lines.append(["Best", "%d points, %s" % [outcome.best_score, outcome.best_time_text], true])
 	for line in lines:
 		draw_string(font, Vector2(x, y), line[0], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 1, 1, 0.7))
 		draw_string(font, Vector2(x + 120, y), line[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, GOOD if line[2] else BAD)
@@ -65,6 +67,11 @@ func _draw() -> void:
 				Color(1, 0.85, 0.3))
 	draw_string(font, Vector2(x + 220, y + 4), "cargo %d + dry hull %d + early %d" % [s.cargo, s.hull, s.time],
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.6))
+	var records: Dictionary = outcome.get("records", {})
+	if records.get("score", false) or records.get("time", false):
+		var what := "NEW BEST SCORE & TIME!" if records.score and records.time else ("NEW BEST SCORE!" if records.score else "NEW BEST TIME!")
+		draw_string(font, Vector2(box.position.x, box.position.y + 22), what, HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 22,
+				Color(1, 0.85, 0.3))
 	y += 48.0
 	draw_string(font, Vector2(x, y), "WHAT HAPPENED", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(1, 1, 1, 0.7))
 	y += 26.0

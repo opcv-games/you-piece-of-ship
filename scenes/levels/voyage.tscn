@@ -92,7 +92,7 @@ offset_bottom = 60.0
 theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
 theme_override_font_sizes/font_size = 16
 text = "P1: W A S D (Z Q S D on French keyboard) move, Space jump, E use     P2: arrows, Enter jump, Right Shift use     Controllers: stick, A jump, X use
-Helm: left/right steer, up/down throttle (below 0 = astern)     Engine: hold up = coal, Jump = vent     R: restart     M: music"
+Helm: left/right steer, up/down throttle (below 0 = astern)     Engine: coal pile, Use = shovel / feed, Jump at engine = vent     R: restart     M: music"
 
 [node name="Status" type="Label" parent="HUD"]
 offset_left = 16.0

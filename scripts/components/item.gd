@@ -13,9 +13,10 @@ const KINDS := {
 	"plank": {"size": Vector3(1.2, 0.12, 0.35), "color": Color(0.82, 0.62, 0.38), "carry_speed": 0.85, "name": "plank"},
 	"pin": {"size": Vector3(0.9, 0.22, 0.22), "color": Color(0.6, 0.62, 0.66), "carry_speed": 0.5, "name": "rudder pin"},
 	"crate": {"size": Vector3(0.8, 0.8, 0.8), "color": Color(0.78, 0.45, 0.2), "carry_speed": 0.6, "name": "cargo crate"},
+	"coal": {"size": Vector3(0.9, 0.15, 0.35), "color": Color(0.12, 0.12, 0.13), "carry_speed": 0.9, "name": "shovel of coal"},
 }
 
-@export_enum("plank", "pin", "crate") var kind := "plank"
+@export_enum("plank", "pin", "crate", "coal") var kind := "plank"
 @export var value := 0 ## score value delivered to port (cargo crates)
 @export var static_friction := 0.09 ## deck tilt (as gravity fraction) needed before it starts sliding
 @export var slide_damping := 1.2
@@ -26,6 +27,8 @@ static var _next_net_id := 1
 var net_id := 0 ## identity for online play (the host numbers every item it creates)
 var carrier: Node3D = null
 var lashed := false
+var amount := 1.0 ## coal: how full the shovel is (a hit spills some)
+var wetness := 0.0 ## coal: soaked coal burns worse
 var velocity := Vector2.ZERO ## ship-local x/z metres per second while sliding
 var ship: Node3D
 
@@ -48,8 +51,8 @@ func _ready() -> void:
 	ship = _find_ship()
 	if ship and "pixel_art" in ship and ship.pixel_art:
 		# Pixel-art sprite: a crate, a plank or the iron pin (sizes match the grey boxes).
-		var sizes := {"crate": 0.06, "plank": 0.06, "pin": 0.045}
-		var sprite := PixelArt.make_sprite(PixelArt.texture(kind), sizes[kind])
+		var sizes := {"crate": 0.06, "plank": 0.06, "pin": 0.045, "coal": 0.05}
+		var sprite := PixelArt.make_sprite(PixelArt.texture("shovel_coal" if kind == "coal" else kind), sizes[kind])
 		sprite.name = "Mesh"
 		add_child(sprite)
 		return
@@ -106,8 +109,12 @@ func pick_up(player: Node3D) -> void:
 
 
 ## Puts the item down at the carrier's feet, optionally flung (ship-local metres per second).
+## A shovel of coal can't be put down: dropping it spills the coal on the deck.
 func drop(fling := Vector2.ZERO) -> void:
 	if carrier == null:
+		return
+	if kind == "coal":
+		spill(1.0)
 		return
 	var player := carrier
 	carrier = null
@@ -117,6 +124,19 @@ func drop(fling := Vector2.ZERO) -> void:
 	rotation = Vector3.ZERO
 	velocity = fling
 	dropped.emit(player)
+
+
+## Spills part of a shovel of coal (a hit while carrying it), leaving a black mark on the deck.
+## Spilling it all uses the shovel up.
+func spill(share: float) -> void:
+	if kind != "coal":
+		return
+	var where := carrier.global_position if carrier else global_position
+	amount *= 1.0 - share
+	if ship and ship.has_method("add_coal_mark"):
+		ship.add_coal_mark(ship.to_local(where), share)
+	if amount < 0.05:
+		consume()
 
 
 ## Takes the item out of the game (used up as a patch, thrown overboard...).

@@ -83,17 +83,71 @@ func test_given_heat_100_when_engineer_vents_then_cools_and_bystander_knocked() 
 	assert_eq(_crew[3].knocked, 0.0, "the engineer holds on")
 
 
-func test_given_no_coal_then_limps_and_shovelling_refills() -> void:
+func test_given_no_coal_then_limps_and_a_shovel_from_the_pile_refills() -> void:
 	_engine.fuel = 0.0
 	_handling.throttle = 1.0
 	_run(0.2)
 	assert_almost_eq(_handling.top_speed(), _handling.max_speed * _engine.no_fuel_speed, 0.01)
-	await _place(_crew[3], _ship.get_node("Engine").position)
-	await _use(_crew[3])
-	_crew[3].move_input = Vector2(0, -1)
-	_engine.set_physics_process(true)
-	await wait_seconds(2.0)
-	assert_gt(_engine.fuel, 0.2, "coal shovelled in")
+	var player: Node3D = _crew[3]
+	await _place(player, _ship.get_node("CoalPile").position)
+	await _use(player)
+	assert_eq(player.carried.kind, "coal", "filled a shovel")
+	await _place(player, _ship.get_node("Engine").position)
+	await _use(player)
+	assert_null(player.carried, "fed to the furnace")
+	assert_almost_eq(_engine.fuel, _engine.shovel_load, 0.01, "one shovel's worth")
+
+
+func test_given_hit_while_carrying_coal_then_half_spills_and_leaves_a_mark() -> void:
+	var player: Node3D = _crew[3]
+	await _place(player, _ship.get_node("CoalPile").position)
+	await _use(player)
+	var shovel: Node3D = player.carried
+	var rock: Node3D = preload("res://scenes/greybox/rock.tscn").instantiate()
+	_level.add_child(rock)
+	_handling.impact.emit(rock)
+	assert_almost_eq(shovel.amount, 0.5, 0.01, "half the coal spilled")
+	assert_eq(_level.get_tree().get_nodes_in_group("coal_marks").size(), 1, "a black mark on the deck")
+
+
+func test_given_knocked_down_with_coal_then_all_spills() -> void:
+	var player: Node3D = _crew[3]
+	await _place(player, _ship.get_node("CoalPile").position)
+	await _use(player)
+	player.knock_down(Vector2(0, 1))
+	await wait_physics_frames(2)
+	assert_null(player.carried)
+	assert_eq(_level.get_tree().get_nodes_in_group("items").filter(func(i): return i.kind == "coal").size(), 0)
+	assert_gte(_level.get_tree().get_nodes_in_group("coal_marks").size(), 1)
+
+
+func test_given_water_in_hold_then_coal_gets_wet_and_top_speed_drops() -> void:
+	_ship.get_node("HullSystem").water = 0.5
+	var pile := _ship.get_node("CoalPile")
+	await wait_seconds(8.0)
+	assert_gt(pile.wetness, 0.5, "the bottom of the pile is soaked")
+	var dry_speed: float = _handling.top_speed()
+	var player: Node3D = _crew[3]
+	await _place(player, pile.position)
+	await _use(player)
+	_engine.fuel = 0.05
+	await _place(player, _ship.get_node("Engine").position)
+	await _use(player)
+	_engine.fuel = 0.6 # plenty of (wet) coal now
+	_run(0.1)
+	assert_gt(_engine.coal_wetness, 0.2)
+	assert_lt(_handling.top_speed(), dry_speed, "wet coal: slower")
+	assert_string_contains(_ship.get_node("Engine").status_text, "WET")
+
+
+func test_given_engine_dead_then_sail_keeps_ship_moving() -> void:
+	_engine.fuel = 0.0
+	_engine.stall_left = 20.0
+	_handling.throttle = 0.0
+	_handling.set_physics_process(true)
+	await wait_seconds(3.0)
+	assert_almost_eq(_handling.speed, _handling.sail_speed, 0.05, "the sail pushes")
+	assert_gt(_handling.sail_speed, 0.5)
 
 
 func test_given_water_in_hull_then_engine_heats_faster() -> void:

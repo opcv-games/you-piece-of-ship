@@ -43,3 +43,19 @@ Feature: Engine heat caps speed  (#4)
     Then the heat gauge is hidden
     When a player operates the engine
     Then the heat gauge shows
+
+  Scenario: Coal comes from a pile a few steps away (Olivier, 2026-10-22)
+    Given the coal pile in the stern corner
+    When the engineer fills a shovel there and presses Use at the engine
+    Then the firebox gains one shovel's worth
+    And a hit while carrying spills half the shovel and leaves a black mark on the deck
+    And falling over spills all of it
+
+  Scenario: Wet coal
+    Given water in the hold
+    Then the bottom of the coal pile gets soaked
+    And wet coal burns worse: top speed drops and the engine shows "WET COAL"
+
+  Scenario: The sail
+    Given the engine is dead
+    Then the sail still pushes the ship at a minimum speed

@@ -36,7 +36,29 @@ func _initialize() -> void:
 			_canvas(part)
 		part.save_png(ProjectSettings.globalize_path(OUT + name + ".png"))
 		print("cut ", name, " ", part.get_size())
+	_make_shovel(sheet)
 	quit()
+
+
+## No shovel on the sheets: draw one (wooden handle, iron blade) and heap the coal lumps on it.
+func _make_shovel(sheet: Image) -> void:
+	var image := Image.create(28, 14, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	var wood := Color(0.55, 0.33, 0.15)
+	var dark := Color(0.08, 0.06, 0.05)
+	for x in range(1, 16):
+		var y := 3 + int(x * 0.3)
+		image.set_pixel(x, y, wood)
+		image.set_pixel(x, y + 1, wood.darkened(0.3))
+	for x in range(15, 27):
+		for y in range(5, 13):
+			image.set_pixel(x, y, Color(0.45, 0.47, 0.5) if y > 9 else dark)
+	var lumps := sheet.get_region(Rect2i(288, 304, 16, 16))
+	_clear_white(lumps)
+	lumps.resize(11, 8, Image.INTERPOLATE_NEAREST)
+	image.blend_rect(lumps, Rect2i(0, 0, 11, 8), Vector2i(15, 2))
+	image.save_png(ProjectSettings.globalize_path(OUT + "shovel_coal.png"))
+	print("drew shovel_coal")
 
 
 ## The sheets use white (and sky blue) as background: make those transparent.
