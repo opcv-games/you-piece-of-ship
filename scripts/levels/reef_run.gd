@@ -20,6 +20,7 @@ var _crash_flash := 0.0
 
 func _ready() -> void:
 	_handling.rock_hit.connect(_on_rock_hit)
+	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
 	_spawn_foam()
 
@@ -51,6 +52,14 @@ func _on_rock_hit(_rock: Node3D) -> void:
 		_banner.text = "CRASH!"
 		_banner.visible = true
 		_crash_flash = 1.0
+
+
+func _on_sunk() -> void:
+	finished = true
+	_crash_flash = 0.0
+	_handling.throttle = 0.0
+	_banner.text = "SHIP SUNK after %d s!\nPress R (or Start) to try again" % int(_time)
+	_banner.visible = true
 
 
 func _finish() -> void:
