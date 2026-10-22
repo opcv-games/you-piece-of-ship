@@ -17,10 +17,17 @@ Feature: Engine heat caps speed  (#4)
     Then the heat drops, the stall is avoided and the bystander is knocked down
 
   Scenario: Coal
+    Given the coal pile beside the engine (it never runs out)
+    Then a full firebox lasts about 2.5 minutes at full throttle
+    And when it gets low, "COAL LOW!" shows over the engine and a hint says how to shovel
     Given the engine runs out of coal
     Then the ship only limps along
-    When the engineer shovels (holds up at the engine)
-    Then the coal refills
+    When the engineer shovels (Use at the engine, hold up)
+    Then the firebox refills, empty to full in 5 seconds
+
+  Scenario: The Maiden Voyage never strands a crew
+    Given the Maiden Voyage
+    Then the firebox never drops below 30 percent
 
   Scenario: A flooded ship works the engine harder
     Given water in the hull

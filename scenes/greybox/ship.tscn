@@ -151,6 +151,14 @@ top_radius = 0.12
 bottom_radius = 0.18
 height = 1.2
 
+[sub_resource type="StandardMaterial3D" id="mat_coal"]
+albedo_color = Color(0.1, 0.1, 0.11, 1)
+
+[sub_resource type="SphereMesh" id="mesh_coal"]
+material = SubResource("mat_coal")
+radius = 0.45
+height = 0.5
+
 [node name="Ship" type="AnimatableBody3D"]
 sync_to_physics = false
 script = ExtResource("1_ship")
@@ -441,6 +449,10 @@ no_depth_test = true
 font_size = 56
 outline_size = 12
 text = "ENGINE"
+
+[node name="CoalPile" type="MeshInstance3D" parent="Engine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.15, 0.85)
+mesh = SubResource("mesh_coal")
 
 [node name="EngineBody" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0.6, 2.95)

@@ -2,6 +2,7 @@ extends GutTest
 ## features/engine_heat.feature
 
 const LevelScene = preload("res://scenes/levels/voyage.tscn")
+const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 
 var _level: Node3D
 var _ship: Node3D
@@ -12,6 +13,7 @@ var _crew: Array[Node] = []
 
 func before_each() -> void:
 	_level = LevelScene.instantiate()
+	_level.contract = ContractLibrary.reef_run()
 	add_child_autofree(_level)
 	_ship = _level.get_node("Ship")
 	_ship.get_node("WaveMotion").intensity = 0.0
@@ -124,3 +126,21 @@ func test_given_nobody_at_engine_then_gauge_hidden_and_engineer_sees_it() -> voi
 	await _use(_crew[3])
 	await wait_physics_frames(2)
 	assert_true(gauge.visible)
+
+
+func test_given_low_coal_then_everyone_sees_warning() -> void:
+	_engine.fuel = 0.3
+	_handling.throttle = 1.0
+	watch_signals(_engine)
+	_run(10.0)
+	assert_signal_emitted(_engine, "fuel_low")
+	assert_string_contains(_ship.get_node("Engine").status_text, "COAL LOW")
+
+
+func test_full_firebox_lasts_about_150_seconds_at_full_throttle() -> void:
+	_handling.throttle = 1.0
+	_engine.heat_rise = 0.0 # only the coal matters here
+	_run(140.0)
+	assert_gt(_engine.fuel, 0.0)
+	_run(15.0)
+	assert_eq(_engine.fuel, 0.0)

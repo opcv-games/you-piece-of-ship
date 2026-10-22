@@ -2,6 +2,12 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — First solo playtest of the full game (Olivier)
+Sessions: 1 (self: 1, others: 0), Maiden Voyage, alone
+Observed: "extremely fun concept". Ran out of coal in the first round and couldn't finish the Maiden Voyage alone (one person can't steer and shovel). Leak patching "feels good" (two players faster). Shop prices: not the time to balance.
+Biggest weakness: a single player can't run the ship.
+Decision: make coal obvious and plentiful; add AI crewmates with primary and secondary jobs; keep leak patching as is; defer price balancing.
+
 ## 2026-10-22 — Online multiplayer  (#14)
 Hypothesis: If remote friends can join a crew with an address and their own keyboard, then groups that can't share a couch still get the callout chaos, increasing Social interaction.
 Variable: snapshot rate 20 per second
