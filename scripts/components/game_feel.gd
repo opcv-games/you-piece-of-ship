@@ -139,7 +139,7 @@ func _on_wave_warning(side: float) -> void:
 		return
 	var waves: Node = ship.get_node("WaveMotion")
 	var sign := Label3D.new()
-	sign.text = "BIG WAVE!\nGrab a station!"
+	sign.text = tr("BIG WAVE!\nGrab a station!")
 	sign.font_size = 96
 	sign.outline_size = 18
 	sign.modulate = Color(1.0, 0.9, 0.3)

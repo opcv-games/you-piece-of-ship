@@ -73,9 +73,9 @@ func _status() -> String:
 	var throttle: String = _handling.throttle_text()
 	match state:
 		1:
-			return "WHEEL SHUDDERS! %d\n%s" % [ceili(_warning_left), throttle]
+			return tr("WHEEL SHUDDERS! %d\n%s") % [ceili(_warning_left), throttle]
 		2:
-			return "RUDDER BROKEN: bring the pin\n%s" % throttle
+			return tr("RUDDER BROKEN: bring the pin\n%s") % throttle
 	return throttle
 
 

@@ -101,7 +101,7 @@ func _update_fray_label() -> void:
 	if _fraying.get_node_or_null("FrayLabel") == null:
 		var label := Label3D.new()
 		label.name = "FrayLabel"
-		label.text = "ROPE FRAYING!"
+		label.text = tr("ROPE FRAYING!")
 		label.font_size = 48
 		label.outline_size = 10
 		label.modulate = Color(1.0, 0.8, 0.4)

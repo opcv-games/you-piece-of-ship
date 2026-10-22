@@ -65,8 +65,8 @@ func forward() -> Vector3:
 
 func throttle_text() -> String:
 	if throttle < -0.01:
-		return "ASTERN %d%%" % roundi(-throttle * 100.0)
-	return "throttle %d%%" % roundi(throttle * 100.0)
+		return tr("ASTERN %d%%") % roundi(-throttle * 100.0)
+	return tr("throttle %d%%") % roundi(throttle * 100.0)
 
 
 ## Top speed right now, after damage (water, heat...).

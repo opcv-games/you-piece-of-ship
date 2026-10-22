@@ -34,6 +34,8 @@ func _ready() -> void:
 ## Language, music volume and fullscreen from the saved settings.
 func apply_settings() -> void:
 	var locale := language if language != "" else OS.get_locale_language()
+	if not persist and language == "":
+		locale = "en" # automated tests always run in English
 	TranslationServer.set_locale("fr" if locale == "fr" else "en")
 	var bus := AudioServer.get_bus_index(&"Music")
 	if bus >= 0:

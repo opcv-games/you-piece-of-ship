@@ -142,14 +142,14 @@ func _refresh() -> void:
 	_spray.initial_velocity_max = 2.5 if state == State.CRACKING or flow() < 1.0 else 5.0
 	match state:
 		State.CRACKING:
-			status_text = "Cracking! %d" % ceili(_warning_left)
+			status_text = tr("Cracking! %d") % ceili(_warning_left)
 		State.OPEN:
 			if has_plank:
-				status_text = "Use: hammer (2 crew = fast) %d%%" % roundi(progress * 100.0)
+				status_text = tr("Use: hammer (2 crew = fast) %d%%") % roundi(progress * 100.0)
 			elif is_plugged:
-				status_text = "Plugged. Bring a plank!"
+				status_text = tr("Plugged. Bring a plank!")
 			else:
-				status_text = "Bring a plank (or a crate)!"
+				status_text = tr("Bring a plank (or a crate)!")
 		_:
 			status_text = ""
 

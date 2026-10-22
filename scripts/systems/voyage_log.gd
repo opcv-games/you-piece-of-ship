@@ -6,7 +6,7 @@ signal logged(entry: Dictionary)
 
 @export var ship: Node3D
 
-var entries: Array[Dictionary] = [] ## {time, text, kind: "bad" | "good" | "info"}
+var entries: Array[Dictionary] = [] ## {time, text, key, args, kind: "bad" | "good" | "info"}
 var elapsed := 0.0
 
 var _water_marks := [0.5, 0.8]
@@ -30,17 +30,17 @@ func _ready() -> void:
 	hull.breach_plugged.connect(func(_b): add("Leak plugged with a crate (cargo lost)", "info"))
 	engine.overheat_warning.connect(func(): add("Engine overheating!", "bad"))
 	engine.stalled.connect(func(): add("Engine stalled and the cooling pipe burst", "bad"))
-	engine.vented.connect(func(player): add("%s vented steam" % _who(player), "info"))
+	engine.vented.connect(func(player): add("%s vented steam", "info", [_who(player)]))
 	engine.pipe_fixed.connect(func(): add("Cooling pipe fixed", "good"))
 	engine.out_of_fuel.connect(func(): add("Out of coal!", "bad"))
 	rudder.warning_started.connect(func(): add("Hard hit: the wheel is shuddering", "bad"))
-	rudder.damaged.connect(func(): add("Rudder broken: pulling to %s" % (
-			"starboard" if rudder.pull_side < 0.0 else "port"), "bad"))
+	rudder.damaged.connect(func(): add("Rudder broken: pulling to %s", "bad", [
+			"starboard" if rudder.pull_side < 0.0 else "port"]))
 	rudder.repaired.connect(func(): add("Rudder pin swapped", "good"))
 	cargo.rope_fraying.connect(func(_c): add("A cargo rope is fraying", "info"))
 	cargo.crate_loose.connect(func(_c): add("A crate broke loose", "bad"))
-	cargo.thrown_overboard.connect(func(crate): add("%s threw a crate overboard" % _who(crate.carrier), "info"))
-	waves.wave_warning.connect(func(side): add("Big wave coming from %s!" % ("starboard" if side > 0.0 else "port"), "info"))
+	cargo.thrown_overboard.connect(func(crate): add("%s threw a crate overboard", "info", [_who(crate.carrier)]))
+	waves.wave_warning.connect(func(side): add("Big wave coming from %s!", "info", ["starboard" if side > 0.0 else "port"]))
 	for player in get_tree().get_nodes_in_group("crew"):
 		player.knocked_down.connect(_on_knocked.bind(player))
 
@@ -53,15 +53,17 @@ func _on_impact(rock: Node3D, handling: Node) -> void:
 	_last_rock = obstacle
 	_last_rock_at = elapsed
 	var what := "the coast" if not rock.hidden else "a rock"
-	add("Hit %s at %d%% speed" % [what, roundi(absf(handling.impact_speed) / handling.max_speed * 100.0)], "bad")
+	add("Hit %s at %d%% speed", "bad", [what, roundi(absf(handling.impact_speed) / handling.max_speed * 100.0)])
 
 
 func _who(player: Node) -> String:
 	return "P%d" % player.player_index if player else "Someone"
 
 
-func add(text: String, kind := "info") -> void:
-	var entry := {"time": elapsed, "text": text, "kind": kind}
+## Records an event. key is the English sentence (with %s/%d slots), args fill the slots; text is
+## the English version, translate_entry() gives it in the current language.
+func add(key: String, kind := "info", args: Array = []) -> void:
+	var entry := {"time": elapsed, "key": key, "args": args, "text": key % args if not args.is_empty() else key, "kind": kind}
 	entries.append(entry)
 	logged.emit(entry)
 
@@ -72,11 +74,12 @@ func _on_knocked(player: Node3D) -> void:
 		_fallen.clear()
 	_fallen_at = elapsed
 	_fallen.append(_who(player))
-	var text := "%s knocked over" % ", ".join(_fallen)
-	if _fallen.size() > 1 and not entries.is_empty() and entries[-1].text.ends_with("knocked over"):
-		entries[-1].text = text
+	var names := ", ".join(_fallen)
+	if _fallen.size() > 1 and not entries.is_empty() and entries[-1].key == "%s knocked over":
+		entries[-1].args = [names]
+		entries[-1].text = "%s knocked over" % names
 	else:
-		add(text, "bad")
+		add("%s knocked over", "bad", [names])
 
 
 func _physics_process(delta: float) -> void:
@@ -86,8 +89,16 @@ func _physics_process(delta: float) -> void:
 	elapsed += delta
 	var water: float = ship.get_node("HullSystem").water
 	if not _water_marks.is_empty() and water >= _water_marks[0]:
-		add("Water %d%% up the hold!" % roundi(_water_marks[0] * 100.0), "bad")
+		add("Water %d%% up the hold!", "bad", [roundi(_water_marks[0] * 100.0)])
 		_water_marks.pop_front()
+
+
+## An entry in the current language (words in its arguments are translated too).
+func translate_entry(entry: Dictionary) -> String:
+	var args := []
+	for arg in entry.get("args", []):
+		args.append(tr(arg) if arg is String else arg)
+	return tr(entry.get("key", entry.text)) % args if not args.is_empty() else tr(entry.get("key", entry.text))
 
 
 ## The lines worth showing on the results screen: the bad and good ones, most recent last.

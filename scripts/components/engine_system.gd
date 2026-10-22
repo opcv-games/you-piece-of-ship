@@ -166,11 +166,11 @@ func _apply_effects() -> void:
 		_steam.emitting = heat > heat_cap_threshold or is_stalled()
 		_steam.initial_velocity_max = 6.0 if is_warning() or is_stalled() else 3.0
 	if is_stalled():
-		_station.status_text = "STALLED %ds" % ceili(stall_left)
+		_station.status_text = tr("STALLED %ds") % ceili(stall_left)
 	elif is_warning():
-		_station.status_text = "OVERHEAT! Jump: vent  %d" % ceili(warning_left)
+		_station.status_text = tr("OVERHEAT! Jump: vent  %d") % ceili(warning_left)
 	elif heat > heat_cap_threshold:
-		_station.status_text = "HOT"
+		_station.status_text = tr("HOT")
 	elif fuel <= 0.0:
 		_station.status_text = tr("NO COAL! Shovel from the pile")
 	elif fuel < low_fuel:

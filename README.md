@@ -63,3 +63,6 @@ CI runs the same suite on every push and pull request. Online play is checked se
 
 ## Workflow
 Hypothesis → spec → test → greybox → playtest → keep or revert → update docs. See [CLAUDE.md](CLAUDE.md).
+
+## Languages
+English and French. The game follows the computer's language; switch it any time in **Settings**. Translations live in `translations/strings.csv`, generated from `tools/translations_fr.py` (the English text is the key; the title is never translated).

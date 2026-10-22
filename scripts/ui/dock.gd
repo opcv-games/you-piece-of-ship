@@ -36,8 +36,8 @@ func _ready() -> void:
 	_build()
 	Net.peers_changed.connect(refresh)
 	Net.connected.connect(func(_index): refresh())
-	Net.connection_failed.connect(func(): _message.text = "Couldn't reach the host. Check the address.")
-	Net.disconnected.connect(func(): _message.text = "The host left.")
+	Net.connection_failed.connect(func(): _message.text = tr("Couldn't reach the host. Check the address."))
+	Net.disconnected.connect(func(): _message.text = tr("The host left."))
 	refresh()
 	if not contract_buttons.is_empty():
 		contract_buttons[clampi(Session.unlocked - 1, 0, contract_buttons.size() - 1)].grab_focus()
@@ -70,10 +70,10 @@ func toggle_crew(index: int) -> void:
 ## Turns the AI crewmate in an empty slot on or off.
 func toggle_ai(index: int) -> void:
 	if joined.has(index):
-		_message.text = "P%d is a human player. Press their Use again to free the slot." % index
+		_message.text = tr("P%d is a human player. Press their Use again to free the slot.") % index
 		return
 	if Net.role == "client":
-		_message.text = "Only the host sets up AI crew."
+		_message.text = tr("Only the host sets up AI crew.")
 		return
 	if Session.ai_crew.has(index):
 		Session.disable_ai(index)
@@ -99,13 +99,13 @@ func cycle_job(index: int, which: String) -> void:
 ## Starts a contract with the current crew. Returns false (with a message) if it can't.
 func start_contract(index: int) -> bool:
 	if Net.role == "client":
-		_message.text = "The host chooses the contract."
+		_message.text = tr("The host chooses the contract.")
 		return false
 	if index >= Session.unlocked:
-		_message.text = "Locked: deliver the previous contract first."
+		_message.text = tr("Locked: deliver the previous contract first.")
 		return false
 	if joined.is_empty():
-		_message.text = "Nobody aboard! At least one player presses Use (E, Right Shift or X) to join."
+		_message.text = tr("Nobody aboard! At least one player presses Use (E, Right Shift or X) to join.")
 		return false
 	Session.contract_index = index
 	Session.joined_players = joined.duplicate()
@@ -132,17 +132,17 @@ func buy(id: String) -> bool:
 func refresh() -> void:
 	if Net.role != "offline":
 		joined = Net.crew() if Net.role == "host" else joined
-	_money.text = "Coins: %d" % Session.money
+	_money.text = tr("Coins: %d") % Session.money
 	match Net.role:
 		"host":
-			_online_status.text = "Hosting: %d aboard. Friends join with your address: %s" % [
+			_online_status.text = tr("Hosting: %d aboard. Friends join with your address: %s") % [
 					Net.crew().size(), ", ".join(Net.local_addresses())]
 		"client":
-			_online_status.text = "Online as P%d (your keyboard W A S D or controller). The host picks the contract." % Net.my_index
+			_online_status.text = tr("Online as P%d (your keyboard W A S D or controller). The host picks the contract.") % Net.my_index
 		_:
 			var addresses := Net.local_addresses()
-			_online_status.text = "Online: one friend hosts, the others join with the host's address. This computer: %s" % (
-					", ".join(addresses) if not addresses.is_empty() else "no network")
+			_online_status.text = tr("Online: one friend hosts, the others join with the host's address. This computer: %s") % (
+					", ".join(addresses) if not addresses.is_empty() else tr("no network"))
 	for i in 4:
 		var index := i + 1
 		var human := joined.has(index)
@@ -150,12 +150,12 @@ func refresh() -> void:
 		var style := StyleBoxFlat.new()
 		style.bg_color = COLORS[i] if human else (COLORS[i].darkened(0.55) if not ai.is_empty() else Color(1, 1, 1, 0.08))
 		_crew_slots[i].add_theme_stylebox_override("panel", style)
-		var status := "aboard" if human else ("AI crewmate" if not ai.is_empty() else "press Use")
+		var status := tr("aboard") if human else (tr("AI crewmate") if not ai.is_empty() else tr("press Use"))
 		(_crew_slots[i].get_child(0) as Label).text = "P%d\n%s" % [index, status]
-		ai_buttons[i].text = "AI: on" if not ai.is_empty() else "AI: off"
+		ai_buttons[i].text = tr("AI: on") if not ai.is_empty() else tr("AI: off")
 		ai_buttons[i].disabled = human
-		primary_buttons[i].text = "Job: %s" % JOB_NAMES[ai.get("primary", "")] if not ai.is_empty() else "Job: -"
-		secondary_buttons[i].text = "Then: %s" % JOB_NAMES[ai.get("secondary", "")] if not ai.is_empty() else "Then: -"
+		primary_buttons[i].text = tr("Job: %s") % tr(JOB_NAMES[ai.get("primary", "")]) if not ai.is_empty() else tr("Job: -")
+		secondary_buttons[i].text = tr("Then: %s") % tr(JOB_NAMES[ai.get("secondary", "")]) if not ai.is_empty() else tr("Then: -")
 		primary_buttons[i].disabled = ai.is_empty()
 		secondary_buttons[i].disabled = ai.is_empty()
 	var contracts := ContractLibrary.all_contracts()
@@ -167,16 +167,16 @@ func refresh() -> void:
 			var fastest: String = _clock(float(Session.best_times[str(i)])) if Session.best_times.has(str(i)) else ""
 			var record := ""
 			if best > 0:
-				record = "   best %d%s" % [best, " in " + fastest if fastest != "" else ""]
-			button.text = "%d. %s   %s   %d coins/crate   %s%s" % [i + 1, c.title, "*".repeat(c.difficulty),
+				record = tr("   best %d") % best + (tr(" in %s") % fastest if fastest != "" else "")
+			button.text = tr("%d. %s   %s   %d coins/crate   %s%s") % [i + 1, tr(c.title), "*".repeat(c.difficulty),
 					c.pay_per_crate, _clock(c.deadline), record]
 		else:
-			button.text = "%d. LOCKED (deliver the previous contract)" % (i + 1)
+			button.text = tr("%d. LOCKED (deliver the previous contract)") % (i + 1)
 	for id in Upgrades.ORDER:
 		var data: Dictionary = Upgrades.DATA[id]
 		var owned := Session.upgrades.has(id)
-		shop_buttons[id].text = "%s   %s\n+ %s\n- %s" % [data.title, "OWNED" if owned else "%d coins" % data.price,
-				data.gain, data.cost]
+		shop_buttons[id].text = "%s   %s\n+ %s\n- %s" % [tr(data.title), tr("OWNED") if owned else tr("%d coins") % data.price,
+				tr(data.gain), tr(data.cost)]
 		shop_buttons[id].disabled = owned
 
 
@@ -261,7 +261,7 @@ func _build() -> void:
 	for i in contracts.size():
 		var button := _button()
 		button.pressed.connect(start_contract.bind(i))
-		button.focus_entered.connect(func(): _details.text = contracts[i].blurb)
+		button.focus_entered.connect(func(): _details.text = tr(contracts[i].blurb))
 		left.add_child(button)
 		contract_buttons.append(button)
 	_details = _label("", 15, Color(1, 1, 1, 0.75))
@@ -280,7 +280,7 @@ func _build() -> void:
 	online.add_theme_constant_override("separation", 10)
 	root.add_child(online)
 	var host_button := _button()
-	host_button.text = "Host online game"
+	host_button.text = tr("Host online game")
 	host_button.custom_minimum_size = Vector2(190, 36)
 	host_button.pressed.connect(_host)
 	online.add_child(host_button)
@@ -289,12 +289,12 @@ func _build() -> void:
 	_address.custom_minimum_size = Vector2(170, 36)
 	online.add_child(_address)
 	var join_button := _button()
-	join_button.text = "Join"
+	join_button.text = tr("Join")
 	join_button.custom_minimum_size = Vector2(80, 36)
 	join_button.pressed.connect(_join)
 	online.add_child(join_button)
 	var leave_button := _button()
-	leave_button.text = "Leave"
+	leave_button.text = tr("Leave")
 	leave_button.custom_minimum_size = Vector2(80, 36)
 	leave_button.pressed.connect(func(): Net.leave(); refresh())
 	online.add_child(leave_button)
@@ -310,21 +310,21 @@ func _build() -> void:
 
 func _host() -> void:
 	if Net.host() != OK:
-		_message.text = "Couldn't start hosting (is another game already hosting on this computer?)."
+		_message.text = tr("Couldn't start hosting (is another game already hosting on this computer?).")
 	refresh()
 
 
 func _join() -> void:
 	if Net.join(_address.text.strip_edges()) != OK:
-		_message.text = "That address doesn't look right."
+		_message.text = tr("That address doesn't look right.")
 	else:
-		_message.text = "Joining %s..." % _address.text
+		_message.text = tr("Joining %s...") % _address.text
 	refresh()
 
 
 func _label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
-	label.text = text
+	label.text = tr(text)
 	label.add_theme_font_size_override("font_size", size)
 	label.add_theme_color_override("font_color", color)
 	return label

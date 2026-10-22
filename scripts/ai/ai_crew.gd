@@ -46,7 +46,7 @@ func _ready() -> void:
 	_bubble.modulate = Color(1.0, 0.95, 0.6)
 	_bubble.visible = false
 	_player.add_child(_bubble)
-	_player.get_node("Label").text = "P%d AI" % _player.player_index
+	_player.get_node("Label").text = tr("P%d AI") % _player.player_index
 
 
 func say(text: String, seconds := 2.2) -> void:
@@ -311,11 +311,11 @@ func callout() -> String:
 			best_distance = offset.length()
 	if best:
 		var offset: Vector3 = best.global_position - _ship.global_position
-		return "Rock, %d o'clock, %d m!" % [clock_hour(offset.dot(fwd), offset.dot(right)), roundi(best_distance)]
+		return tr("Rock, %d o'clock, %d m!") % [clock_hour(offset.dot(fwd), offset.dot(right)), roundi(best_distance)]
 	var voyage := _ship.get_parent()
 	if "finish_x" in voyage and voyage.finish_x - _ship.global_position.x < 150.0:
-		return "Port ahead, %d m!" % roundi(voyage.finish_x - _ship.global_position.x)
-	return "Clear ahead!" if _rng.randf() < 0.3 else ""
+		return tr("Port ahead, %d m!") % roundi(voyage.finish_x - _ship.global_position.x)
+	return tr("Clear ahead!") if _rng.randf() < 0.3 else ""
 
 
 ## Clock bearing from the bow: 12 = dead ahead, 3 = starboard, 9 = port.

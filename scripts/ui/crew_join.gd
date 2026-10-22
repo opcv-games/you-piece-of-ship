@@ -48,7 +48,7 @@ func _draw() -> void:
 	draw_rect(box, Color(0.06, 0.1, 0.18, 0.9))
 	draw_string(font, Vector2(box.position.x, box.position.y + 56), "YOU PIECE OF SHIP", HORIZONTAL_ALIGNMENT_CENTER,
 			box.size.x, 40, Color(1, 0.85, 0.3))
-	draw_string(font, Vector2(box.position.x, box.position.y + 92), "Press Jump to join the crew (Space, Enter, or A)",
+	draw_string(font, Vector2(box.position.x, box.position.y + 92), tr("Press Jump to join the crew (Space, Enter, or A)"),
 			HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 18, Color.WHITE)
 	for i in 4:
 		var slot := Rect2(box.position + Vector2(40 + i * 165, 120), Vector2(145, 120))
@@ -56,10 +56,10 @@ func _draw() -> void:
 		draw_rect(slot, COLORS[i] if on else Color(1, 1, 1, 0.08))
 		draw_string(font, slot.position + Vector2(0, 52), "P%d" % (i + 1), HORIZONTAL_ALIGNMENT_CENTER, slot.size.x, 32,
 				Color.WHITE)
-		draw_string(font, slot.position + Vector2(0, 92), "ready!" if on else "press Jump", HORIZONTAL_ALIGNMENT_CENTER,
+		draw_string(font, slot.position + Vector2(0, 92), tr("ready!") if on else tr("press Jump"), HORIZONTAL_ALIGNMENT_CENTER,
 				slot.size.x, 16, Color.WHITE)
-	var hint := "Then press Use (E, Right Shift, or X) to set sail" if not joined.is_empty() else ""
+	var hint := tr("Then press Use (E, Right Shift, or X) to set sail") if not joined.is_empty() else ""
 	if not joined.is_empty() and joined.size() <= 3:
-		hint += "\nSmall crew: the ship gets a slow automatic pump"
+		hint += tr("\nSmall crew: the ship gets a slow automatic pump")
 	draw_multiline_string(font, Vector2(box.position.x, box.end.y - 50), hint, HORIZONTAL_ALIGNMENT_CENTER, box.size.x,
 			17, -1, Color(1, 0.85, 0.3))

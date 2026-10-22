@@ -127,7 +127,7 @@ func _physics_process(delta: float) -> void:
 	# The controls help fades after the first half minute (H brings it back).
 	var help: Label = $HUD/Controls
 	help.modulate.a = move_toward(help.modulate.a, 1.0 if _show_help or elapsed < 30.0 else 0.0, delta * 2.0)
-	_status.text = "%s    Time %s / %s" % [contract.title, _clock(elapsed), _clock(contract.deadline)]
+	_status.text = tr("%s    Time %s / %s") % [tr(contract.title), _clock(elapsed), _clock(contract.deadline)]
 	_status.modulate = Color(1, 0.35, 0.3) if elapsed > contract.deadline else Color.WHITE
 	if net_puppet:
 		return # online client: the host's snapshots move everything
@@ -183,7 +183,7 @@ func _run_events() -> void:
 				var engine := $Ship/EngineSystem
 				engine.heat = maxf(engine.heat, 0.85)
 		if event.size() > 2 and event[2] != "":
-			show_hint(event[2])
+			show_hint(tr(event[2]))
 
 
 func show_hint(text: String, seconds := 7.0) -> void:
@@ -271,7 +271,7 @@ func _build_port() -> void:
 func _on_rock_hit(_rock: Node3D) -> void:
 	hits += 1
 	if not finished:
-		_banner.text = "CRASH!"
+		_banner.text = tr("CRASH!")
 		_banner.visible = true
 		_crash_flash = 1.0
 

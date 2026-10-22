@@ -38,7 +38,7 @@ func _physics_process(delta: float) -> void:
 
 func _refresh() -> void:
 	enabled = broken
-	status_text = "%s %d%%" % [broken_text, roundi(progress * 100.0)] if broken else ""
+	status_text = "%s %d%%" % [tr(broken_text), roundi(progress * 100.0)] if broken else ""
 	var steam := get_node_or_null("Steam") as CPUParticles3D
 	if steam:
 		steam.emitting = broken

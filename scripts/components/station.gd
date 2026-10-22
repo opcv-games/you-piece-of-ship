@@ -34,11 +34,11 @@ func _update_label() -> void:
 	if label == null:
 		return
 	label.visible = enabled
-	var lines := PackedStringArray([station_name])
+	var lines := PackedStringArray([tr(station_name)])
 	if status_text != "":
 		lines.append(status_text)
 	if prompt != "" and _show_prompt():
-		lines.append(prompt)
+		lines.append(tr(prompt))
 	label.text = "\n".join(lines)
 
 

@@ -71,7 +71,7 @@ func _draw() -> void:
 	var names := PackedStringArray()
 	for reader in station.readers():
 		names.append("P%d" % reader.player_index)
-	draw_string(ThemeDB.fallback_font, Vector2(0, -8), "MAP TABLE  read by " + ", ".join(names),
+	draw_string(ThemeDB.fallback_font, Vector2(0, -8), tr("MAP TABLE  read by ") + ", ".join(names),
 			HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color(1, 1, 1))
 
 
@@ -87,5 +87,5 @@ func _draw_port_arrow(center: Vector2, radius: float) -> void:
 	var side := Vector2(-direction.y, direction.x)
 	draw_colored_polygon(PackedVector2Array([tip, tip - direction * 22.0 + side * 11.0,
 			tip - direction * 22.0 - side * 11.0]), FINISH)
-	draw_string(ThemeDB.fallback_font, tip - direction * 50.0 - Vector2(40, -6), "PORT %d m" % roundi(distance),
+	draw_string(ThemeDB.fallback_font, tip - direction * 50.0 - Vector2(40, -6), tr("PORT %d m") % roundi(distance),
 			HORIZONTAL_ALIGNMENT_CENTER, 80, 15, FINISH)

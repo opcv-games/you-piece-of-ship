@@ -134,7 +134,7 @@ func _apply_effects(leak_side: float) -> void:
 	var target := deg_to_rad(list_degrees) * water * leak_side
 	_waves.list_sources["water"] = move_toward(current, target, deg_to_rad(2.0) * get_physics_process_delta_time())
 	if _pump:
-		_pump.status_text = "water %d%%" % roundi(water * 100.0)
+		_pump.status_text = tr("water %d%%") % roundi(water * 100.0)
 	_deck_water.visible = water > 0.02
 	var depth := 0.45 * water
 	_deck_water.scale.y = maxf(depth, 0.001)

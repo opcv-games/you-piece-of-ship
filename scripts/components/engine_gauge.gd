@@ -23,19 +23,19 @@ func _draw() -> void:
 	var names := PackedStringArray()
 	for reader in station.readers():
 		names.append("P%d" % reader.player_index)
-	draw_string(font, Vector2(12, 26), "ENGINE ROOM  " + ", ".join(names), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
-	_bar(Vector2(12, 44), "HEAT", engine.heat, HEAT_HOT if engine.heat > engine.heat_cap_threshold else HEAT_OK, engine.heat_cap_threshold)
+	draw_string(font, Vector2(12, 26), tr("ENGINE ROOM  ") + ", ".join(names), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+	_bar(Vector2(12, 44), tr("HEAT"), engine.heat, HEAT_HOT if engine.heat > engine.heat_cap_threshold else HEAT_OK, engine.heat_cap_threshold)
 	_bar(Vector2(12, 92), tr("COAL (shovel it from the pile)"), engine.fuel, COAL, -1.0)
 	var lines := PackedStringArray()
-	lines.append("Jump: vent steam" if engine.vent_ready_in <= 0.0 else "vent ready in %ds" % ceili(engine.vent_ready_in))
+	lines.append(tr("Jump: vent steam") if engine.vent_ready_in <= 0.0 else tr("vent ready in %ds") % ceili(engine.vent_ready_in))
 	if engine.coal_wetness > 0.2:
 		lines.append(tr("WET COAL: -%d%% speed") % roundi(engine.wet_coal_penalty * engine.coal_wetness * 100.0))
 	if engine.is_pipe_burst():
-		lines.append("COOLING PIPE BURST")
+		lines.append(tr("COOLING PIPE BURST"))
 	if engine.is_stalled():
-		lines.append("STALLED %ds" % ceili(engine.stall_left))
+		lines.append(tr("STALLED %ds") % ceili(engine.stall_left))
 	elif engine.is_warning():
-		lines.append("OVERHEAT! VENT NOW %d" % ceili(engine.warning_left))
+		lines.append(tr("OVERHEAT! VENT NOW %d") % ceili(engine.warning_left))
 	for i in lines.size():
 		draw_string(font, Vector2(12, 140 + i * 18), lines[i], HORIZONTAL_ALIGNMENT_LEFT, size.x - 24, 16, Color(1, 0.85, 0.5))
 

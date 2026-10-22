@@ -79,7 +79,7 @@ func _process(delta: float) -> void:
 		var marker = _markers[rock]
 		if is_instance_valid(marker) and marker.visible and now > int(marker.get_meta("until", 0)):
 			marker.visible = false
-	status_text = "spotting %d rock%s" % [_count_visible(), "" if _count_visible() == 1 else "s"] if occupant else ""
+	status_text = tr("rocks spotted: %d") % _count_visible() if occupant else ""
 
 
 func _count_visible() -> int:

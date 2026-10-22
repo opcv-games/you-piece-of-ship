@@ -84,8 +84,15 @@ func _fill() -> void:
 	for entry in recap:
 		var stamp := "%d:%02d" % [int(entry.time) / 60, int(entry.time) % 60]
 		var color := BAD if entry.kind == "bad" else (GOOD if entry.kind == "good" else Color.WHITE)
-		_story.add_child(_line(stamp, tr(entry.text), color))
+		_story.add_child(_line(stamp, _translate(entry), color))
 	_footer.text = tr("Enter / A: back to the dock     R / Start: sail again     J: change crew")
+
+
+func _translate(entry: Dictionary) -> String:
+	var args := []
+	for arg in entry.get("args", []):
+		args.append(tr(arg) if arg is String else arg)
+	return tr(entry.get("key", entry.text)) % args if not args.is_empty() else tr(entry.get("key", entry.text))
 
 
 func _animate() -> void:

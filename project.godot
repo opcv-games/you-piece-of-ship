@@ -37,3 +37,7 @@ window/stretch/aspect="expand"
 Session="*res://scripts/systems/session.gd"
 Net="*res://scripts/systems/net.gd"
 UI="*res://scripts/ui/ui.gd"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://translations/strings.en.translation", "res://translations/strings.fr.translation")
