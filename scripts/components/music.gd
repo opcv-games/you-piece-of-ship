@@ -13,7 +13,7 @@ extends AudioStreamPlayer
 @export var port_tempo_boost := 0.08 ## +8% speed right at the port
 @export var port_warning_metres := 80.0
 @export var ship: Node3D
-@export var finish_x := 300.0
+@export var finish_x := 1300.0
 
 var _duck_left := 0.0
 

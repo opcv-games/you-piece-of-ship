@@ -1,0 +1,73 @@
+extends GutTest
+## features/route.feature
+
+const LevelScene = preload("res://scenes/levels/voyage.tscn")
+const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
+
+var _level: Node3D
+
+
+func before_each() -> void:
+	_level = LevelScene.instantiate()
+	add_child_autofree(_level)
+	for player in _level.get_tree().get_nodes_in_group("crew"):
+		player.get_node("PlayerInput").enabled = false
+	await wait_physics_frames(2)
+
+
+func test_given_reef_run_then_rocks_hidden_cliffs_visible_port_at_end() -> void:
+	var contract: Resource = ContractLibrary.reef_run()
+	var expected := 0
+	for row in contract.rock_rows:
+		expected += row[1].size()
+	var hidden := 0
+	var cliffs := 0
+	for rock in _level.get_tree().get_nodes_in_group("rocks"):
+		if rock.hidden:
+			hidden += 1
+			assert_false(rock.get_node("Mesh").visible, "%s can't be seen" % rock.name)
+		else:
+			cliffs += 1
+			assert_true(rock.get_node("Mesh").visible)
+			assert_gt(absf(rock.position.z), contract.coast_half_width, "cliffs line the channel")
+	assert_eq(hidden, expected)
+	assert_gt(cliffs, 100)
+	for buoy in _level.get_tree().get_nodes_in_group("finish"):
+		assert_almost_eq(buoy.position.x, contract.length, 0.01)
+
+
+func test_given_reef_run_then_calm_start_and_waves_later() -> void:
+	var contract: Resource = ContractLibrary.reef_run()
+	for row in contract.rock_rows:
+		assert_gt(row[0], 200.0, "no rocks in the calm departure")
+	assert_gte(contract.waves.size(), 2)
+	for wave in contract.waves:
+		assert_gt(wave[0], 300.0)
+
+
+func test_given_port_out_of_range_then_chart_has_port_distance() -> void:
+	var chart: Control = _level.get_node("HUD/MapChart")
+	var mark: Vector2 = chart.chart_point(Vector3(chart.port_x, 0, 0))
+	assert_gt(mark.length(), chart.size.x * 0.5, "port is beyond the chart rim, so the arrow shows")
+	assert_almost_eq(chart.port_x, 1300.0, 0.01)
+
+
+func test_given_voyage_running_then_deadline_shown_and_turns_red_when_late() -> void:
+	var status: Label = _level.get_node("HUD/Status")
+	assert_string_contains(status.text, "/ 5:30")
+	_level.elapsed = 400.0
+	await wait_physics_frames(2)
+	assert_gt(status.modulate.r, 0.9)
+	assert_lt(status.modulate.g, 0.5, "red when late")
+
+
+func test_given_ship_sails_into_coast_then_crashes() -> void:
+	var ship: Node3D = _level.get_node("Ship")
+	var handling: Node = ship.get_node("ShipHandling")
+	watch_signals(handling)
+	ship.position = Vector3(100, ship.position.y, -40)
+	ship.rotation.y = PI / 2.0 # bow toward port (-Z)
+	handling.throttle = 1.0
+	handling.speed = 4.0
+	await wait_seconds(3.0)
+	assert_signal_emitted(handling, "rock_hit")

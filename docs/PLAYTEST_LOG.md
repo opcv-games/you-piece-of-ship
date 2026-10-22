@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — The Reef Run route  (#9)
+Hypothesis: If one voyage paces calm, complication, calm, overlap and a peak in the last third, then the crew will feel a rising arc and cheer at port, increasing Thrill of danger.
+Variable: route length 1300 m, deadline 5:30
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main; tune deadline and rock density after the first couch playtest
+
 ## 2026-10-22 — Load and balance  (#7)
 Hypothesis: If loose cargo tilts the deck and can be thrown overboard to save the ship, then the crew will argue about sacrificing cargo, increasing Social interaction and Comedy.
 Variable: heel per crate-metre 1.2 degrees

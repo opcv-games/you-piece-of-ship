@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="You Piece of Ship"
-run/main_scene="res://scenes/levels/reef_run.tscn"
+run/main_scene="res://scenes/levels/voyage.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [editor_plugins]
@@ -30,3 +30,7 @@ window/size/window_width_override=2304
 window/size/window_height_override=1296
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[autoload]
+
+Session="*res://scripts/systems/session.gd"
