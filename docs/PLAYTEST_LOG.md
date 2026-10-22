@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Background music (requested by Olivier)
+Hypothesis: If a lively shanty loops in the background, ducks on crashes and speeds up near port, then the crew will feel the mood (frantic, goofy) and the run's tension, increasing Comedy and Thrill of danger. Risk: music makes any build feel better, so it can hide whether the mechanics are fun; mute (M) during fun-gate tests.
+Variable: music on/off (M key or Music node "music_enabled")
+Sessions: pending
+Observed: pending
+Biggest weakness: pending
+Decision: pending
+
 ## 2026-10-22 — Juice pass on existing moments (requested by Olivier)
 Hypotheses (one per effect; each has its own switch on the GameFeel node, so each is kept or removed on its own):
 - Crash (shake + 80 ms freeze + debris/spray + "CRASH!" pop): if a crash is felt, then the crew will groan and blame each other, increasing Comedy.

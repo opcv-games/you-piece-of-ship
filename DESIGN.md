@@ -133,6 +133,8 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Stations are spots on the deck: the helm (stern) needs Use and takes over the stick; the map table (bow) works by standing at it | Information and controls belong to the station, not the player (section 12); captain and navigator are 10 m apart so they must shout | #2 |
 | 2026-10-22 | Map table chart is heading-up, 70 m range, shown in a screen corner only while someone stands at the table; the camera leaves that corner free | "Rock at 2 o'clock" means the same to captain and navigator; the shared couch screen is a known risk (section 10) | #2 |
 | 2026-10-22 | Rock hits stop the ship, bounce it back and reveal the rock; no hull damage yet | Damage arrives with #3; this keeps #2 about callouts only | #2 |
+| 2026-10-22 | Small juice pass (crash, wake, squash, confetti) on the GameFeel node, each effect switchable | Requested by Olivier before Phase 4; kept small and reversible so each effect can be kept or cut | Olivier request |
+| 2026-10-22 | Placeholder music: synthesised "Drunken Sailor" loop (public-domain tune) on a Music bus; M / Select mutes; ducks on crash, speeds up near port | Requested twice by Olivier; mute it for fun-gate playtests so music doesn't mask the mechanics | Olivier request |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.
