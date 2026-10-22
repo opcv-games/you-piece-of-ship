@@ -61,6 +61,12 @@ func _physics_process(delta: float) -> void:
 	if _player.knocked > 0.0:
 		return
 	job = _brain.job_of(_player) if _brain else primary
+	if _player.station and _player.station.is_in_group("fishing_spots"):
+		if _fishing_ok() and job != "navigator" and job != "engine" and job != "helm" and job != "pump":
+			_fish()
+			return
+		_press_use() # something needs doing: reel in
+		return
 	if _player.station and _station_job(_player.station) != job:
 		_press_use() # not my job any more: let go
 		return
@@ -431,6 +437,14 @@ func _idle_work(delta: float) -> void:
 	if engine.fuel < 0.7 or (carrying and carrying.kind == "coal"):
 		_engineer(delta) # lend a hand with the coal
 		return
+	if _fishing_ok():
+		var spot := _free_fishing_spot()
+		if spot:
+			_drop_carried()
+			intend(tr("Gone fishing!"))
+			if _walk_to(spot.global_position, delta, 0.8):
+				_use_on(spot)
+			return
 	if carrying == null and _ship.get_node("PlankBox").stock > 1:
 		var box := _ship.get_node("PlankBox")
 		if _walk_to(box.global_position, delta, 0.9):
@@ -439,6 +453,35 @@ func _idle_work(delta: float) -> void:
 	if carrying and carrying.kind != "plank":
 		_drop_carried()
 	_walk_to(_ship.to_global(Vector3(-1.0, 0.0, 1.6 if _player.player_index % 2 == 0 else -1.6)), delta, 0.8)
+
+
+## All's well aboard: no water, no leaks, nothing to repair, no loose cargo, coal and heat fine.
+func _fishing_ok() -> bool:
+	var hull := _ship.get_node("HullSystem")
+	var engine := _ship.get_node("EngineSystem")
+	if hull.water > 0.01 or not _brain.carpenter_tasks().is_empty() or not _brain.loose_crates().is_empty():
+		return false
+	for breach in hull.breaches():
+		if breach.state != 0:
+			return false
+	return engine.fuel >= 0.6 and engine.heat < engine.heat_cap_threshold and _brain.fraying_crate() == null
+
+
+func _free_fishing_spot() -> Node3D:
+	for spot in get_tree().get_nodes_in_group("fishing_spots"):
+		if _ship.is_ancestor_of(spot) and (spot.occupant == null or spot.occupant == _player):
+			return spot
+	return null
+
+
+## Fishing: strike when the float dips (most of the time: nobody's perfect).
+func _fish() -> void:
+	var spot: Node3D = _player.station
+	if spot.phase == spot.Phase.BITE and spot.bite_left < spot.bite_window - 0.25:
+		if _rng.randf() < 0.75:
+			_player.jump_requested = true
+		else:
+			spot.bite_left = 0.0 # missed it
 
 
 ## Whether this crewmate is busy right now: moving, working a station, carrying something, or

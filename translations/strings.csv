@@ -298,3 +298,15 @@ Sea,Sea,Mer
 Stars,Stars,Étoiles
  + fish & loot %d, + fish & loot %d, + poissons et butin %d
 Next star at %d points,Next star at %d points,Prochaine étoile à %d points
+FISHING,FISHING,PÊCHE
+Use: fish,Use: fish,Utiliser : pêcher
+%s +%d,%s +%d,%s +%d
+Too early!,Too early!,Trop tôt !
+It got away...,It got away...,Il s'est échappé...
+Gone fishing!,Gone fishing!,Je vais pêcher !
+    Fish & loot +%d,    Fish & loot +%d,    Pêche et butin +%d
+Sardine,Sardine,Sardine
+Goldfish,Goldfish,Poisson doré
+Squid,Squid,Calamar
+Pufferfish,Pufferfish,Poisson-globe
+Treasure!,Treasure!,Trésor !
