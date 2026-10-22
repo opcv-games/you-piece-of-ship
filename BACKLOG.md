@@ -5,22 +5,22 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[tech]` **Walk on a rocking ship, together**
+- [ ] `[tech]` **Walk on a rocking ship, together** (#1)
   As a player on the couch, I want to walk and jump on a deck that rolls with waves alongside three friends on one screen, so that the ship feels like a shared physical space (serves: Comedy, Social interaction).
   - Given four local players with controllers on a rolling deck, When all walk to the bow, Then none slides off and the camera keeps all four in view.
-- [ ] `[innovation]` **Station-bound information**
+- [ ] `[innovation]` **Station-bound information** (#2)
   As the navigator, I want hidden rocks to show only on the map table, so that the captain needs my callouts (serves: Social interaction).
   - Given a submerged rock ahead, When the captain looks forward, Then it is not visible.
   - Given a submerged rock ahead, When a player stands at the map table, Then its position is shown.
-- [ ] `[innovation]` **Hull breach changes handling**
+- [ ] `[innovation]` **Hull breach changes handling** (#3)
   As the crew, I want a leak to make the ship heavier and slower, so that damage changes what we must do (serves: Thrill of danger).
   - Given an open breach, When 20 s pass, Then the water level rises and top speed drops.
   - Given a patched and pumped breach, When the water is gone, Then top speed recovers.
-- [ ] `[innovation]` **Engine heat caps speed**
+- [ ] `[innovation]` **Engine heat caps speed** (#4)
   As the engineer, I want to trade speed for heat, so that the crew argues about going fast (serves: Social interaction, Thrill of danger).
   - Given full throttle, When heat passes 80%, Then top speed is capped.
   - Given heat at 100%, When the 5 s warning ends, Then the engine stalls for 20 s.
-- [ ] `[standard]` **Carry and drop**
+- [ ] `[standard]` **Carry and drop** (#5)
   As any player, I want to carry one item and drop it when knocked down, so that accidents happen (serves: Comedy).
   - Given a player carrying a plank, When a wave knocks them down, Then the plank drops and slides toward the low side of the deck.
 

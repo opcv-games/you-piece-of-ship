@@ -1,6 +1,6 @@
 # You Piece of Ship — Design Document
 
-> **Current phase:** 2 — GDD & Backlog
+> **Current phase:** 3 — Ugly Prototype
 > **Last updated:** 2026-10-22
 > This file is the Committee's memory. Read it before every Godot or Blender action. Update it after every approved decision.
 
