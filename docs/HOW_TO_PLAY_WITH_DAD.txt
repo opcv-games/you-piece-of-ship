@@ -1,0 +1,48 @@
+YOU PIECE OF SHIP - How to play together online
+================================================
+
+ENGLISH
+-------
+You (the one on Windows) host the game. Your partner joins you.
+
+1. Unzip this folder anywhere (for example, on the Desktop).
+2. Double-click "YouPieceOfShip.exe".
+   - If a blue window says "Windows protected your PC":
+     click "More info", then "Run anyway". (The game isn't signed; it's safe.)
+3. If Windows Firewall asks whether to allow the game:
+   tick BOTH "Private" and "Public" networks, then click "Allow access".
+4. In the main menu, click "Host Game". You arrive at the dock.
+5. Wait a few seconds. The game shows an address like 203.0.113.45:7777.
+   Click "Copy address" and send it by WhatsApp or e-mail, or read it out loud.
+6. Your partner clicks "Join Game", types the address, and clicks "Join".
+7. When everyone has picked a role, set sail!
+
+If the game says your router did not open the door automatically:
+   your internet box blocks incoming games. Call us; we'll find another way.
+
+Controls: keyboard (WASD + E) or any game controller.
+Settings (language, volume, full screen) are in the main menu.
+
+
+FRANCAIS
+--------
+C'est toi (sur Windows) qui heberges la partie. Ton partenaire te rejoint.
+
+1. Decompresse ce dossier ou tu veux (par exemple sur le Bureau).
+2. Double-clique sur "YouPieceOfShip.exe".
+   - Si une fenetre bleue dit "Windows a protege votre ordinateur" :
+     clique sur "Informations complementaires", puis "Executer quand meme".
+     (Le jeu n'est pas signe, mais il est sans danger.)
+3. Si le Pare-feu Windows demande s'il faut autoriser le jeu :
+   coche "Prive" ET "Public", puis clique sur "Autoriser l'acces".
+4. Dans le menu principal, clique sur "Heberger". Tu arrives au quai.
+5. Attends quelques secondes. Le jeu affiche une adresse comme 203.0.113.45:7777.
+   Clique sur "Copier l'adresse" et envoie-la par WhatsApp ou courriel, ou lis-la a voix haute.
+6. Ton partenaire clique sur "Rejoindre", tape l'adresse et clique sur "Rejoindre".
+7. Quand chacun a choisi son role, en mer !
+
+Si le jeu dit que ta box n'a pas ouvert la porte automatiquement :
+   ta box bloque les parties entrantes. Appelle-nous, on trouvera une autre solution.
+
+Commandes : clavier (ZQSD/WASD + E) ou n'importe quelle manette.
+Reglages (langue, volume, plein ecran) : dans le menu principal.
