@@ -175,7 +175,8 @@ func refresh() -> void:
 			var record := ""
 			if best > 0:
 				record = tr("   best %d") % best + (tr(" in %s") % fastest if fastest != "" else "")
-			button.text = tr("%d. %s   %s   %d coins/crate   %s%s") % [i + 1, tr(c.title), "*".repeat(c.difficulty),
+			var got: int = int(Session.stars.get(str(i), 0))
+			button.text = tr("%d. %s   %s   %d coins/crate   %s%s") % [i + 1, tr(c.title), "★".repeat(got) + "☆".repeat(3 - got),
 					c.pay_per_crate, _clock(c.deadline), record]
 		else:
 			button.text = tr("%d. LOCKED (deliver the previous contract)") % (i + 1)

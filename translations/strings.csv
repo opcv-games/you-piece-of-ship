@@ -284,3 +284,17 @@ Camera,Camera,Caméra
 Game feel,Game feel,Sensations
 Crew,Crew,Équipage
 AI crew,AI crew,Équipage IA
+"Wreck, %d o'clock, %d m!","Wreck, %d o'clock, %d m!","Épave, %d heures, %d m !"
+"Whale, %d o'clock, %d m!","Whale, %d o'clock, %d m!","Baleine, %d heures, %d m !"
+"Atoll, %d o'clock, %d m!","Atoll, %d o'clock, %d m!","Atoll, %d heures, %d m !"
+"Coast, %d o'clock, %d m!","Coast, %d o'clock, %d m!","Côte, %d heures, %d m !"
+"Siren, %d o'clock! Don't listen!","Siren, %d o'clock! Don't listen!","Sirène, %d heures ! N'écoutez pas !"
+Spawn: reef rock,Spawn: reef rock,Ajouter : récif
+Spawn: shipwreck,Spawn: shipwreck,Ajouter : épave
+Spawn: whale,Spawn: whale,Ajouter : baleine
+Spawn: siren,Spawn: siren,Ajouter : sirène
+Spawn: atoll,Spawn: atoll,Ajouter : atoll
+Sea,Sea,Mer
+Stars,Stars,Étoiles
+ + fish & loot %d, + fish & loot %d, + poissons et butin %d
+Next star at %d points,Next star at %d points,Prochaine étoile à %d points

@@ -22,3 +22,5 @@ extends Resource
 @export var pay_per_crate := 100
 @export var tutorial := false ## the Maiden voyage: can't be lost, teaches by doing
 @export var difficulty := 1 ## 1..4, shown on the dock
+## Scores for 1, 2 and 3 stars; leave empty to work them out from the pay (scripts/systems/stars.gd).
+@export var star_scores: Array = []
