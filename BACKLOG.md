@@ -9,7 +9,7 @@
 ## Next (likely, not committed)
 
 ## Later (deliberately vague)
-- Art, sound, juice
+- Final sound effects; more pixel-art dressing (barrels, cannons on deck)
 
 ## Parked (good ideas that are out of scope until the core loop is proven)
 - Fire, crew overboard, floating cargo recovery
@@ -17,6 +17,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Pixel-art pass with Olivier's sprite sheet and ship tile set (2026-10-22; asset source and licence to confirm)
 - AI crewmates with jobs and backup jobs, set at the dock; navigator callouts; humans take priority (2026-10-22, built, not yet player-tested)
 - #14 Online multiplayer, host-authoritative, lobby on the dock (2026-10-22, built and checked on one Mac over localhost; not yet tested between two computers)
 - #13 Dock: contract choice, upgrade shop with four trade-off upgrades, saved progress, voyage-to-voyage loop (2026-10-22, built, not yet player-tested)
@@ -42,3 +43,4 @@
 - Simulated crews (perfect navigator, venting engineer, pumper, but nobody repairing) finished the Maiden Voyage in 4:05, the Reef Run in 4:53 and the Fog Bank in 5:42, and sank in The Narrows near the end. Is The Narrows the right kind of hard once real crews repair things?
 - Online play has only been checked on one Mac (localhost). The first test between two computers on your Wi-Fi may need macOS to allow incoming connections for Godot. Do you want to try it with a friend?
 - Online clients don't earn coins in their own save; the host's save holds the crew's progress. OK?
+- Where do the two pixel-art sheets come from (website or artist), and under what licence? Needed for credits before any public release.

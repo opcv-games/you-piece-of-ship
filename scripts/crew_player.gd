@@ -4,6 +4,8 @@ extends CharacterBody3D
 ## them; they only fight the waves to walk where they want (Comedy without frustration).
 ## Knockdowns (big waves, steam vents, sliding crates) drop whatever you carry.
 
+const CrewSprite = preload("res://scripts/components/crew_sprite.gd")
+
 signal jumped
 signal landed
 signal knocked_down
@@ -22,6 +24,7 @@ const COLORS := [
 @export var gravity := 20.0
 @export var knockdown_seconds := 1.4
 @export var knockdown_push := 3.0 ## metres per second you are shoved when knocked over
+@export var pixel_art := true ## draw as an animated pixel pirate (false: the grey-box capsule)
 
 var move_input := Vector2.ZERO ## x = right, y = towards the camera
 var jump_requested := false
@@ -29,6 +32,7 @@ var use_requested := false
 var station: Node3D = null ## the station this player is operating, if any
 var carried: Node3D = null ## the item above this player's head, if any
 var knocked := 0.0 ## seconds left lying on the deck
+var facing := Vector3(0, 0, 1) ## world direction the player last moved or worked in (for the sprite)
 
 var _air_time := 0.0
 
@@ -45,6 +49,9 @@ func _ready() -> void:
 	$Visual/Body.material_override = body_material
 	$Label.text = "P%d" % player_index
 	$Label.modulate = COLORS[player_index - 1].lightened(0.3)
+	if pixel_art:
+		_use_pixel_art()
+		$Label.position.y = 3.05 # above the taller pixel pirate
 
 
 func _physics_process(delta: float) -> void:
@@ -63,6 +70,7 @@ func _physics_process(delta: float) -> void:
 		if station: # the secondary action may have released us
 			global_position = station.stand_point(self)
 			_visual.rotation.y = PI / 2.0
+			facing = _station_facing()
 		return
 	var speed: float = walk_speed * (carried.carry_speed if carried else 1.0)
 	var direction := Vector3(move_input.x, 0.0, move_input.y).limit_length(1.0)
@@ -71,8 +79,9 @@ func _physics_process(delta: float) -> void:
 	_fall_and_jump(delta, true)
 	if direction.length() > 0.1:
 		# Face where we walk; the ship may have turned, so convert to our own frame.
-		var facing := global_basis.inverse() * direction
-		_visual.rotation.y = atan2(facing.x, facing.z)
+		facing = direction
+		var local_facing := global_basis.inverse() * direction
+		_visual.rotation.y = atan2(local_facing.x, local_facing.z)
 
 
 func _fall_and_jump(delta: float, can_jump: bool) -> void:
@@ -141,3 +150,42 @@ func knock_down(push := Vector2.ZERO) -> bool:
 	_visual.position.y = 0.35
 	knocked_down.emit()
 	return true
+
+
+## Swaps the grey-box capsule for an animated pixel pirate in the player's colour, plus a soft
+## shadow under the feet so the sprite sits on the deck.
+func _use_pixel_art() -> void:
+	$Visual/Body.visible = false
+	$Visual/Nose.visible = false
+	var sprite := CrewSprite.new()
+	sprite.name = "Sprite"
+	# Player 2's blue is the sheet's own colour; the others are recoloured.
+	sprite.setup(self, null if player_index == 2 else COLORS[player_index - 1])
+	_visual.add_child(sprite)
+	var shadow := MeshInstance3D.new()
+	shadow.name = "Shadow"
+	var disc := CylinderMesh.new()
+	disc.top_radius = 0.45
+	disc.bottom_radius = 0.45
+	disc.height = 0.01
+	var dark := StandardMaterial3D.new()
+	dark.albedo_color = Color(0, 0, 0, 0.35)
+	dark.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	dark.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	disc.material = dark
+	shadow.mesh = disc
+	shadow.position.y = 0.02
+	add_child(shadow)
+
+
+## Working a station: face the station's gear (the bow for the helm, the rail for side stations).
+func _station_facing() -> Vector3:
+	var toward: Vector3 = station.global_position - global_position
+	for child in station.get_children():
+		if child is MeshInstance3D:
+			toward = child.global_position - global_position
+			break
+	toward.y = 0.0
+	if toward.length() < 0.05:
+		return Vector3(0, 0, 1)
+	return toward.normalized()
