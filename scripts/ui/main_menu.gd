@@ -59,10 +59,7 @@ func _go(scene_path: String) -> void:
 func quick_play() -> void:
 	if Session.joined_players.is_empty():
 		Session.joined_players = [1] as Array[int]
-	if Session.ai_crew.is_empty():
-		for index in range(1, 5):
-			if not Session.joined_players.has(index):
-				Session.enable_ai(index)
+	Session.fill_crew_with_ai()
 	var open := mini(Session.unlocked, ContractLibrary.all_contracts().size())
 	Session.contract_index = randi() % open
 	_go(VOYAGE)
@@ -130,11 +127,6 @@ func toggle_language() -> void:
 func set_volume(value: float) -> void:
 	Session.music_volume_db = value
 	Session.apply_settings()
-	Session.save_game()
-
-
-func set_captions(on: bool) -> void:
-	Session.band_captions = on
 	Session.save_game()
 
 
@@ -260,11 +252,6 @@ func _build() -> void:
 	volume.value = Session.music_volume_db
 	volume.value_changed.connect(set_volume)
 	_settings.get_child(0).add_child(volume)
-	var captions := CheckButton.new()
-	captions.set_meta("key", "Band comments")
-	captions.button_pressed = Session.band_captions
-	captions.toggled.connect(set_captions)
-	_settings.get_child(0).add_child(captions)
 	var full := CheckButton.new()
 	full.set_meta("key", "Full screen")
 	full.button_pressed = Session.fullscreen

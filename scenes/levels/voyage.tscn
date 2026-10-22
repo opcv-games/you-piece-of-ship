@@ -15,7 +15,6 @@
 [ext_resource type="Script" path="res://scripts/ui/crew_join.gd" id="14_join"]
 [ext_resource type="Script" path="res://scripts/systems/net_sync.gd" id="15_net"]
 [ext_resource type="Script" path="res://scripts/ai/crew_brain.gd" id="16_brain"]
-[ext_resource type="Script" path="res://scripts/ui/band_panel.gd" id="9_band"]
 [ext_resource type="Script" path="res://scripts/ui/alarm_flash.gd" id="17_alarm"]
 
 [sub_resource type="Environment" id="env"]
@@ -157,17 +156,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 text = ""
-
-[node name="BandPanel" type="Control" parent="HUD" node_paths=PackedStringArray("music")]
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -96.0
-offset_right = 400.0
-offset_bottom = -16.0
-mouse_filter = 2
-script = ExtResource("9_band")
-music = NodePath("../../Music")
 
 [node name="Banner" type="Label" parent="HUD"]
 anchor_left = 0.5

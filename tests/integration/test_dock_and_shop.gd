@@ -100,7 +100,7 @@ func test_dock_needs_crew_then_starts_unlocked_contract() -> void:
 	var dock: Control = DockScene.instantiate()
 	add_child_autofree(dock)
 	await wait_physics_frames(2)
-	assert_false(dock.start_contract(0), "nobody aboard")
+	assert_eq(Session.ai_crew.size(), 4 - Session.joined_players.size(), "every free slot is an AI by default")
 	dock.toggle_crew(1)
 	dock.toggle_crew(3)
 	assert_false(dock.start_contract(2), "locked")
@@ -109,6 +109,7 @@ func test_dock_needs_crew_then_starts_unlocked_contract() -> void:
 	assert_signal_emitted(dock, "contract_started")
 	assert_eq(Session.joined_players, [1, 3] as Array[int])
 	assert_eq(Session.contract_index, 0)
+	Session.ai_crew = {}
 
 
 func test_dock_shop_button_buys() -> void:
@@ -126,19 +127,23 @@ func test_dock_ai_slots_toggle_and_cycle_jobs() -> void:
 	var dock: Control = DockScene.instantiate()
 	add_child_autofree(dock)
 	await wait_physics_frames(2)
+	for index in range(1, 5):
+		assert_true(Session.ai_crew.has(index), "AI by default in slot %d" % index)
 	dock.toggle_crew(1)
+	assert_false(Session.ai_crew.has(1), "a human takes the AI's place")
 	dock.toggle_ai(1)
 	assert_false(Session.ai_crew.has(1), "a human slot can't be AI")
-	dock.toggle_ai(2)
-	dock.toggle_ai(3)
 	assert_true(Session.ai_crew.has(2))
 	assert_ne(Session.ai_crew[2].primary, Session.ai_crew[3].primary, "different default jobs")
 	var before: String = Session.ai_crew[2].primary
 	dock.primary_buttons[1].emit_signal("pressed")
 	assert_ne(Session.ai_crew[2].primary, before, "job cycled")
 	dock.toggle_ai(2)
-	assert_false(Session.ai_crew.has(2), "AI off again")
+	assert_false(Session.ai_crew.has(2), "AI can still be switched off for a smaller crew")
+	dock.toggle_crew(1)
+	assert_true(Session.ai_crew.has(1), "the human leaves: an AI takes the slot again")
 	Session.ai_crew = {}
+	Session.joined_players.clear()
 
 
 func test_personal_bests_per_contract_with_new_best_flags() -> void:

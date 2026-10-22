@@ -149,6 +149,30 @@ FR = {
         "Ta box n'a pas ouvert la porte du jeu automatiquement (UPnP désactivé). Des amis ailleurs ne pourront sans doute pas rejoindre : demande-leur d'héberger, ou ouvre le port UDP 7777 sur ta box. Les amis sur le même Wi-Fi rejoignent à : %s",
     "Hosting: %d aboard.": "Tu héberges : %d à bord.", "Copy address": "Copier l'adresse", "Copied: %s": "Copié : %s",
     "starboard": "tribord", "port": "bâbord", "the coast": "la côte", "a rock": "un rocher", "Someone": "Quelqu'un",
+    # Thought bubbles
+    "Whoa!": "Ouh là !", "I'm in!": "Je prends la relève !", "To the helm!": "À la barre !", "Pumping!": "Je pompe !",
+    "Too hot! Venting!": "Trop chaud ! Vapeur !", "Coal for the furnace!": "Du charbon pour la chaudière !",
+    "Need coal!": "Il faut du charbon !", "To the map!": "À la carte !", "Hammering the leak!": "Je cloue la fuite !",
+    "Fixing the pipe!": "Je répare le tuyau !", "Going to fix leak!": "Je vais réparer la fuite !",
+    "Fetching a rudder pin!": "Je cherche une goupille !", "Tying down cargo!": "J'attache la cargaison !",
+    # Pause menu and developer mode
+    "Paused": "Pause", "Resume": "Reprendre", "Restart voyage": "Recommencer le voyage", "Back to the dock": "Retour au quai",
+    "Main menu": "Menu principal", "Developer": "Développeur", "Events": "Événements", "Tune": "Réglages fins",
+    "Time scale": "Vitesse du temps", "Time scale: %.1fx": "Vitesse du temps : %.1fx",
+    "Search (e.g. heat, speed, leak)": "Chercher (ex. heat, speed, leak)", "Save %d": "Sauver %d", "Load %d": "Charger %d",
+    "Reset all": "Tout réinitialiser", "Back to the defaults.": "Retour aux valeurs d'origine.",
+    "Saved preset %d.": "Préréglage %d sauvé.", "Preset %d is empty.": "Le préréglage %d est vide.",
+    "Loaded preset %d.": "Préréglage %d chargé.", "Forced: %s": "Forcé : %s", "God mode: %s": "Mode dieu : %s",
+    "on": "activé", "off": "désactivé",
+    "Crash into a rock": "Percuter un rocher", "Open a leak": "Ouvrir une fuite", "Flood +30%": "Inonder +30 %",
+    "Overheat engine": "Surchauffe moteur", "Stall engine": "Caler le moteur", "Empty the coal": "Vider le charbon",
+    "Break the rudder": "Casser le gouvernail", "Big wave (port)": "Grosse vague (bâbord)",
+    "Big wave (starboard)": "Grosse vague (tribord)", "Loose cargo": "Cargaison détachée", "Reach port": "Arriver au port",
+    "Sink (fail)": "Couler (échec)", "+500 coins": "+500 pièces", "Unlock everything": "Tout débloquer",
+    "God mode on/off": "Mode dieu oui/non",
+    "Ship handling": "Pilotage", "Engine and coal": "Moteur et charbon", "Hull and leaks": "Coque et fuites",
+    "Waves": "Vagues", "Rudder": "Gouvernail", "Hazards": "Dangers", "Music": "Musique", "Camera": "Caméra",
+    "Game feel": "Sensations", "Crew": "Équipage", "AI crew": "Équipage IA",
 }
 
 

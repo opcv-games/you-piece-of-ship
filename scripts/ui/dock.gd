@@ -34,6 +34,8 @@ var secondary_buttons: Array[Button] = []
 func _ready() -> void:
 	PlayerControls.ensure_actions(4)
 	joined = Session.joined_players.duplicate()
+	if Net.role != "client":
+		Session.fill_crew_with_ai()
 	_build()
 	Net.peers_changed.connect(refresh)
 	Net.connected.connect(func(_index): refresh())
@@ -61,6 +63,8 @@ func _process(_delta: float) -> void:
 func toggle_crew(index: int) -> void:
 	if joined.has(index):
 		joined.erase(index)
+		Session.joined_players = joined.duplicate()
+		Session.enable_ai(index) # an AI takes the free slot again
 	else:
 		joined.append(index)
 		joined.sort()
@@ -106,7 +110,7 @@ func start_contract(index: int) -> bool:
 	if index >= Session.unlocked:
 		_message.text = tr("Locked: deliver the previous contract first.")
 		return false
-	if joined.is_empty():
+	if joined.is_empty() and Session.ai_crew.is_empty():
 		_message.text = tr("Nobody aboard! At least one player presses Use (E, Right Shift or X) to join.")
 		return false
 	Session.contract_index = index

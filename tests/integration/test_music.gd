@@ -1,5 +1,5 @@
 extends GutTest
-## Adaptive music: the same tune, a band getting more nervous as the ship falls apart.
+## Adaptive music: the same tune, climbing in pitch as the ship falls apart.
 
 const LevelScene = preload("res://scenes/levels/voyage.tscn")
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
@@ -42,7 +42,7 @@ func test_calm_ship_is_relaxed_and_melody_always_on() -> void:
 	await wait_seconds(1.0)
 	assert_eq(_music.state, 4)
 	assert_gt(_music.get_node("melody").volume_db, -20.0)
-	assert_lt(_music.get_node("meltdown").volume_db, -60.0)
+	assert_almost_eq(_music.pitch, 1.0, 0.01, "normal pitch when all is well")
 
 
 func test_given_flooding_engine_trouble_and_broken_rudder_then_meltdown() -> void:
@@ -56,9 +56,21 @@ func test_given_flooding_engine_trouble_and_broken_rudder_then_meltdown() -> voi
 	await wait_seconds(4.0)
 	assert_lt(_music.stability, 20.0)
 	assert_eq(_music.state, 0, "meltdown")
-	assert_gt(_music.get_node("meltdown").volume_db, -20.0, "the band falls apart")
-	assert_gt(_music.get_node("melody").volume_db, -20.0, "but the tune is still there")
-	assert_signal_emitted(_music, "caption")
+	assert_almost_eq(_music.pitch, 2.0, 0.05, "an octave up")
+	assert_almost_eq(_music.get_node("melody").pitch_scale, _music.pitch, 0.001, "every layer at the same pitch")
+	assert_gt(_music.get_node("melody").volume_db, -20.0, "the tune is still there")
+	assert_signal_emitted(_music, "state_changed")
+
+
+func test_pitch_comes_back_down_when_the_crew_recovers() -> void:
+	_music.stability = 10.0
+	_music._change_state(0)
+	await wait_seconds(1.0)
+	assert_gt(_music.pitch, 1.5)
+	_music.stability = 100.0
+	_music._change_state(4)
+	await wait_seconds(1.0)
+	assert_almost_eq(_music.pitch, 1.0, 0.01)
 
 
 func test_states_need_a_margin_before_calming_down() -> void:
@@ -78,13 +90,6 @@ func test_crash_plays_a_sting_and_stall_drops_bass_and_drums() -> void:
 	assert_lt(_music.get_node("bass_stable").volume_db, -60.0, "the bass drops out for a beat")
 	await wait_seconds(1.5)
 	assert_gt(_music.get_node("bass_stable").volume_db, -30.0, "and comes back")
-
-
-func test_band_captions_can_be_switched_off() -> void:
-	_music.band_captions = false
-	watch_signals(_music)
-	_music.say("test")
-	assert_signal_not_emitted(_music, "caption")
 
 
 func test_m_and_select_mute_the_music() -> void:

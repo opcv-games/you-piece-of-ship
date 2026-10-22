@@ -18,6 +18,10 @@ func _load_level() -> void:
 	await wait_physics_frames(3)
 
 
+func before_each() -> void:
+	Session.ai_crew = {} # these tests are about human crews only
+
+
 func after_each() -> void:
 	Session.joined_players.clear()
 

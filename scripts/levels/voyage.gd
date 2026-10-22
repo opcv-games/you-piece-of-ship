@@ -11,6 +11,8 @@ const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
 const RockScene = preload("res://scenes/greybox/rock.tscn")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
 const AICrew = preload("res://scripts/ai/ai_crew.gd")
+const PlayerControls = preload("res://scripts/systems/player_controls.gd")
+const PauseMenu = preload("res://scripts/ui/pause_menu.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 
 @export var contract: Resource ## leave empty to use the session's chosen contract
@@ -26,6 +28,7 @@ var _show_help := false
 var net_puppet := false ## online client: the host runs the game, this copy only shows it
 var _next_event := 0
 var _hint_left := 0.0
+var god_mode := false ## developer mode: no flooding, no overheating, no running dry
 
 @onready var _ship: Node3D = $Ship
 @onready var _handling: Node = $Ship/ShipHandling
@@ -56,6 +59,10 @@ func _ready() -> void:
 	_handling.rock_hit.connect(_on_rock_hit)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
+	var pause := PauseMenu.new()
+	pause.name = "PauseMenu"
+	pause.voyage = self
+	add_child(pause)
 	_spawn_foam()
 	$HUD/CrewJoin.crew_ready.connect(_on_crew_ready)
 	if Net.role != "offline":
@@ -134,6 +141,12 @@ func _physics_process(delta: float) -> void:
 	$HazardDirector.set_physics_process(started and not finished)
 	if not started:
 		_handling.throttle = 0.0 # moored until the crew sets sail
+	if god_mode:
+		$Ship/HullSystem.water = 0.0
+		$Ship/EngineSystem.heat = minf($Ship/EngineSystem.heat, 0.6)
+		$Ship/EngineSystem.fuel = maxf($Ship/EngineSystem.fuel, 0.5)
+	if started and not finished and Net.role != "client":
+		_check_takeovers()
 	if started and not finished:
 		_run_events()
 		elapsed += delta
@@ -166,6 +179,94 @@ func _unhandled_input(event: InputEvent) -> void:
 	if change_crew:
 		Session.joined_players.clear()
 		UI.go(DOCK_SCENE)
+
+
+## A player presses Jump or Use on their controller mid-voyage: they take over their AI crewmate.
+func _check_takeovers() -> void:
+	for player in get_tree().get_nodes_in_group("crew"):
+		var index: int = player.player_index
+		if not player.has_node("AICrew") or (Net.role == "host" and index != 1):
+			continue # online, only the host's own controls are on this computer
+		if Input.is_action_just_pressed(PlayerControls.action(index, "jump")) \
+				or Input.is_action_just_pressed(PlayerControls.action(index, "use")):
+			take_over(index)
+
+
+## A human takes an AI crewmate's place, right where it stands.
+func take_over(index: int) -> void:
+	for player in get_tree().get_nodes_in_group("crew"):
+		if player.player_index != index or not player.has_node("AICrew"):
+			continue
+		var ai := player.get_node("AICrew")
+		player.remove_child(ai)
+		ai.queue_free()
+		player.get_node("PlayerInput").enabled = true
+		player.get_node("Label").text = "P%d" % index
+		player.think(tr("I'm in!"), 1.5, "shout")
+		if not Session.joined_players.has(index):
+			Session.joined_players.append(index)
+			Session.joined_players.sort()
+		Session.ai_crew.erase(index)
+		$CrewBrain.assignments.erase(player)
+
+
+# --- Developer mode (Esc → Developer) ------------------------------------------------------
+
+const DEV_EVENTS := ["crash", "leak", "flood", "overheat", "stall", "out_of_coal", "rudder", "wave_port",
+		"wave_starboard", "loose_cargo", "reach_port", "sink", "add_coins", "unlock_all", "god_mode"]
+
+
+## Forces an event right now, for testing and tuning. Returns false for an unknown event.
+func dev_event(event: String) -> bool:
+	var ship := _ship
+	match event:
+		"crash":
+			var rock: Node3D = RockScene.instantiate()
+			rock.radius = 1.0
+			rock.position = ship.global_position + _handling.forward() * 8.0
+			$Reef.add_child(rock)
+			_handling.speed = maxf(_handling.speed, _handling.max_speed * 0.8)
+			_handling._hit(rock)
+		"leak":
+			$Ship/HullSystem.add_breach(Vector3(randf_range(-6.0, 6.0), 0.0, 3.0 * (1.0 if randf() < 0.5 else -1.0)))
+		"flood":
+			$Ship/HullSystem.water = minf(1.0, $Ship/HullSystem.water + 0.3)
+		"overheat":
+			$Ship/EngineSystem.heat = 1.0
+		"stall":
+			var engine := $Ship/EngineSystem
+			engine.heat = 1.0
+			engine.warning_left = 0.01
+		"out_of_coal":
+			$Ship/EngineSystem.fuel = 0.0
+		"rudder":
+			$Ship/RudderSystem.try_damage(1.0)
+		"wave_port", "wave_starboard":
+			$Ship/WaveMotion.big_wave(-1.0 if event == "wave_port" else 1.0)
+		"loose_cargo":
+			var cargo := $Ship/LoadSystem
+			for crate in cargo.crates():
+				if crate.lashed:
+					get_tree().get_first_node_in_group("cargo_bay").unlash(crate)
+					crate.velocity = Vector2(0.0, 3.0)
+					cargo.crate_loose.emit(crate)
+					break
+		"reach_port":
+			ship.position.x = finish_x + 1.0
+		"sink":
+			$Ship/HullSystem.sink_grace_seconds = 0.0
+			$Ship/HullSystem.water = 1.0
+		"add_coins":
+			Session.money += 500
+			Session.save_game()
+		"unlock_all":
+			Session.unlocked = ContractLibrary.all_contracts().size()
+			Session.save_game()
+		"god_mode":
+			god_mode = not god_mode
+		_:
+			return false
+	return true
 
 
 # --- Contract events and fog --------------------------------------------------------

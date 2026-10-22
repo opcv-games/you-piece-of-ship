@@ -5,6 +5,7 @@ extends CharacterBody3D
 ## Knockdowns (big waves, steam vents, sliding crates) drop whatever you carry.
 
 const CrewSprite = preload("res://scripts/components/crew_sprite.gd")
+const ThoughtBubble = preload("res://scripts/components/thought_bubble.gd")
 
 signal jumped
 signal landed
@@ -35,6 +36,7 @@ var knocked := 0.0 ## seconds left lying on the deck
 var facing := Vector3(0, 0, 1) ## world direction the player last moved or worked in (for the sprite)
 
 var _air_time := 0.0
+var bubble: Sprite3D ## comic bubble above the head (what I'm doing, what I see)
 
 @onready var _visual: Node3D = $Visual
 
@@ -52,6 +54,15 @@ func _ready() -> void:
 	if pixel_art:
 		_use_pixel_art()
 		$Label.position.y = 3.05 # above the taller pixel pirate
+	bubble = ThoughtBubble.new()
+	bubble.height = $Label.position.y + 0.45
+	add_child(bubble)
+
+
+## Shows a thought ("think") or a callout ("shout") bubble above this crew member.
+func think(text: String, seconds := 2.5, style := "think") -> void:
+	if bubble:
+		bubble.show_text(text, seconds, style)
 
 
 func _physics_process(delta: float) -> void:
@@ -157,6 +168,7 @@ func knock_down(push := Vector2.ZERO) -> bool:
 	velocity.z = shove.z
 	_visual.rotation.x = -PI / 2.0
 	_visual.position.y = 0.35
+	think(tr("Whoa!"), 1.2, "shout")
 	knocked_down.emit()
 	return true
 

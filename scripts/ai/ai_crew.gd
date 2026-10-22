@@ -16,8 +16,8 @@ var target: Node3D = null ## the thing it is working on (carpenter, cargo)
 var _player: CharacterBody3D
 var _ship: Node3D
 var _brain: Node
-var _bubble: Label3D
-var _bubble_left := 0.0
+var _intent := "" ## the last plan shown in a thought bubble
+var _intent_quiet := 0.0
 var _use_cooldown := 0.0
 var _callout_left := 0.0
 var _reverse_left := 0.0
@@ -36,31 +36,27 @@ func _ready() -> void:
 	_brain = get_tree().get_first_node_in_group("crew_brain")
 	_ship.get_node("ShipHandling").impact.connect(func(_rock): _reverse_left = 2.0)
 	_rng.seed = _player.player_index * 31
-	_bubble = Label3D.new()
-	_bubble.name = "Bubble"
-	_bubble.position = Vector3(0, 3.6, 0)
-	_bubble.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_bubble.no_depth_test = true
-	_bubble.font_size = 52
-	_bubble.outline_size = 14
-	_bubble.modulate = Color(1.0, 0.95, 0.6)
-	_bubble.visible = false
-	_player.add_child(_bubble)
 	_player.get_node("Label").text = tr("P%d AI") % _player.player_index
 
 
+## A callout everyone should hear (the navigator's rocks): a yellow shout bubble.
 func say(text: String, seconds := 2.2) -> void:
-	_bubble.text = text
-	_bubble.visible = true
-	_bubble_left = seconds
+	_player.think(text, seconds, "shout")
+	_intent_quiet = seconds
+
+
+## What I'm about to do, in a thought bubble, shown when the plan changes (not every frame).
+func intend(text: String) -> void:
+	if text == _intent or _intent_quiet > 0.0:
+		return
+	_intent = text
+	_player.think(text, 2.0, "think")
 
 
 func _physics_process(delta: float) -> void:
 	_use_cooldown -= delta
 	_reverse_left -= delta
-	if _bubble_left > 0.0:
-		_bubble_left -= delta
-		_bubble.visible = _bubble_left > 0.0
+	_intent_quiet -= delta
 	_player.move_input = Vector2.ZERO
 	if _player.knocked > 0.0:
 		return
@@ -147,6 +143,7 @@ func _run_station(station_job: String, delta: float) -> void:
 			_steer()
 		return
 	_drop_carried()
+	intend(tr("To the helm!") if station_job == "helm" else tr("Pumping!"))
 	if _walk_to(station.global_position, delta, 0.9):
 		_use_on(station)
 
@@ -161,6 +158,7 @@ func _engineer(delta: float) -> void:
 	var vent_at: float = engine.heat_cap_threshold # above this, top speed is capped: vent
 	if _player.station == furnace:
 		if engine.heat > vent_at and engine.vent_ready_in <= 0.0:
+			intend(tr("Too hot! Venting!"))
 			_player.jump_requested = true # vent steam
 		elif engine.heat < 0.6 or engine.vent_ready_in > 0.0 and engine.fuel < 0.7:
 			_press_use() # cool enough (or coal needed): let go of the controls
@@ -172,10 +170,13 @@ func _engineer(delta: float) -> void:
 	if _player.carried and not carrying_coal:
 		_drop_carried()
 	if carrying_coal:
+		intend(tr("Coal for the furnace!"))
 		if _walk_to(furnace.global_position, delta, 1.0) and engine.fuel < 0.9:
 			_use_on(furnace) # feed the fire
 		return
 	var pile := _ship.get_node("CoalPile")
+	if engine.fuel < 0.9:
+		intend(tr("Need coal!"))
 	if _walk_to(pile.global_position, delta, 1.0):
 		_use_on(pile)
 
@@ -268,6 +269,7 @@ func _marked(rock: Node3D) -> bool:
 
 func _navigate(delta: float) -> void:
 	_drop_carried()
+	intend(tr("To the map!"))
 	# In fog the chart sees little: the navigator takes the telescope instead.
 	var telescope := _ship.get_node("Telescope")
 	if telescope.enabled:
@@ -336,6 +338,8 @@ func _carpentry(delta: float) -> void:
 		_idle_work(delta)
 		return
 	target = task[1]
+	intend({"hammer": tr("Hammering the leak!"), "pipe": tr("Fixing the pipe!"), "patch": tr("Going to fix leak!"),
+			"rudder": tr("Fetching a rudder pin!")}.get(task[0], ""))
 	match task[0]:
 		"hammer", "pipe":
 			_drop_carried()
@@ -479,5 +483,7 @@ func _cargo(delta: float) -> void:
 		var loose: Array = _brain.loose_crates()
 		crate = loose[0] if not loose.is_empty() else null
 	target = crate
+	if crate:
+		intend(tr("Tying down cargo!"))
 	if crate and _walk_to(crate.global_position, delta, 0.9):
 		_use_on(crate)
