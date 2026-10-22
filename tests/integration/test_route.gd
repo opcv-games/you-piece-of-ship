@@ -23,18 +23,28 @@ func test_given_reef_run_then_rocks_hidden_cliffs_visible_port_at_end() -> void:
 		expected += row[1].size()
 	var hidden := 0
 	var cliffs := 0
+	var others := 0
 	for rock in _level.get_tree().get_nodes_in_group("rocks"):
 		if rock.hidden:
 			hidden += 1
-			assert_false(rock.get_node("Mesh").visible, "%s can't be seen" % rock.name)
-		else:
+			assert_false(_seen(rock), "%s can't be seen" % rock.name)
+		elif rock.kind == "cliff":
 			cliffs += 1
-			assert_true(rock.get_node("Mesh").visible)
+			assert_true(_seen(rock))
 			assert_gt(absf(rock.position.z), contract.coast_half_width, "cliffs line the channel")
+		else:
+			others += 1
+			assert_true(_seen(rock), "%s (%s) is in plain sight" % [rock.name, rock.kind])
+	assert_eq(others, contract.obstacles.size(), "the wreck, whale and atoll are on the route")
 	assert_eq(hidden, expected)
 	assert_gt(cliffs, 100)
 	for buoy in _level.get_tree().get_nodes_in_group("finish"):
 		assert_almost_eq(buoy.position.x, contract.length, 0.01)
+
+
+func _seen(rock: Node3D) -> bool:
+	var model := rock.get_node_or_null("Model") as Node3D
+	return model.visible if model else rock.get_node("Mesh").visible
 
 
 func test_given_reef_run_then_calm_start_and_waves_later() -> void:
@@ -58,8 +68,9 @@ func test_given_voyage_running_then_deadline_shown_and_turns_red_when_late() -> 
 	assert_string_contains(status.text, "/ 5:30")
 	_level.elapsed = 400.0
 	await wait_physics_frames(2)
-	assert_gt(status.modulate.r, 0.9)
-	assert_lt(status.modulate.g, 0.5, "red when late")
+	var colour: Color = status.get_theme_color("font_color")
+	assert_gt(colour.r, 0.9)
+	assert_lt(colour.g, 0.6, "red when late")
 
 
 func test_given_ship_sails_into_coast_then_crashes() -> void:

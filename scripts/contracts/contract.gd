@@ -9,6 +9,9 @@ extends Resource
 @export var coast_half_width := 45.0 ## metres from the route centre to the cliffs
 ## Rock rows: each entry is [x, [z, z, ...]] or [x, [z, ...], radius].
 @export var rock_rows: Array = []
+## Other things at sea: each entry is [x, z, kind] or [x, z, kind, radius];
+## kinds: "wreck", "whale", "siren", "atoll", "rock" (a reef rock, hidden).
+@export var obstacles: Array = []
 ## Big waves: each entry is [x, side] (side +1 starboard, -1 port).
 @export var waves: Array = []
 @export var fog := false

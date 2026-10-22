@@ -31,6 +31,7 @@ static func maiden_voyage() -> Resource:
 		[930, [6], 2.5],
 	]
 	contract.waves = [[700, 1]]
+	contract.obstacles = [[600, 22, "wreck"], [790, -24, "atoll", 9.0]]
 	contract.events = [
 		[0, "hint", "Welcome aboard! Walk to a station and press Use. Captain: HELM, hold UP for throttle."],
 		[50, "hint", "Engineer: fill a shovel at the COAL pile (back corner), carry it to the ENGINE and press Use. The pile never runs out."],
@@ -73,6 +74,7 @@ static func reef_run() -> Resource:
 		[1240, [-6, 30]],
 	]
 	contract.waves = [[380, 1], [760, -1], [1100, 1]]
+	contract.obstacles = [[470, 22, "wreck"], [570, 0, "whale"], [920, -26, "atoll", 10.0]]
 	return contract
 
 
@@ -94,6 +96,7 @@ static func the_narrows() -> Resource:
 		[1320, [-6, 10]],
 	]
 	contract.waves = [[330, -1], [640, 1], [980, -1], [1240, 1]]
+	contract.obstacles = [[530, -14, "siren"], [860, 13, "wreck", 3.5]]
 	return contract
 
 
@@ -115,6 +118,7 @@ static func fog_bank() -> Resource:
 		[1080, [-4, 20]], [1150, [16, -14]], [1220, [-8, 6]], [1290, [2, -22, 20]],
 	]
 	contract.waves = [[480, 1], [900, -1], [1200, 1]]
+	contract.obstacles = [[380, -26, "siren"], [750, 0, "whale"], [1120, 28, "wreck"]]
 	contract.events = [
 		[0, "hint", "Thick fog: the chart only sees 30 m. Navigator: the TELESCOPE at the bow spots rocks further ahead."],
 	]

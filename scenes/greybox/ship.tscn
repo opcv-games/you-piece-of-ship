@@ -236,13 +236,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, -3.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.5)
 
 [node name="CameraBowTip" type="Marker3D" parent="." groups=["camera_focus"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.9, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 0.5, 0)
 
 [node name="ShipHandling" type="Node" parent="." node_paths=PackedStringArray("helm")]
 script = ExtResource("3_handling")
 helm = NodePath("../Helm")
-hull_half_length = 9.0
-hull_half_width = 3.5
+hull_half_length = 11.0
+hull_half_width = 3.6
+hull_centre_x = 1.6
 
 [node name="Helm" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.2, 0, 0)

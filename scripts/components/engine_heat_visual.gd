@@ -36,7 +36,8 @@ func _ready() -> void:
 	var station := get_parent()
 	_engine = station.get_parent().get_node_or_null("EngineSystem")
 	for child in station.get_children():
-		if child is MeshInstance3D:
+		# The engine's visible body (grey box or painted model) rattles when hot.
+		if child is Node3D and child.visible and not (child is Label3D or child is CPUParticles3D):
 			_rattle_targets.append(child)
 			_rattle_rest[child] = child.position
 	_build_door()
@@ -131,7 +132,7 @@ func _build_light() -> void:
 	_light = OmniLight3D.new()
 	_light.name = "FireLight"
 	_light.position = body_centre + front * 2.5
-	_light.omni_range = 3.5
+	_light.omni_range = 2.6
 	_light.light_energy = 0.0
 	_light.shadow_enabled = false
 	add_child(_light)
@@ -200,9 +201,9 @@ func _process(delta: float) -> void:
 	var flicker := 0.85 + 0.15 * sin(_time * 23.0) * sin(_time * 7.3)
 	var burning := 0.0 if stalled else clampf(0.25 + _engine.fuel, 0.0, 1.0)
 	_door_material.emission = glow
-	_door_material.emission_energy_multiplier = (0.6 + heat * 3.5) * flicker * burning
+	_door_material.emission_energy_multiplier = (0.5 + heat * 1.6) * flicker * burning
 	_light.light_color = glow
-	_light.light_energy = (0.3 + heat * 2.2) * flicker * burning
+	_light.light_energy = (0.2 + heat * 1.1) * flicker * burning
 	# Needle: -120° cold to +120° hot; shivers when hot.
 	var shiver := sin(_time * 40.0) * 0.06 * maxf(0.0, heat - 0.75) * 4.0
 	_needle.rotation.z = -deg_to_rad(-120.0 + 240.0 * heat) + shiver

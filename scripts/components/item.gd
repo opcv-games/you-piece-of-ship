@@ -49,6 +49,11 @@ func _ready() -> void:
 	if kind == "crate":
 		add_to_group("cargo")
 	ship = _find_ship()
+	if ship and "art_style" in ship and ship.art_style == "painted":
+		# Painted props: a treasure chest, a plank, the rudder pin, a shovel of coal.
+		var model: Node3D = ship.prop({"crate": "chest", "plank": "plank", "pin": "pin", "coal": "shovel"}[kind], "Mesh")
+		add_child(model)
+		return
 	if ship and "pixel_art" in ship and ship.pixel_art:
 		# Pixel-art sprite: a crate, a plank or the iron pin (sizes match the grey boxes).
 		var sizes := {"crate": 0.06, "plank": 0.06, "pin": 0.045, "coal": 0.05}
@@ -163,7 +168,9 @@ func _physics_process(delta: float) -> void:
 
 ## Held overhead: above the grey-box capsule, or above the (taller) pixel pirate's head.
 func _carry_height() -> float:
-	return 2.75 if get_node_or_null("Mesh") is Sprite3D else 1.75
+	if get_node_or_null("Mesh") is Sprite3D:
+		return 2.75
+	return 2.15 if ship and "art_style" in ship and ship.art_style == "painted" else 1.75
 
 
 func _process(_delta: float) -> void:

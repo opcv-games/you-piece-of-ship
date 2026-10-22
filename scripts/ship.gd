@@ -7,10 +7,29 @@ extends AnimatableBody3D
 
 const PixelArt = preload("res://scripts/systems/pixel_art.gd")
 const EngineHeatVisual = preload("res://scripts/components/engine_heat_visual.gd")
+const Toon = preload("res://scripts/systems/toon.gd")
+const SHIP_MODEL := "res://assets/art/export/models/ship.glb"
+const MODELS := "res://assets/art/export/models/"
+## Station -> painted prop (modelled in the station's own frame, see tools/blender/build_props.py).
+const STATION_PROPS := {"Helm": "helm", "MapTable": "map_table", "PlankBox": "plank_box", "PinBox": "pin_box",
+		"Pump": "pump", "Engine": "engine", "CoolingPipe": "cooling_pipe", "Telescope": "telescope"}
+const PUMP_HINGE := Vector3(0.0, 1.45, -0.85)
+const PUMP_SPOUT := Vector3(0.0, 0.85, -1.8)
+const GREYBOX_MESHES := ["Hull", "Bowsprit", "DeckMesh", "RailPortMesh", "RailStarboardMesh", "RailBowMesh",
+		"RailSternMesh", "MastMesh"]
 
-@export var pixel_art := true ## dress the ship with Olivier's pixel-art tiles (false: grey box)
+## "painted": the kawaii painted ship (2026-10-22); "pixel": the earlier pixel-art tiles; "greybox".
+@export_enum("painted", "pixel", "greybox") var art_style := "painted"
+var pixel_art: bool: ## items and crew ask this to pick their own look
+	get:
+		return art_style == "pixel"
 
 @onready var waves: Node = $WaveMotion
+
+var _wheel: Node3D
+var _lever: Node3D
+var _gush: CPUParticles3D
+var _pump_time := 0.0
 
 ## Deck size comes from the floor's collision box, so there is one source of truth.
 var deck_length: float:
@@ -22,10 +41,92 @@ var deck_width: float:
 
 
 func _ready() -> void:
+	add_to_group("player_ship")
+	Toon.painted = art_style == "painted"
 	waves.wave_struck.connect(_on_wave_struck)
-	$Engine.add_child(EngineHeatVisual.new())
-	if pixel_art:
+	if art_style == "pixel":
 		_dress()
+	elif art_style == "painted":
+		_paint()
+	$Engine.add_child(EngineHeatVisual.new())
+
+
+## The painted ship model (tools/blender/build_ship.py) replaces the grey boxes; collision and
+## every station stay exactly where they were.
+func _paint() -> void:
+	for mesh_name in GREYBOX_MESHES:
+		get_node(mesh_name).visible = false
+	var model: Node3D = (load(SHIP_MODEL) as PackedScene).instantiate()
+	model.name = "Model"
+	Toon.paint(model)
+	add_child(model)
+	for station_name in STATION_PROPS:
+		var station := get_node(station_name)
+		for child in station.get_children():
+			if child is MeshInstance3D:
+				child.visible = false
+		station.add_child(prop(STATION_PROPS[station_name], "Painted"))
+	# Animated parts: the wheel turns with the steering, the pump's handle rocks while pumping.
+	_wheel = prop("wheel", "PaintedWheel")
+	_wheel.position = Vector3(0.55, 1.1, 0.0)
+	$Helm.add_child(_wheel)
+	_lever = Node3D.new()
+	_lever.name = "LeverPivot"
+	_lever.position = PUMP_HINGE
+	var arm := prop("pump_lever", "Lever")
+	arm.position = -PUMP_HINGE
+	_lever.add_child(arm)
+	$Pump.add_child(_lever)
+	_gush = _water_gush()
+	$Pump.add_child(_gush)
+
+
+## A painted model from assets/art/export/models/ (toon-painted, ready to add).
+static func prop(model_name: String, node_name := "") -> Node3D:
+	var model: Node3D = (load(MODELS + model_name + ".glb") as PackedScene).instantiate()
+	model.name = node_name if node_name != "" else model_name
+	Toon.paint(model)
+	return model
+
+
+func _process(delta: float) -> void:
+	if _wheel == null:
+		return
+	_pump_time += delta
+	var steering: float = $ShipHandling.rudder
+	_wheel.rotation.x = lerp_angle(_wheel.rotation.x, steering * 2.4 + $Helm/Wheel.rotation.x, minf(1.0, delta * 8.0))
+	var pumping: bool = $Pump.is_active()
+	_lever.rotation.z = sin(_pump_time * 9.0) * 0.45 if pumping else lerpf(_lever.rotation.z, 0.0, delta * 4.0)
+	_gush.emitting = pumping and $HullSystem.water > 0.005
+
+
+## Water gushing out of the pump's spout over the side, while someone pumps.
+func _water_gush() -> CPUParticles3D:
+	var gush := CPUParticles3D.new()
+	gush.name = "Gush"
+	gush.position = PUMP_SPOUT
+	gush.emitting = false
+	gush.amount = 40
+	gush.lifetime = 0.8
+	var drop := SphereMesh.new()
+	drop.radius = 0.09
+	drop.height = 0.18
+	drop.radial_segments = 6
+	drop.rings = 3
+	var blue := StandardMaterial3D.new()
+	blue.albedo_color = Color(0.55, 0.85, 1.0, 0.85)
+	blue.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	blue.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	drop.material = blue
+	gush.mesh = drop
+	gush.direction = Vector3(0, -0.3, -1)
+	gush.spread = 12.0
+	gush.initial_velocity_min = 2.0
+	gush.initial_velocity_max = 3.0
+	gush.gravity = Vector3(0, -9.8, 0)
+	gush.scale_amount_min = 0.7
+	gush.scale_amount_max = 1.3
+	return gush
 
 
 ## Pixel-art dressing: plank textures on deck, hull and rails, crate-built spare boxes, a coal pile

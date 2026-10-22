@@ -218,12 +218,14 @@ static func steer_for(here: Vector3, yaw: float, rocks: Array, half_width: float
 	# Room to spare around rocks: half the hull (3.5 m) plus 3.5 m, or plus 2 m in a narrow channel.
 	var margin := 5.5 if half_width < 20.0 else 7.0
 	for rock in rocks:
-		var offset: Vector3 = rock.global_position - here
+		var centre: Vector3 = rock.avoid_centre() if rock.has_method("avoid_centre") else rock.global_position
+		var size: float = rock.avoid_radius() if rock.has_method("avoid_radius") else rock.radius
+		var offset: Vector3 = centre - here
 		var along := offset.dot(fwd)
-		if along < -5.0 or along > 80.0:
+		if along < -5.0 - size or along > 80.0 + size:
 			continue
 		var across := offset.dot(right)
-		if absf(across) < rock.radius + margin:
+		if absf(across) < size + margin:
 			# Pass on the side away from the rock; nearly dead ahead, pass on the channel's middle side.
 			var away := -signf(across) if absf(across) > 1.5 else toward_middle
 			go_starboard += away * 1.5 * (1.0 - maxf(along, 0.0) / 80.0)
@@ -236,12 +238,19 @@ func _known_rocks() -> Array:
 	var chart_range := _chart_range()
 	var known := []
 	for rock in get_tree().get_nodes_in_group("rocks"):
-		if not rock.hidden:
+		if _is_cliff(rock):
 			continue # cliffs: the lane stays inside the channel instead
+		if not rock.hidden:
+			known.append(rock) # wrecks, whales, sirens, atolls: everyone can see them
+			continue
 		var distance: float = rock.global_position.distance_to(_ship.global_position)
 		if rock.revealed or (chart_on and distance <= chart_range) or _marked(rock):
 			known.append(rock)
 	return known
+
+
+static func _is_cliff(rock: Node3D) -> bool:
+	return ("kind" in rock and rock.kind == "cliff") or (not ("kind" in rock) and not rock.hidden)
 
 
 func _channel_half_width() -> float:
@@ -297,7 +306,7 @@ func callout() -> String:
 	var best: Node3D = null
 	var best_distance := INF
 	for rock in get_tree().get_nodes_in_group("rocks"):
-		if not rock.hidden:
+		if _is_cliff(rock):
 			continue
 		var offset: Vector3 = rock.global_position - _ship.global_position
 		offset.y = 0.0
@@ -313,7 +322,11 @@ func callout() -> String:
 			best_distance = offset.length()
 	if best:
 		var offset: Vector3 = best.global_position - _ship.global_position
-		return tr("Rock, %d o'clock, %d m!") % [clock_hour(offset.dot(fwd), offset.dot(right)), roundi(best_distance)]
+		var hour := clock_hour(offset.dot(fwd), offset.dot(right))
+		var what: String = best.call_name() if best.has_method("call_name") else "Rock"
+		if what == "Siren":
+			return tr("Siren, %d o'clock! Don't listen!") % hour
+		return tr(what + ", %d o'clock, %d m!") % [hour, roundi(best_distance)]
 	var voyage := _ship.get_parent()
 	if "finish_x" in voyage and voyage.finish_x - _ship.global_position.x < 150.0:
 		return tr("Port ahead, %d m!") % roundi(voyage.finish_x - _ship.global_position.x)
