@@ -33,7 +33,11 @@ func _ready() -> void:
 	_player = get_parent()
 	_player.get_node("PlayerInput").enabled = false
 	_ship = _player.get_parent().get_parent() as Node3D
-	_brain = get_tree().get_first_node_in_group("crew_brain")
+	# This voyage's own brain (never another voyage's that is being cleared away).
+	var voyage := _ship.get_parent()
+	_brain = voyage.get_node_or_null("CrewBrain") if voyage else null
+	if _brain == null:
+		_brain = get_tree().get_first_node_in_group("crew_brain")
 	_ship.get_node("ShipHandling").impact.connect(func(_rock): _reverse_left = 2.0)
 	_rng.seed = _player.player_index * 31
 	_player.get_node("Label").text = tr("P%d AI") % _player.player_index
