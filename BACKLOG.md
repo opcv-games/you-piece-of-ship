@@ -5,14 +5,12 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[innovation]` **Rudder damage and the rudder pin swap** (#6)
 - [ ] `[innovation]` **Load and balance** (#7)
 - [ ] `[standard]` **Hazard director and fairness rules** (#8)
 - [ ] `[standard]` **One 5-minute route with waves, rocks, port and deadline** (#9)
 - [ ] `[innovation]` **Results screen with event recap, quick restart, crew join** (#10)
 
 ## Next (likely, not committed)
-- [ ] Two-player tasks (big patch, cooling pipe)
 
 ## Later (deliberately vague)
 - Contracts and the upgrade shop
@@ -26,6 +24,8 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Two-player tasks: plank patch and cooling pipe (fast with 2 crew, slow alone) — built with #3 and #4
+- #6 Rudder damage and the rudder pin swap (2026-10-22, built, not yet player-tested)
 - #4 Engine heat caps speed: engine room with coal and heat gauge, speed cap, warning then stall, vent knockdown, burst cooling pipe two-player fix, flooded ship heats faster (2026-10-22, built, not yet player-tested)
 - #3 Hull breach changes handling: leaks with warning, crate plug, plank patch (1-2 crew), pump, water slows/sinks/lists the ship, sinking grace (2026-10-22, built, not yet player-tested)
 - #5 Carry and drop: planks, rudder pins, cargo crates; knockdowns drop items; items slide to the low side; big waves (2026-10-22, built, not yet player-tested)
@@ -36,3 +36,4 @@
 
 ## Questions for Olivier
 - Plank patch: design says two players; I let one player patch slowly (12 s instead of 4 s) so small crews and solo tests aren't stuck. Keep, or make it strictly two players?
+- Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?

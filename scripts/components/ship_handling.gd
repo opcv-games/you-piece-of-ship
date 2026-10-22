@@ -18,6 +18,8 @@ signal rock_hit(rock: Node3D)
 
 var speed_limits := {} ## system name -> top speed factor (water, heat...), multiplied together
 var turn_limits := {} ## system name -> turning factor
+var rudder_offset := 0.0 ## a broken rudder pulls the wheel this way (-1..1)
+var impact_speed := 0.0 ## speed just before the last rock hit
 var throttle := 0.0 ## 0..1
 var rudder := 0.0 ## -1 = full starboard (right), +1 = full port (left)
 var speed := 0.0
@@ -46,7 +48,7 @@ func _read_helm(delta: float) -> void:
 
 
 func _update_helm_label() -> void:
-	if helm:
+	if helm and not _ship.has_node("RudderSystem"):
 		helm.status_text = "throttle %d%%" % roundi(throttle * 100.0)
 
 
@@ -75,7 +77,8 @@ func step(delta: float) -> void:
 	speed = move_toward(speed, throttle * top_speed(), acceleration * delta)
 	if speed > 0.05:
 		var turn_factor_now := maxf(speed / max_speed, min_turn_factor) * turn_factor()
-		_ship.rotation.y += deg_to_rad(turn_rate_degrees) * rudder * turn_factor_now * delta
+		var wheel := clampf(rudder + rudder_offset, -1.0, 1.0)
+		_ship.rotation.y += deg_to_rad(turn_rate_degrees) * wheel * turn_factor_now * delta
 	_ship.position += forward() * speed * delta
 	_cooldown = maxf(0.0, _cooldown - delta)
 	if _cooldown == 0.0:
@@ -98,6 +101,7 @@ func _check_rocks() -> void:
 
 
 func _hit(rock: Node3D) -> void:
+	impact_speed = speed
 	speed = 0.0
 	_ship.position -= forward() * impact_pushback
 	_cooldown = impact_cooldown

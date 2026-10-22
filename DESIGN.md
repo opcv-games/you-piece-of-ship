@@ -143,6 +143,8 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Water effects: top speed up to -45%, turning -30%, sits 0.7 m lower, lists up to 6 degrees toward the leaks; full = sunk, never within 60 s of the first failure | Damage changes handling (the signature mechanic); fairness rule | #3 |
 | 2026-10-22 | Engine room (stern starboard): hold up to shovel coal, Jump to vent steam; heat and coal gauge only shows to the engineer, in the top-right HUD corner | Station-bound information; the engineer has hands-on work all the time (no idling) | #4 |
 | 2026-10-22 | Heat rises above 55% throttle and faster with water aboard; >80% caps top speed at 70%; 100% gives a 5 s warning then a 20 s stall that bursts the cooling pipe; venting cools 50% but knocks over crew within 3 m (8 s cooldown); burst pipe heats 1.6x faster until fixed (4 s with 2 crew, 12 s alone) | Conflicting urgency (speed vs heat) and coupling rule 3; emergency measure at a cost | #4 |
+| 2026-10-22 | Impacts above half speed damage an intact rudder instead of the hull (otherwise the hull cracks): one impact, one failure | Coupling rule 1 combined with fairness rule 'one impact starts at most one new failure' | #6 |
+| 2026-10-22 | Broken rudder: 5 s wheel shudder warning, then half steering response and a pull to one side even with nobody steering; fix by carrying the single spare rudder pin (half walking speed) to the helm | Rudder row of section 13; one spare makes a second rudder break a real crisis | #6 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

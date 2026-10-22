@@ -88,6 +88,10 @@ func _on_rock_hit(rock: Node3D) -> void:
 		return
 	_last_rock = rock
 	_last_rock_at = elapsed
+	# One impact starts at most one new failure: a hard hit takes the rudder if it is intact.
+	var rudder := _ship.get_node_or_null("RudderSystem")
+	if rudder and rudder.try_damage(_handling.impact_speed / _handling.max_speed):
+		return
 	add_breach(_ship.to_local(rock.global_position))
 
 
