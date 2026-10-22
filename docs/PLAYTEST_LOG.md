@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Rudder damage  (#6)
+Hypothesis: If a hard hit makes the wheel pull to one side until someone hauls the heavy pin to the helm, then the captain will call for help and the slow pin-carrier will be the centre of attention, increasing Comedy and Thrill of danger.
+Variable: pull strength 0.35 of full wheel
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main; tune after the first couch playtest
+
 ## 2026-10-22 — Engine heat caps speed  (#4)
 Hypothesis: If full throttle overheats the engine and only the engineer can see the gauge, then the engineer will shout "slow down!" while the navigator wants speed, increasing Social interaction.
 Variable: heat rise (full throttle reaches 80% in about 18 s, 100% in about 22 s)

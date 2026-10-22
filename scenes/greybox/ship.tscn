@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://scripts/components/engine_station.gd" id="9_engine_station"]
 [ext_resource type="Script" path="res://scripts/components/engine_system.gd" id="10_engine"]
 [ext_resource type="Script" path="res://scripts/components/repair_station.gd" id="11_repair"]
+[ext_resource type="Script" path="res://scripts/components/helm_station.gd" id="12_helm"]
+[ext_resource type="Script" path="res://scripts/components/rudder_system.gd" id="13_rudder"]
 
 [sub_resource type="StandardMaterial3D" id="mat_hull"]
 albedo_color = Color(0.42, 0.31, 0.23, 1)
@@ -226,7 +228,7 @@ hull_half_width = 3.5
 
 [node name="Helm" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.2, 0, 0)
-script = ExtResource("4_station")
+script = ExtResource("12_helm")
 station_name = "HELM"
 prompt = "Use: steer"
 
@@ -467,3 +469,6 @@ text = "COOLING PIPE"
 
 [node name="EngineSystem" type="Node" parent="."]
 script = ExtResource("10_engine")
+
+[node name="RudderSystem" type="Node" parent="."]
+script = ExtResource("13_rudder")
