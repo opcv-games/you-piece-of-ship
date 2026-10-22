@@ -16,6 +16,8 @@ signal rock_hit(rock: Node3D)
 @export var impact_pushback := 2.5 ## metres the ship bounces back off a rock
 @export var impact_cooldown := 1.5 ## seconds before the next rock can hit
 
+var speed_limits := {} ## system name -> top speed factor (water, heat...), multiplied together
+var turn_limits := {} ## system name -> turning factor
 var throttle := 0.0 ## 0..1
 var rudder := 0.0 ## -1 = full starboard (right), +1 = full port (left)
 var speed := 0.0
@@ -54,11 +56,26 @@ func forward() -> Vector3:
 	return Vector3(cos(yaw), 0.0, -sin(yaw))
 
 
+## Top speed right now, after damage (water, heat...).
+func top_speed() -> float:
+	var factor := 1.0
+	for limit in speed_limits.values():
+		factor *= limit
+	return max_speed * factor
+
+
+func turn_factor() -> float:
+	var factor := 1.0
+	for limit in turn_limits.values():
+		factor *= limit
+	return factor
+
+
 func step(delta: float) -> void:
-	speed = move_toward(speed, throttle * max_speed, acceleration * delta)
+	speed = move_toward(speed, throttle * top_speed(), acceleration * delta)
 	if speed > 0.05:
-		var turn_factor := maxf(speed / max_speed, min_turn_factor)
-		_ship.rotation.y += deg_to_rad(turn_rate_degrees) * rudder * turn_factor * delta
+		var turn_factor_now := maxf(speed / max_speed, min_turn_factor) * turn_factor()
+		_ship.rotation.y += deg_to_rad(turn_rate_degrees) * rudder * turn_factor_now * delta
 	_ship.position += forward() * speed * delta
 	_cooldown = maxf(0.0, _cooldown - delta)
 	if _cooldown == 0.0:

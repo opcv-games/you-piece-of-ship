@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Hull breach changes handling  (#3)
+Hypothesis: If a rock hit cracks the hull and water visibly slows and tilts the ship, then the crew will split up (someone pumps, two patch, the captain slows down) and argue about priorities, increasing Social interaction and Thrill of danger.
+Variable: flow rate (1 open leak fills the ship in 70 s)
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main; tune after the first couch playtest
+
 ## 2026-10-22 — Carry and drop  (#5)
 Hypothesis: If carried items drop when a wave knocks you over and then slide to the low side, then crew will chase runaway planks and yell "grab a station!" before waves, increasing Comedy.
 Variable: knockdown on big waves (on/off); wave roll 14 degrees

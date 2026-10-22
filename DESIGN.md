@@ -138,6 +138,9 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Ship enlarged to 18 x 7 m with a fixed layout: helm (stern), map table (bow, port), spare-parts boxes (port, amidships), cargo bay of 6 lashed crates (forward of the mast) | Room for four stations, repairs and running around; side lanes stay clear so crew can cross the ship | #5 |
 | 2026-10-22 | Use is one context button: leave a station, apply or drop the carried item, pick up, take over a station (nearest in reach wins) | One button keeps couch controls learnable for mixed-skill groups (section 4) | #5 |
 | 2026-10-22 | Big waves warn for 5 s (sign + side), then roll the ship 14 degrees; anyone not holding a station is knocked down and drops what they carry; loose items slide downhill; fast crates bowl people over | Deck comedy rules and fairness rule (warning of at least 5 s), section 13 | #5 |
+| 2026-10-22 | Six fixed leak spots along the rails; a rock cracks the nearest free one (5 s cracking warning, then water); the same rock can't crack more hull for 8 s | Readable, predictable damage on the ship itself; fairness: warnings and one failure per impact | #3 |
+| 2026-10-22 | Fixes: crate plug (flow to 30%, cargo lost) or plank patch (place plank, hammer: 4 s with 2 crew, 12 s alone); pump at the stern removes water | Emergency measure at a cost vs proper fix (section 13); one-person patching stays possible for small crews | #3 |
+| 2026-10-22 | Water effects: top speed up to -45%, turning -30%, sits 0.7 m lower, lists up to 6 degrees toward the leaks; full = sunk, never within 60 s of the first failure | Damage changes handling (the signature mechanic); fairness rule | #3 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

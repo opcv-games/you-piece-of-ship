@@ -22,6 +22,7 @@ signal wave_struck(side: float) ## the big wave hits now
 @export var wave_duration := 2.5
 
 var list_roll := 0.0 ## radians of steady heel (positive lowers starboard, +Z), set by load and water
+var list_sources := {} ## system name -> extra heel in radians (water, load), added to list_roll
 var list_pitch := 0.0 ## radians of steady trim (positive lifts the bow)
 var sink := 0.0 ## metres lower in the water
 
@@ -47,8 +48,16 @@ func _physics_process(delta: float) -> void:
 	_advance_wave(delta)
 	var pose := sample(_time)
 	# The bow points along +X, so roll turns around X and pitch around Z.
-	_parent.rotation = Vector3(pose.roll + list_roll + wave_roll(), _parent.rotation.y, pose.pitch + list_pitch)
+	_parent.rotation = Vector3(pose.roll + total_list() + wave_roll(), _parent.rotation.y, pose.pitch + list_pitch)
 	_parent.position.y = _rest_height + pose.heave - sink # x and z belong to ShipHandling
+
+
+## Steady heel from everything: list_roll plus every system's list source.
+func total_list() -> float:
+	var total := list_roll
+	for angle in list_sources.values():
+		total += angle
+	return total
 
 
 ## Returns {roll, pitch} in radians and {heave} in metres at time t (seconds).
