@@ -21,6 +21,7 @@ var shop_buttons := {} ## upgrade id -> Button
 
 var _money: Label
 var _online_status: Label
+var _copy_button: Button
 var _address: LineEdit
 var _details: Label
 var _message: Label
@@ -38,6 +39,7 @@ func _ready() -> void:
 	Net.connected.connect(func(_index): refresh())
 	Net.connection_failed.connect(func(): _message.text = tr("Couldn't reach the host. Check the address."))
 	Net.disconnected.connect(func(): _message.text = tr("The host left."))
+	Net.host_checked.connect(func(_report): refresh())
 	refresh()
 	if not contract_buttons.is_empty():
 		contract_buttons[clampi(Session.unlocked - 1, 0, contract_buttons.size() - 1)].grab_focus()
@@ -133,10 +135,11 @@ func refresh() -> void:
 	if Net.role != "offline":
 		joined = Net.crew() if Net.role == "host" else joined
 	_money.text = tr("Coins: %d") % Session.money
+	if _copy_button:
+		_copy_button.visible = Net.role == "host"
 	match Net.role:
 		"host":
-			_online_status.text = tr("Hosting: %d aboard. Friends join with your address: %s") % [
-					Net.crew().size(), ", ".join(Net.local_addresses())]
+			_online_status.text = tr("Hosting: %d aboard.") % Net.crew().size() + " " + Net.host_message()
 		"client":
 			_online_status.text = tr("Online as P%d (your keyboard W A S D or controller). The host picks the contract.") % Net.my_index
 		_:
@@ -293,6 +296,13 @@ func _build() -> void:
 	join_button.custom_minimum_size = Vector2(80, 36)
 	join_button.pressed.connect(_join)
 	online.add_child(join_button)
+	_copy_button = _button()
+	_copy_button.text = tr("Copy address")
+	_copy_button.custom_minimum_size = Vector2(150, 36)
+	_copy_button.pressed.connect(func():
+		DisplayServer.clipboard_set(Net.join_address())
+		_message.text = tr("Copied: %s") % Net.join_address())
+	online.add_child(_copy_button)
 	var leave_button := _button()
 	leave_button.text = tr("Leave")
 	leave_button.custom_minimum_size = Vector2(80, 36)

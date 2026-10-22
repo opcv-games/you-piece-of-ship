@@ -141,6 +141,13 @@ FR = {
     "A crate broke loose": "Une caisse s'est détachée", "%s threw a crate overboard": "%s a jeté une caisse par-dessus bord",
     "Big wave coming from %s!": "Grosse vague par %s !", "Hit %s at %d%% speed": "Choc contre %s à %d %% de vitesse",
     "%s knocked over": "%s à terre", "Water %d%% up the hold!": "La cale est remplie à %d %% !",
+    "Checking whether friends on the internet can reach you...": "On vérifie si des amis sur Internet peuvent te rejoindre...",
+    "Friends can join you at: %s": "Tes amis peuvent te rejoindre à : %s",
+    "Your internet connection can't host for friends elsewhere (your provider shares one address between customers). Ask your friend to host instead. Same Wi-Fi friends can join at: %s":
+        "Ta connexion ne peut pas héberger pour des amis ailleurs (ton fournisseur partage une même adresse entre clients). Demande plutôt à ton ami d'héberger. Les amis sur le même Wi-Fi rejoignent à : %s",
+    "Your router didn't open the game's door automatically (UPnP is off). Friends elsewhere probably can't join: ask them to host, or open UDP port 7777 on your router. Same Wi-Fi friends can join at: %s":
+        "Ta box n'a pas ouvert la porte du jeu automatiquement (UPnP désactivé). Des amis ailleurs ne pourront sans doute pas rejoindre : demande-leur d'héberger, ou ouvre le port UDP 7777 sur ta box. Les amis sur le même Wi-Fi rejoignent à : %s",
+    "Hosting: %d aboard.": "Tu héberges : %d à bord.", "Copy address": "Copier l'adresse", "Copied: %s": "Copié : %s",
     "starboard": "tribord", "port": "bâbord", "the coast": "la côte", "a rock": "un rocher", "Someone": "Quelqu'un",
 }
 
