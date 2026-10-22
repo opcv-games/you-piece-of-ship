@@ -151,6 +151,7 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Voyages are built from hand-made contracts (rocks, waves, deadline, pay); the Reef Run is the Milestone A route: 1300 m, deadline 5:30, calm first 200 m, peak rocks in the last third | Pacing of section 7; the same data drives Milestone B's four contracts | #9 |
 | 2026-10-22 | Visible cliffs line the channel 45 m either side; hitting them is a crash; the chart shows a PORT arrow with the distance when the port is beyond its range | Keeps the navigator's job about the reef, not about finding the way | #9 |
 | 2026-10-22 | Main scene is now scenes/levels/voyage.tscn; a Session autoload remembers the crew and chosen contract across restarts | Quick restart (< 10 s) and contract choice later | #9 |
+| 2026-10-22 | Hazard director: big waves start at their contract position only while at most one system (hull, engine, rudder, load) is failing and 20 s after the last recovery; a wave still waiting 200 m later is dropped | Fairness rules of section 13 and calm windows of section 7; hand-placed hazards, director only enforces fairness | #8 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

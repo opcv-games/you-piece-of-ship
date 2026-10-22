@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Hazard director  (#8)
+Hypothesis: If a big wave never lands while two systems are already failing or right after a recovery, then players will blame their own choices rather than the game, increasing Thrill of danger (fair near-saves).
+Variable: calm window 20 s; max failing systems 1
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main; survey question 'did you understand why things went wrong?' checks it
+
 ## 2026-10-22 — The Reef Run route  (#9)
 Hypothesis: If one voyage paces calm, complication, calm, overlap and a peak in the last third, then the crew will feel a rising arc and cheer at port, increasing Thrill of danger.
 Variable: route length 1300 m, deadline 5:30

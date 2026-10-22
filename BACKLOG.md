@@ -5,7 +5,6 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[standard]` **Hazard director and fairness rules** (#8)
 - [ ] `[innovation]` **Results screen with event recap, quick restart, crew join** (#10)
 
 ## Next (likely, not committed)
@@ -22,6 +21,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #8 Hazard director and fairness rules: wave timing with calm windows, two-failure cap, all failures warn 5 s, sinking grace (2026-10-22, built, not yet player-tested)
 - #9 One 5-minute route (Reef Run): contract-built rocks, cliffs, port and dock, deadline clock, chart port arrow (2026-10-22, built, not yet player-tested)
 - #7 Load and balance: cargo heel and trim, fraying ropes before waves, loose crates, cargo overboard (2026-10-22, built, not yet player-tested)
 - Two-player tasks: plank patch and cooling pipe (fast with 2 crew, slow alone) — built with #3 and #4

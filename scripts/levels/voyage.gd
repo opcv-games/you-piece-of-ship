@@ -32,6 +32,7 @@ func _ready() -> void:
 	_build_route()
 	$HUD/MapChart.port_x = finish_x
 	$Music.finish_x = finish_x
+	$HazardDirector.setup(contract.waves)
 	_handling.rock_hit.connect(_on_rock_hit)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
