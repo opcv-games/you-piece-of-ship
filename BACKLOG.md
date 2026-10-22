@@ -18,6 +18,7 @@
 - Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Windows build (zip with EN/FR "How to play with Dad" guide) via export_presets.cfg; Mac build waits for the Mac export template (2026-10-22)
 - Internet host check (UPnP, public address, CGNAT detection) with plain EN/FR messages and Copy button (2026-10-22)
 - French version with a language switch (2026-10-22)
 - HD cartoon main menu, interface theme and juice pass, maximized window (2026-10-22)

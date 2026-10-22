@@ -1,7 +1,6 @@
 # Godot 4
 .godot/
 *.translation
-export_presets.cfg
 /android/
 
 # Builds
@@ -17,3 +16,6 @@ export_presets.cfg
 Thumbs.db
 .vscode/
 .idea/
+
+# Packaged games (shared as zips, not stored in git)
+builds/
