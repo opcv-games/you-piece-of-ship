@@ -14,6 +14,8 @@ const AICrew = preload("res://scripts/ai/ai_crew.gd")
 const Toon = preload("res://scripts/systems/toon.gd")
 const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const PauseMenu = preload("res://scripts/ui/pause_menu.gd")
+const Stars = preload("res://scripts/systems/stars.gd")
+const StarRules = preload("res://scripts/systems/star_rules.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 const OBSTACLE_RADIUS := {"wreck": 4.0, "whale": 3.5, "siren": 2.5, "atoll": 12.0, "rock": 3.5}
 
@@ -30,7 +32,8 @@ var _show_help := false
 var net_puppet := false ## online client: the host runs the game, this copy only shows it
 var _next_event := 0
 var _hint_left := 0.0
-var god_mode := false ## developer mode: no flooding, no overheating, no running dry
+var god_mode := false
+var bonus_points := 0 ## fish caught and loot scooped up on the way (added to the score) ## developer mode: no flooding, no overheating, no running dry
 
 @onready var _ship: Node3D = $Ship
 @onready var _handling: Node = $Ship/ShipHandling
@@ -62,6 +65,13 @@ func _ready() -> void:
 	$Ship/WaveMotion.wave_warning.connect(_on_wave_warning)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
+	var rules := StarRules.new()
+	rules.name = "StarRules"
+	var limits := Stars.thresholds(contract, get_tree().get_nodes_in_group("cargo").size())
+	rules.star_1 = limits[0]
+	rules.star_2 = limits[1]
+	rules.star_3 = limits[2]
+	add_child(rules)
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	pause.voyage = self
@@ -479,6 +489,9 @@ func _finish() -> void:
 
 
 func _show_results() -> void:
+	$HUD/Hint.visible = false
+	$HUD/Controls.visible = false
+	_hint_left = 0.0
 	var cargo := $Ship/LoadSystem
 	var water: float = $Ship/HullSystem.water
 	var results := $HUD/Results
@@ -492,9 +505,11 @@ func _show_results() -> void:
 		"crates_loaded": maxi(cargo._loaded_crates, cargo.crates().size()),
 		"water": water,
 		"progress": clampf(_ship.global_position.x / finish_x, 0.0, 1.0),
-		"score": results.score(delivered, cargo.cargo_value(), water, elapsed, contract.deadline),
+		"score": results.score(delivered, cargo.cargo_value(), water, elapsed, contract.deadline, bonus_points),
 	}
-	outcome.earned = Session.record_voyage(Session.contract_index, delivered, outcome.score.total, elapsed)
+	outcome.star_limits = $StarRules.limits()
+	outcome.stars = Stars.count(outcome.score.total, delivered, outcome.star_limits)
+	outcome.earned = Session.record_voyage(Session.contract_index, delivered, outcome.score.total, elapsed, outcome.stars)
 	outcome.records = Session.last_records.duplicate()
 	var key := str(Session.contract_index)
 	outcome.best_score = int(Session.best_scores.get(key, 0))

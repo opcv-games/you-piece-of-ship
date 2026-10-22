@@ -173,6 +173,13 @@ FR = {
     "Ship handling": "Pilotage", "Engine and coal": "Moteur et charbon", "Hull and leaks": "Coque et fuites",
     "Waves": "Vagues", "Rudder": "Gouvernail", "Hazards": "Dangers", "Music": "Musique", "Camera": "Caméra",
     "Game feel": "Sensations", "Crew": "Équipage", "AI crew": "Équipage IA",
+    # Obstacles and stars
+    "Wreck, %d o'clock, %d m!": "Épave, %d heures, %d m !", "Whale, %d o'clock, %d m!": "Baleine, %d heures, %d m !",
+    "Atoll, %d o'clock, %d m!": "Atoll, %d heures, %d m !", "Coast, %d o'clock, %d m!": "Côte, %d heures, %d m !",
+    "Siren, %d o'clock! Don't listen!": "Sirène, %d heures ! N'écoutez pas !",
+    "Spawn: reef rock": "Ajouter : récif", "Spawn: shipwreck": "Ajouter : épave", "Spawn: whale": "Ajouter : baleine",
+    "Spawn: siren": "Ajouter : sirène", "Spawn: atoll": "Ajouter : atoll", "Sea": "Mer", "Stars": "Étoiles",
+    " + fish & loot %d": " + poissons et butin %d", "Next star at %d points": "Prochaine étoile à %d points",
 }
 
 

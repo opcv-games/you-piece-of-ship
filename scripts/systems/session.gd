@@ -14,6 +14,7 @@ var upgrades: Array = [] ## owned upgrade ids
 var unlocked := 1 ## how many contracts are open
 var best_scores := {} ## contract index (as text) -> best score
 var best_times := {} ## contract index (as text) -> fastest delivery in seconds
+var stars := {} ## contract index (as text) -> most stars earned (0..3)
 var last_records := {"score": false, "time": false} ## did the last voyage set a personal best?
 var language := "" ## "en" or "fr"; empty = follow the computer's language
 var music_volume_db := -8.0
@@ -47,7 +48,7 @@ func apply_settings() -> void:
 
 ## Records a finished voyage: earnings, best score, and the next contract unlocks on delivery.
 ## Returns the money earned.
-func record_voyage(index: int, delivered: bool, score: int, seconds := -1.0) -> int:
+func record_voyage(index: int, delivered: bool, score: int, seconds := -1.0, earned_stars := 0) -> int:
 	var earned := score if delivered else 0
 	money += earned
 	var key := str(index)
@@ -58,6 +59,7 @@ func record_voyage(index: int, delivered: bool, score: int, seconds := -1.0) -> 
 	if delivered and seconds >= 0.0 and (not best_times.has(key) or seconds < float(best_times[key])):
 		last_records.time = true
 		best_times[key] = seconds
+	stars[key] = maxi(int(stars.get(key, 0)), earned_stars)
 	if delivered:
 		unlocked = maxi(unlocked, index + 2)
 	save_game()
@@ -114,6 +116,7 @@ func reset_progress() -> void:
 	unlocked = 1
 	best_scores = {}
 	best_times = {}
+	stars = {}
 	save_game()
 
 
@@ -123,7 +126,7 @@ func save_game() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify({"money": money, "upgrades": upgrades, "unlocked": unlocked,
-				"best_scores": best_scores, "best_times": best_times, "ai_crew": ai_crew, "language": language,
+				"best_scores": best_scores, "best_times": best_times, "stars": stars, "ai_crew": ai_crew, "language": language,
 				"music_volume_db": music_volume_db, "fullscreen": fullscreen,
 				"last_join_address": last_join_address}))
 
@@ -138,6 +141,7 @@ func load_game() -> void:
 		unlocked = int(data.get("unlocked", 1))
 		best_scores = data.get("best_scores", {})
 		best_times = data.get("best_times", {})
+		stars = data.get("stars", {})
 		language = data.get("language", "")
 		music_volume_db = float(data.get("music_volume_db", -8.0))
 		fullscreen = bool(data.get("fullscreen", false))

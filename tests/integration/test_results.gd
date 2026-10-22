@@ -106,3 +106,31 @@ func test_given_crew_screen_when_players_join_and_use_then_voyage_starts_with_th
 	await wait_physics_frames(2)
 	assert_eq(Session.joined_players, [2, 4] as Array[int])
 	assert_eq(_level.get_tree().get_nodes_in_group("crew").size(), 2)
+
+
+func test_stars_from_the_score() -> void:
+	var Stars = load("res://scripts/systems/stars.gd")
+	var limits := [1, 500, 800]
+	assert_eq(Stars.count(900, true, limits), 3)
+	assert_eq(Stars.count(600, true, limits), 2)
+	assert_eq(Stars.count(100, true, limits), 1, "delivering is worth a star")
+	assert_eq(Stars.count(2000, false, limits), 0, "sunk: no stars")
+	var reef: Resource = load("res://scripts/contracts/contract_library.gd").reef_run()
+	var auto: Array = Stars.thresholds(reef, 6)
+	assert_eq(auto.size(), 3)
+	assert_lt(auto[1], auto[2])
+	reef.star_scores = [1, 300, 600]
+	assert_eq(Stars.thresholds(reef, 6), [1, 300, 600] as Array[int], "a contract can set its own")
+
+
+func test_results_show_stars_and_save_the_best() -> void:
+	await _load_level()
+	Session.stars.erase(str(Session.contract_index))
+	_level.get_node("StarRules").star_2 = 2
+	_level.get_node("StarRules").star_3 = 999999
+	_level.dev_event("reach_port")
+	await wait_physics_frames(3)
+	var results := _level.get_node("HUD/Results")
+	assert_eq(results.outcome.stars, 2)
+	assert_eq(int(Session.stars[str(Session.contract_index)]), 2)
+	assert_string_contains(results._next_star.text, "999999")
