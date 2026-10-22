@@ -53,7 +53,7 @@ func _on_impact(rock: Node3D, handling: Node) -> void:
 	_last_rock = obstacle
 	_last_rock_at = elapsed
 	var what := "the coast" if not rock.hidden else "a rock"
-	add("Hit %s at %d%% speed" % [what, roundi(handling.impact_speed / handling.max_speed * 100.0)], "bad")
+	add("Hit %s at %d%% speed" % [what, roundi(absf(handling.impact_speed) / handling.max_speed * 100.0)], "bad")
 
 
 func _who(player: Node) -> String:

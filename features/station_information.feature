@@ -27,3 +27,7 @@ Feature: Station-bound information
     Given the ship is sailing toward a submerged rock
     When the hull reaches the rock
     Then the ship stops and the rock is revealed to everyone
+
+  Scenario: Backing off a rock
+    Given the captain pulls the throttle below zero
+    Then the ship goes astern (up to 30 percent) to back away from a rock

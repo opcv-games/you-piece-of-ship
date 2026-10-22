@@ -161,6 +161,8 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | The game now starts at the dock: crew joins with Use, picks an unlocked contract, buys upgrades; results return to the dock with the score added as coins; delivering unlocks the next contract | Macro loop of section 3 (contract, sail, deliver, upgrade) for the ~30-minute slice | #13 |
 | 2026-10-22 | Upgrades: overclocked engine 450 (+20% speed, heats 45% faster), reinforced hull 500 (leaks 40% slower and +3 s warning, but -8% speed and -10% turning), bigger pumps 350 (+80% pumping, pump burns coal), second spares crate 300 (+3 planks +1 pin, one fewer cargo crate) | Every upgrade changes a post's job rather than removing it (section 3); Advancement must not kill the chaos (section 2) | #13 |
 | 2026-10-22 | Coins, upgrades, unlocked contracts and best scores are saved to user://save.json; the crew is chosen fresh each session; automated tests never read or write the save | Progress survives closing the game; tests stay independent of what the player bought | #13 |
+| 2026-10-22 | The throttle goes to -30% (ASTERN) so a crew can back off a rock; going astern turns the other way and still works the engine; collisions bounce opposite to the direction of travel | Simulated voyages showed ships wedged between a rock and the coast with no way out | #11 |
+| 2026-10-22 | The Narrows: rocks near the walls sit against the cliffs, so every gap is either clearly passable (13 m or more) or closed | No ship-sized pockets to wedge in | #11 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

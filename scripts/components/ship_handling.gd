@@ -12,6 +12,7 @@ signal rock_hit(rock: Node3D)
 @export var turn_rate_degrees := 14.0 ## degrees per second at full wheel and full speed
 @export var min_turn_factor := 0.35 ## a slow ship still turns a little, so you can steer off a rock
 @export var throttle_rate := 0.5 ## throttle change per second while holding up or down
+@export_range(0.0, 1.0) var max_reverse := 0.3 ## pull the throttle below zero to back off a rock
 @export var hull_half_length := 9.0
 @export var hull_half_width := 3.5
 @export var impact_pushback := 2.5 ## metres the ship bounces back off a rock
@@ -23,7 +24,7 @@ var speed_limits := {} ## system name -> top speed factor (water, heat...), mult
 var turn_limits := {} ## system name -> turning factor
 var rudder_offset := 0.0 ## a broken rudder pulls the wheel this way (-1..1)
 var impact_speed := 0.0 ## speed just before the last rock hit
-var throttle := 0.0 ## 0..1
+var throttle := 0.0 ## -max_reverse..1 (negative = astern)
 var rudder := 0.0 ## -1 = full starboard (right), +1 = full port (left)
 var speed := 0.0
 
@@ -47,18 +48,24 @@ func _read_helm(delta: float) -> void:
 		rudder = 0.0 # nobody at the wheel: it springs back, but the engine keeps going
 		return
 	rudder = -captain.move_input.x
-	throttle = clampf(throttle - captain.move_input.y * throttle_rate * delta, 0.0, 1.0)
+	throttle = clampf(throttle - captain.move_input.y * throttle_rate * delta, -max_reverse, 1.0)
 
 
 func _update_helm_label() -> void:
 	if helm and not _ship.has_node("RudderSystem"):
-		helm.status_text = "throttle %d%%" % roundi(throttle * 100.0)
+		helm.status_text = throttle_text()
 
 
 ## Direction the bow points, flat on the sea.
 func forward() -> Vector3:
 	var yaw := _ship.rotation.y
 	return Vector3(cos(yaw), 0.0, -sin(yaw))
+
+
+func throttle_text() -> String:
+	if throttle < -0.01:
+		return "ASTERN %d%%" % roundi(-throttle * 100.0)
+	return "throttle %d%%" % roundi(throttle * 100.0)
 
 
 ## Top speed right now, after damage (water, heat...).
@@ -78,8 +85,9 @@ func turn_factor() -> float:
 
 func step(delta: float) -> void:
 	speed = move_toward(speed, throttle * top_speed(), acceleration * delta)
-	if speed > 0.05:
-		var turn_factor_now := maxf(speed / max_speed, min_turn_factor) * turn_factor()
+	if absf(speed) > 0.05:
+		# Turning needs water flowing past the rudder; going astern turns the other way.
+		var turn_factor_now := signf(speed) * maxf(absf(speed) / max_speed, min_turn_factor) * turn_factor()
 		var wheel := clampf(rudder + rudder_offset, -1.0, 1.0)
 		_ship.rotation.y += deg_to_rad(turn_rate_degrees) * wheel * turn_factor_now * delta
 	_ship.position += forward() * speed * delta
@@ -111,7 +119,8 @@ func _hit(rock: Node3D) -> void:
 	var right := Vector3(-fwd.z, 0.0, fwd.x) # starboard
 	var across := (rock.global_position - _ship.global_position).dot(right)
 	var away := -1.0 if across >= 0.0 else 1.0 # +1 = toward starboard
-	_ship.position += -fwd * impact_pushback + right * away * impact_sidestep
+	var backwards := -1.0 if impact_speed >= 0.0 else 1.0 # bounce opposite to the way we were going
+	_ship.position += fwd * backwards * impact_pushback + right * away * impact_sidestep
 	_ship.rotation.y -= deg_to_rad(deflect_degrees) * away # positive yaw turns the bow to port
 	_cooldown = impact_cooldown
 	rock.reveal()
