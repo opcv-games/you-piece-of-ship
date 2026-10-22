@@ -1,0 +1,20 @@
+name: Bug
+description: Something behaves differently from its spec
+labels: [bug]
+body:
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected (Given / When / Then, ideally from features/)
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce

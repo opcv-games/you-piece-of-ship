@@ -1,0 +1,26 @@
+name: Design hypothesis
+description: One-variable experiment for the practical development cycle
+labels: [hypothesis]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      placeholder: If we <change one variable>, then <player behavior>, increasing <form of fun>.
+    validations:
+      required: true
+  - type: input
+    id: variable
+    attributes:
+      label: Variable (old → new)
+    validations:
+      required: true
+  - type: textarea
+    id: observe
+    attributes:
+      label: What to watch for during playtests
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Decision
+      options: [pending, kept, reverted]

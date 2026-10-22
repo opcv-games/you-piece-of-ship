@@ -1,0 +1,34 @@
+name: Mechanic story
+description: A backlog item for a mechanic (innovation or genre standard)
+labels: []
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feature type
+      options: [innovation, standard, tech]
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      placeholder: As a player, I want ___ so that ___.
+    validations:
+      required: true
+  - type: input
+    id: fun
+    attributes:
+      label: Form of fun served (from DESIGN.md)
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria (Given / When / Then)
+      placeholder: |
+        Given ___
+        When ___
+        Then ___
+    validations:
+      required: true
