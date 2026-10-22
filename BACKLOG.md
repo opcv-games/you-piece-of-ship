@@ -5,7 +5,6 @@
 > Milestones: **Ugly Prototype** (Milestone A, DESIGN.md §9) then **Vertical Slice** (Milestone B)
 
 ## Now (committed, top = highest priority) — Milestone A
-- [ ] `[innovation]` **Results screen with event recap, quick restart, crew join** (#10)
 
 ## Next (likely, not committed)
 
@@ -21,6 +20,7 @@
 - Secret objectives, ship combat, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- #10 Results screen with event recap, quick restart, crew join, 3-player auto pump (2026-10-22, built, not yet player-tested)
 - #8 Hazard director and fairness rules: wave timing with calm windows, two-failure cap, all failures warn 5 s, sinking grace (2026-10-22, built, not yet player-tested)
 - #9 One 5-minute route (Reef Run): contract-built rocks, cliffs, port and dock, deadline clock, chart port arrow (2026-10-22, built, not yet player-tested)
 - #7 Load and balance: cargo heel and trim, fraying ropes before waves, loose crates, cargo overboard (2026-10-22, built, not yet player-tested)
@@ -37,3 +37,4 @@
 ## Questions for Olivier
 - Plank patch: design says two players; I let one player patch slowly (12 s instead of 4 s) so small crews and solo tests aren't stuck. Keep, or make it strictly two players?
 - Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?
+- The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?

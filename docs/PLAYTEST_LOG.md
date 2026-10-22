@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Results and recap  (#10)
+Hypothesis: If the results screen replays the chain of accidents with timestamps, then players will laugh about who caused what and immediately press R, increasing Comedy and replay desire.
+Variable: recap length 12 lines
+Sessions: 0 — built overnight, not yet player-tested. A simulated crew (autopilot navigator, venting engineer, pumper) completed the Reef Run in 4:53 with no rock hits.
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main
+
 ## 2026-10-22 — Hazard director  (#8)
 Hypothesis: If a big wave never lands while two systems are already failing or right after a recovery, then players will blame their own choices rather than the game, increasing Thrill of danger (fair near-saves).
 Variable: calm window 20 s; max failing systems 1

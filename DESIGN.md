@@ -152,6 +152,10 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Visible cliffs line the channel 45 m either side; hitting them is a crash; the chart shows a PORT arrow with the distance when the port is beyond its range | Keeps the navigator's job about the reef, not about finding the way | #9 |
 | 2026-10-22 | Main scene is now scenes/levels/voyage.tscn; a Session autoload remembers the crew and chosen contract across restarts | Quick restart (< 10 s) and contract choice later | #9 |
 | 2026-10-22 | Hazard director: big waves start at their contract position only while at most one system (hull, engine, rudder, load) is failing and 20 s after the last recovery; a wave still waiting 200 m later is dropped | Fairness rules of section 13 and calm windows of section 7; hand-placed hazards, director only enforces fairness | #8 |
+| 2026-10-22 | Results: DELIVERED/SUNK, time vs deadline, cargo, hull, score = cargo value + up to 200 for a dry hull + 2 per second early (sunk = 0), and a 'what happened' timeline from the voyage log | Survey: 'did you understand why things went wrong?'; the recap is the comedy replay (section 6) | #10 |
+| 2026-10-22 | Crew screen on first launch: press Jump to join, Use to set sail; R restarts with the same crew in seconds; J changes crew; 3 or fewer players get a slow automatic pump (30% of the pump) | Quick restart under 10 s; 3-player rule of section 12 | #10 |
+| 2026-10-22 | Rocks deflect the ship (back off, sidestep, bow turns 10 degrees away); scraping along the coast or re-bumping a rock within 8 s is one accident | A simulated full voyage showed straight-ahead crashes trapping the ship against a rock until it sank | #10 |
+| 2026-10-22 | Reef Run deadline stays 5:30: a simulated crew at 80% throttle venting at 90% heat arrives in about 4:53; full throttle stalls repeatedly | Simulation calibration; real crews will be slower, check in the first playtest | #10 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

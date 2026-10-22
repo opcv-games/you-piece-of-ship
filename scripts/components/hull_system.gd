@@ -4,6 +4,7 @@ extends Node
 ## slower, harder to turn, lower in the sea and listing toward the leaks. A full ship sinks,
 ## but never within 60 s of the first failure (fairness rule).
 
+signal breach_cracked(breach: Node3D)
 signal breach_opened(breach: Node3D)
 signal breach_sealed(breach: Node3D)
 signal breach_plugged(breach: Node3D)
@@ -31,7 +32,7 @@ var _waves: Node
 var _pump: Node3D
 var _breaches: Array[Node3D] = []
 var _deck_water: MeshInstance3D
-var _last_rock: Node3D
+var _last_rock := "" ## id of the rock last hit, or "coast" for any cliff
 var _last_rock_at := -INF
 
 
@@ -76,6 +77,7 @@ func add_breach(near_local: Vector3) -> Node3D:
 	if best and best.crack():
 		if first_failure_at < 0.0:
 			first_failure_at = elapsed
+		breach_cracked.emit(best)
 		return best
 	return null
 
@@ -83,10 +85,11 @@ func add_breach(near_local: Vector3) -> Node3D:
 func _on_rock_hit(rock: Node3D) -> void:
 	if not cracks_from_rocks:
 		return
-	# Bouncing off the same rock again right away is one accident, not a new one.
-	if rock == _last_rock and elapsed - _last_rock_at < same_rock_grace:
+	# Bouncing off the same rock (or scraping along the coast) right away is one accident.
+	var obstacle := str(rock.get_instance_id()) if rock.hidden else "coast"
+	if obstacle == _last_rock and elapsed - _last_rock_at < same_rock_grace:
 		return
-	_last_rock = rock
+	_last_rock = obstacle
 	_last_rock_at = elapsed
 	# One impact starts at most one new failure: a hard hit takes the rudder if it is intact.
 	var rudder := _ship.get_node_or_null("RudderSystem")

@@ -157,3 +157,14 @@ func test_given_same_rock_bumped_twice_quickly_then_only_one_leak() -> void:
 	await wait_seconds(2.0)
 	_handling.rock_hit.emit(rock)
 	assert_eq(_hull.open_breach_count(), 1)
+
+
+func test_given_ship_scrapes_along_coast_then_one_leak_not_many() -> void:
+	for i in 3:
+		var cliff: Node3D = RockScene.instantiate()
+		cliff.hidden = false
+		_level.add_child(cliff)
+		cliff.global_position = _ship.to_global(Vector3(10 + i * 11, 0, 8))
+		_handling.rock_hit.emit(cliff)
+		await wait_seconds(1.0)
+	assert_eq(_hull.open_breach_count(), 1)

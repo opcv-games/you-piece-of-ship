@@ -53,7 +53,7 @@ func test_given_slow_hit_then_hull_cracks_and_rudder_fine() -> void:
 
 func test_given_rudder_already_damaged_when_hard_hit_then_hull_cracks() -> void:
 	_hit(0.9)
-	_hull._last_rock = null
+	_hull._last_rock = ""
 	_hit(0.9)
 	assert_eq(_hull.open_breach_count(), 1)
 
