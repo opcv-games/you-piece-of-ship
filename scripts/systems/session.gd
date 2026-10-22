@@ -13,6 +13,8 @@ var money := 0
 var upgrades: Array = [] ## owned upgrade ids
 var unlocked := 1 ## how many contracts are open
 var best_scores := {} ## contract index (as text) -> best score
+var best_times := {} ## contract index (as text) -> fastest delivery in seconds
+var last_records := {"score": false, "time": false} ## did the last voyage set a personal best?
 var persist := true ## false while running automated tests: never touch the player's save
 
 
@@ -25,11 +27,17 @@ func _ready() -> void:
 
 ## Records a finished voyage: earnings, best score, and the next contract unlocks on delivery.
 ## Returns the money earned.
-func record_voyage(index: int, delivered: bool, score: int) -> int:
+func record_voyage(index: int, delivered: bool, score: int, seconds := -1.0) -> int:
 	var earned := score if delivered else 0
 	money += earned
 	var key := str(index)
+	last_records = {"score": false, "time": false}
+	if delivered and score > int(best_scores.get(key, 0)):
+		last_records.score = true
 	best_scores[key] = maxi(int(best_scores.get(key, 0)), score)
+	if delivered and seconds >= 0.0 and (not best_times.has(key) or seconds < float(best_times[key])):
+		last_records.time = true
+		best_times[key] = seconds
 	if delivered:
 		unlocked = maxi(unlocked, index + 2)
 	save_game()
@@ -55,7 +63,8 @@ func enable_ai(index: int) -> void:
 	for other in ai_crew.values():
 		used.append(other.primary)
 	var primary := "carpenter"
-	for job in ["navigator", "engine", "helm", "carpenter", "pump", "cargo"]:
+	# Four crew: one at the map, one at the furnace, one fixing things; the helm for whoever is left.
+	for job in ["navigator", "engine", "carpenter", "helm", "pump", "cargo"]:
 		if not used.has(job):
 			primary = job
 			break
@@ -76,6 +85,7 @@ func reset_progress() -> void:
 	upgrades = []
 	unlocked = 1
 	best_scores = {}
+	best_times = {}
 	save_game()
 
 
@@ -85,7 +95,7 @@ func save_game() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify({"money": money, "upgrades": upgrades, "unlocked": unlocked,
-				"best_scores": best_scores, "ai_crew": ai_crew}))
+				"best_scores": best_scores, "best_times": best_times, "ai_crew": ai_crew}))
 
 
 func load_game() -> void:
@@ -97,6 +107,7 @@ func load_game() -> void:
 		upgrades = data.get("upgrades", [])
 		unlocked = int(data.get("unlocked", 1))
 		best_scores = data.get("best_scores", {})
+		best_times = data.get("best_times", {})
 		ai_crew = {}
 		var saved_ai = data.get("ai_crew", {})
 		if saved_ai is Dictionary:

@@ -49,6 +49,8 @@ func test_given_port_reached_then_results_show_delivery() -> void:
 	assert_true(results.outcome.delivered)
 	assert_eq(results.outcome.crates, 6)
 	assert_eq(results.outcome.score.total, 600 + 200 + 60)
+	assert_true(results.outcome.has("records"), "personal bests checked")
+	assert_true(results.outcome.has("best_time_text"))
 
 
 func test_given_sunk_then_results_say_sunk_score_zero() -> void:

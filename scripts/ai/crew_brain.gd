@@ -38,7 +38,7 @@ func need(job: String) -> int:
 			var engine := ship.get_node("EngineSystem")
 			if engine.is_warning() or engine.fuel < 0.15:
 				return 3
-			return 2 if engine.fuel < 0.5 or engine.heat > 0.8 else 1
+			return 2 if engine.fuel < 0.5 or engine.heat > 0.8 else 1 # coal always needs carrying
 		"pump":
 			var water: float = ship.get_node("HullSystem").water
 			return 3 if water > 0.5 else (2 if water > 0.2 else (1 if water > 0.02 else 0))
@@ -96,43 +96,72 @@ func _physics_process(delta: float) -> void:
 	think()
 
 
-## Hands out jobs: humans first (by being there), then each AI in player order.
+## Hands out jobs: humans first (by being there). Then the most needed jobs are filled first, each
+## by the best-suited free AI: one whose primary job it is, then one whose backup it is, then the
+## AI whose own job matters least right now. AIs left over keep their primary job (and find
+## useful idle work there, see ai_crew.gd). Nobody stands around.
 func think() -> void:
-	var taken := {}
-	var ais := []
+	var free := []
 	for player in get_tree().get_nodes_in_group("crew"):
 		if player.has_node("AICrew"):
-			ais.append(player)
-	ais.sort_custom(func(a, b): return a.player_index < b.player_index)
+			free.append(player)
+	free.sort_custom(func(a, b): return a.player_index < b.player_index)
 	assignments.clear()
-	for player in ais:
-		var ai: Node = player.get_node("AICrew")
-		# Finish an errand: someone carrying a plank or a pin keeps carpentering while it's needed.
+	# Finish an errand: someone carrying a plank or a pin keeps carpentering while it's needed.
+	for player in free.duplicate():
 		if player.carried and player.carried.kind in ["plank", "pin"] and need("carpenter") > 0:
 			assignments[player] = "carpenter"
-			continue
-		var job := ""
-		var best := 0
-		for wanted in [ai.primary, ai.secondary]: # ties go to the primary
-			if wanted == "" or (_exclusive(wanted) and taken.has(wanted)):
-				continue
-			var level := need(wanted)
-			if level > best:
-				job = wanted
-				best = level
-		# Something critical nobody covers beats anything less than critical.
-		for level in [3, 2]:
-			if best >= level:
+			free.erase(player)
+	var wanted := []
+	for job in ["helm", "engine", "navigator", "carpenter", "pump", "cargo"]:
+		var level := need(job)
+		if level > 0:
+			wanted.append([job, level])
+	wanted.sort_custom(func(a, b): return a[1] > b[1]) # stable: ties keep the order above
+	for entry in wanted:
+		var job: String = entry[0]
+		var slots := 1
+		if job == "carpenter":
+			slots = clampi(carpenter_tasks().size(), 1, 2) - _count(job)
+		elif _count(job) > 0:
+			slots = 0
+		for i in slots:
+			var pick := _best_for(job, entry[1], free)
+			if pick == null:
 				break
-			for fallback in ["helm", "pump", "carpenter", "engine", "navigator", "cargo"]:
-				if need(fallback) == level and not (_exclusive(fallback) and taken.has(fallback)):
-					job = fallback
-					best = level
-					break
-		if job == "":
-			job = ai.primary # nothing urgent: stay near your post
-		taken[job] = true
-		assignments[player] = job
+			assignments[pick] = job
+			free.erase(pick)
+	for player in free:
+		assignments[player] = player.get_node("AICrew").primary
+
+
+func _count(job: String) -> int:
+	var count := 0
+	for player in assignments:
+		if assignments[player] == job:
+			count += 1
+	return count
+
+
+func _best_for(job: String, level: int, free: Array) -> Node3D:
+	var best: Node3D = null
+	var best_score := -INF
+	for player in free:
+		var ai: Node = player.get_node("AICrew")
+		var own := need(ai.primary)
+		var score := 0.0
+		if ai.primary == job:
+			score = 100.0
+		elif ai.secondary == job:
+			score = 50.0 - own * 10.0
+		else:
+			if own >= level:
+				continue # its own job matters at least as much: don't pull it away
+			score = 10.0 - own * 10.0
+		if score > best_score:
+			best = player
+			best_score = score
+	return best
 
 
 func job_of(player: Node3D) -> String:
@@ -154,7 +183,8 @@ func carpenter_tasks() -> Array:
 	var pipe := ship.get_node("CoolingPipe")
 	if pipe.broken and pipe.occupants.size() < 2:
 		tasks.append(["pipe", pipe])
-	if ship.get_node("RudderSystem").is_damaged() and (ship.get_node("PinBox").stock > 0 or _loose("pin") != null):
+	if ship.get_node("RudderSystem").is_damaged() and (ship.get_node("PinBox").stock > 0 or _loose("pin") != null \
+			or _carried("pin")):
 		tasks.append(["rudder", ship.get_node("Helm")])
 	return tasks
 
@@ -183,6 +213,14 @@ func _loose(kind: String) -> Node3D:
 		if item.kind == kind and item.carrier == null and not item.lashed and ship.is_ancestor_of(item):
 			return item
 	return null
+
+
+## Whether a crew member is carrying an item of this kind (a pin on its way to the helm).
+func _carried(kind: String) -> bool:
+	for player in get_tree().get_nodes_in_group("crew"):
+		if player.carried and player.carried.kind == kind:
+			return true
+	return false
 
 
 func loose_item(kind: String) -> Node3D:

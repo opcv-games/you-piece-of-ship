@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/components/load_system.gd" id="14_load"]
 [ext_resource type="Script" path="res://scripts/components/overboard_rail.gd" id="15_rail"]
 [ext_resource type="Script" path="res://scripts/components/telescope_station.gd" id="16_telescope"]
+[ext_resource type="Script" path="res://scripts/components/coal_pile.gd" id="17_coal"]
 
 [sub_resource type="StandardMaterial3D" id="mat_hull"]
 albedo_color = Color(0.42, 0.31, 0.23, 1)
@@ -450,10 +451,6 @@ font_size = 56
 outline_size = 12
 text = "ENGINE"
 
-[node name="CoalPile" type="MeshInstance3D" parent="Engine"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.15, 0.85)
-mesh = SubResource("mesh_coal")
-
 [node name="EngineBody" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0.6, 2.95)
 shape = SubResource("shape_engine")
@@ -522,3 +519,7 @@ no_depth_test = true
 font_size = 56
 outline_size = 12
 text = "TELESCOPE"
+
+[node name="CoalPile" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.1, 0, 2.6)
+script = ExtResource("17_coal")

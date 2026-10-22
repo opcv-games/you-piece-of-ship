@@ -2,6 +2,10 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Second solo session feedback (Olivier)
+Observed: "Great!". AIs sometimes stand around doing nothing. Wants the engineer to have real work (coal pile, shovel, spills, wet coal), a sail for minimum speed, personal bests, adaptive music, HD cartoon UI and main menu, a French version, and online play with his dad abroad.
+Decision: gameplay changes built first (coal, sail, AI, bests). Simulated crews (1 idle human + 3 AIs): Maiden Voyage 4:46, Reef Run 5:24 (deadline 5:30), Fog Bank 5:43; The Narrows still beats them.
+
 ## 2026-10-22 — AI crewmates
 Hypothesis: If empty slots can be AI crewmates with a job and a backup job, then a solo player can finish voyages and still feel part of a crew (the navigator shouts callouts), increasing Social interaction even with fewer humans.
 Variable: AI on/off per slot

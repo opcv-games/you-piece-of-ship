@@ -28,3 +28,9 @@ Feature: Results screen with event recap, quick restart, crew join  (#10)
     Given the crew screen
     When players press Jump to join and one presses Use
     Then the voyage starts with exactly those players
+
+  Scenario: Personal bests
+    Given a delivered contract
+    Then the best score and best time for that contract are saved
+    And the results say "NEW BEST!" when one is beaten
+    And the dock shows them on the contract

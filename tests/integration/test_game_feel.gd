@@ -70,7 +70,8 @@ func test_given_effects_off_when_rock_hit_then_nothing_happens() -> void:
 
 func test_given_ship_stopped_then_no_wake_and_moving_then_wake() -> void:
 	var wake: CPUParticles3D = _ship.get_node("BowWake")
-	await wait_physics_frames(2)
+	_ship.get_node("ShipHandling").sail_speed = 0.0 # no sail: really stopped
+	await wait_seconds(3.0)
 	assert_false(wake.emitting, "no foam when stopped")
 	_ship.get_node("ShipHandling").speed = _ship.get_node("ShipHandling").max_speed
 	await wait_physics_frames(2)

@@ -18,6 +18,7 @@
 - Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Coal pile and shovel, spills and coal marks, wet coal, sail minimum speed, smarter AI with no idling, personal bests (2026-10-22, built, not yet player-tested)
 - Pixel-art pass with Olivier's sprite sheet and ship tile set (2026-10-22; asset source and licence to confirm)
 - AI crewmates with jobs and backup jobs, set at the dock; navigator callouts; humans take priority (2026-10-22, built, not yet player-tested)
 - #14 Online multiplayer, host-authoritative, lobby on the dock (2026-10-22, built and checked on one Mac over localhost; not yet tested between two computers)

@@ -154,8 +154,12 @@ func refresh() -> void:
 		var button := contract_buttons[i]
 		if i < Session.unlocked:
 			var best: int = int(Session.best_scores.get(str(i), 0))
+			var fastest: String = _clock(float(Session.best_times[str(i)])) if Session.best_times.has(str(i)) else ""
+			var record := ""
+			if best > 0:
+				record = "   best %d%s" % [best, " in " + fastest if fastest != "" else ""]
 			button.text = "%d. %s   %s   %d coins/crate   %s%s" % [i + 1, c.title, "*".repeat(c.difficulty),
-					c.pay_per_crate, _clock(c.deadline), "   best %d" % best if best > 0 else ""]
+					c.pay_per_crate, _clock(c.deadline), record]
 		else:
 			button.text = "%d. LOCKED (deliver the previous contract)" % (i + 1)
 	for id in Upgrades.ORDER:

@@ -13,6 +13,7 @@ signal rock_hit(rock: Node3D)
 @export var min_turn_factor := 0.35 ## a slow ship still turns a little, so you can steer off a rock
 @export var throttle_rate := 0.5 ## throttle change per second while holding up or down
 @export_range(0.0, 1.0) var max_reverse := 0.3 ## pull the throttle below zero to back off a rock
+@export var sail_speed := 0.0 ## the sail always pushes this fast (m/s), engine or not; set when the voyage starts
 @export var hull_half_length := 9.0
 @export var hull_half_width := 3.5
 @export var impact_pushback := 2.5 ## metres the ship bounces back off a rock
@@ -84,7 +85,10 @@ func turn_factor() -> float:
 
 
 func step(delta: float) -> void:
-	speed = move_toward(speed, throttle * top_speed(), acceleration * delta)
+	var wanted := throttle * top_speed()
+	if throttle >= 0.0:
+		wanted = maxf(wanted, sail_speed) # the sail: never dead in the water
+	speed = move_toward(speed, wanted, acceleration * delta)
 	if absf(speed) > 0.05:
 		# Turning needs water flowing past the rudder; going astern turns the other way.
 		var turn_factor_now := signf(speed) * maxf(absf(speed) / max_speed, min_turn_factor) * turn_factor()

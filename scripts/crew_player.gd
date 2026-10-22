@@ -134,6 +134,15 @@ func _interact() -> void:
 		carried.drop()
 
 
+## Uses one particular thing (an AI crewmate knows what it wants; humans use whatever is nearest).
+## Returns false if that thing can't be used from here right now.
+func interact_with(target: Node) -> bool:
+	if knocked > 0.0 or target == null or not is_instance_valid(target) or not target.can_interact(self):
+		return false
+	target.interact(self)
+	return true
+
+
 ## Knocks this player over, dropping what they carry. push is a ship-local x/z direction.
 ## Players operating a station are holding on (braced) and stay up. Returns true if knocked.
 func knock_down(push := Vector2.ZERO) -> bool:

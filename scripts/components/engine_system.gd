@@ -24,9 +24,11 @@ signal fuel_low
 @export var water_heat_factor := 0.8 ## a full ship makes the engine heat this much faster
 @export var burst_pipe_factor := 1.6 ## heat builds this much faster with a burst pipe
 @export_group("Fuel")
-## The coal pile beside the engine never runs out: keeping the firebox full just takes someone's time.
+## The coal pile a few steps away never runs out: keeping the firebox full takes someone's time.
 @export var fuel_burn := 1.0 / 150.0 ## firebox used per second at full throttle (a full one lasts 2.5 min)
-@export var shovel_rate := 1.0 / 5.0 ## firebox refilled per second while shovelling (empty to full in 5 s)
+@export var shovel_load := 0.15 ## firebox filled by one full shovel of dry coal
+@export_range(0.0, 1.0) var wet_coal_penalty := 0.35 ## top speed lost with a firebox of soaked coal
+@export_range(0.0, 1.0) var wet_coal_burn := 0.4 ## a shovel of soaked coal gives this much less heat
 @export var low_fuel := 0.25 ## below this, "COAL LOW!" shows over the engine for everyone
 @export_range(0.0, 1.0) var min_fuel := 0.0 ## the firebox never drops below this (the Maiden Voyage uses 0.3)
 @export_range(0.0, 1.0) var no_fuel_speed := 0.15
@@ -38,6 +40,7 @@ signal fuel_low
 
 var heat := 0.0
 var fuel := 1.0
+var coal_wetness := 0.0 ## how soaked the coal in the firebox is (0..1)
 var stall_left := 0.0
 var warning_left := 0.0
 var vent_ready_in := 0.0
@@ -57,6 +60,8 @@ func _ready() -> void:
 	_station = _ship.get_node("Engine")
 	_pipe = _ship.get_node("CoolingPipe")
 	_station.vent_requested.connect(vent)
+	_station.coal_fed.connect(feed)
+	_handling.impact.connect(_spill_shovels)
 	_pipe.repaired.connect(func(): pipe_fixed.emit())
 	_steam = _station.get_node_or_null("Steam")
 
@@ -74,7 +79,6 @@ func is_pipe_burst() -> bool:
 
 
 func _physics_process(delta: float) -> void:
-	_shovel(delta)
 	_burn_pump_coal(delta)
 	step(delta)
 
@@ -85,10 +89,20 @@ func _burn_pump_coal(delta: float) -> void:
 		fuel = maxf(0.0, fuel - pump_coal_burn * delta)
 
 
-func _shovel(delta: float) -> void:
-	var engineer: Node3D = _station.occupant
-	if engineer and engineer.move_input.y < -0.5:
-		fuel = minf(1.0, fuel + shovel_rate * delta)
+## A shovel of coal goes into the firebox. Wet coal gives less and makes the whole fire worse.
+func feed(coal: Node3D) -> void:
+	var added: float = shovel_load * coal.amount * (1.0 - wet_coal_burn * coal.wetness)
+	var total := fuel + added
+	if total > 0.0:
+		coal_wetness = (coal_wetness * fuel + coal.wetness * added) / total
+	fuel = minf(1.0, total)
+
+
+## A hit while someone carries coal spills half the shovel onto the deck.
+func _spill_shovels(_rock: Node3D) -> void:
+	for player in get_tree().get_nodes_in_group("crew"):
+		if player.carried and player.carried.kind == "coal":
+			player.carried.spill(0.5)
 
 
 func step(delta: float) -> void:
@@ -146,6 +160,7 @@ func _apply_effects() -> void:
 		factor = no_fuel_speed
 	elif heat > heat_cap_threshold:
 		factor = heat_cap_speed
+	factor *= 1.0 - wet_coal_penalty * coal_wetness
 	_handling.speed_limits["engine"] = factor
 	if _steam:
 		_steam.emitting = heat > heat_cap_threshold or is_stalled()
@@ -157,9 +172,11 @@ func _apply_effects() -> void:
 	elif heat > heat_cap_threshold:
 		_station.status_text = "HOT"
 	elif fuel <= 0.0:
-		_station.status_text = "NO COAL! Use, then hold UP"
+		_station.status_text = tr("NO COAL! Shovel from the pile")
 	elif fuel < low_fuel:
-		_station.status_text = "COAL LOW! Use, then hold UP"
+		_station.status_text = tr("COAL LOW! Shovel from the pile")
+	elif coal_wetness > 0.2:
+		_station.status_text = tr("WET COAL")
 	else:
 		_station.status_text = ""
 

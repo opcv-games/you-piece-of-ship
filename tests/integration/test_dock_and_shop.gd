@@ -10,12 +10,13 @@ var _saved := {}
 
 func before_each() -> void:
 	_saved = {"money": Session.money, "upgrades": Session.upgrades.duplicate(), "unlocked": Session.unlocked,
-			"best": Session.best_scores.duplicate(), "persist": Session.persist}
+			"best": Session.best_scores.duplicate(), "times": Session.best_times.duplicate(), "persist": Session.persist}
 	Session.persist = false
 	Session.money = 0
 	Session.upgrades = []
 	Session.unlocked = 1
 	Session.best_scores = {}
+	Session.best_times = {}
 
 
 func after_each() -> void:
@@ -23,6 +24,7 @@ func after_each() -> void:
 	Session.upgrades = _saved.upgrades
 	Session.unlocked = _saved.unlocked
 	Session.best_scores = _saved.best
+	Session.best_times = _saved.times
 	Session.persist = _saved.persist
 	Session.joined_players.clear()
 	Session.contract_index = 0
@@ -137,3 +139,16 @@ func test_dock_ai_slots_toggle_and_cycle_jobs() -> void:
 	dock.toggle_ai(2)
 	assert_false(Session.ai_crew.has(2), "AI off again")
 	Session.ai_crew = {}
+
+
+func test_personal_bests_per_contract_with_new_best_flags() -> void:
+	Session.record_voyage(1, true, 700, 300.0)
+	assert_true(Session.last_records.score)
+	assert_true(Session.last_records.time)
+	Session.record_voyage(1, true, 650, 280.0)
+	assert_false(Session.last_records.score, "650 < 700")
+	assert_true(Session.last_records.time, "faster")
+	assert_eq(int(Session.best_scores["1"]), 700)
+	assert_almost_eq(float(Session.best_times["1"]), 280.0, 0.01)
+	Session.record_voyage(1, false, 0, 100.0)
+	assert_almost_eq(float(Session.best_times["1"]), 280.0, 0.01, "sinking never sets a best time")

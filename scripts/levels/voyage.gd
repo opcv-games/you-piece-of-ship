@@ -50,8 +50,8 @@ func _ready() -> void:
 		$Ship/HullSystem.sink_grace_seconds = INF # the Maiden voyage can't be lost
 		$Ship/EngineSystem.min_fuel = 0.3 # ...and never runs dry
 	var engine := $Ship/EngineSystem
-	engine.fuel_low.connect(func(): show_hint("Coal low! Someone at the ENGINE (back, right): press Use, then hold UP to shovel."))
-	engine.out_of_fuel.connect(func(): show_hint("Out of coal: the ship is crawling. ENGINE: press Use, then hold UP to shovel."))
+	engine.fuel_low.connect(func(): show_hint(tr("Coal low! Fill a shovel at the COAL pile (back corner) and press Use at the ENGINE.")))
+	engine.out_of_fuel.connect(func(): show_hint(tr("Out of coal: only the sail is pushing. Shovel coal from the pile into the ENGINE!")))
 	_handling.rock_hit.connect(_on_rock_hit)
 	$Ship/HullSystem.ship_sunk.connect(_on_sunk)
 	_banner.visible = false
@@ -69,6 +69,7 @@ func _ready() -> void:
 
 func _start() -> void:
 	started = true
+	_handling.sail_speed = 1.2 # the sail keeps the ship moving even if the engine dies
 	$HUD/CrewJoin.visible = false
 
 
@@ -307,7 +308,11 @@ func _show_results() -> void:
 		"progress": clampf(_ship.global_position.x / finish_x, 0.0, 1.0),
 		"score": results.score(delivered, cargo.cargo_value(), water, elapsed, contract.deadline),
 	}
-	outcome.earned = Session.record_voyage(Session.contract_index, delivered, outcome.score.total)
+	outcome.earned = Session.record_voyage(Session.contract_index, delivered, outcome.score.total, elapsed)
+	outcome.records = Session.last_records.duplicate()
+	var key := str(Session.contract_index)
+	outcome.best_score = int(Session.best_scores.get(key, 0))
+	outcome.best_time_text = _clock(float(Session.best_times[key])) if Session.best_times.has(key) else "-"
 	results.show_results(outcome, $VoyageLog.recap())
 
 

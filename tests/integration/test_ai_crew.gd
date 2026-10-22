@@ -50,29 +50,50 @@ func test_given_human_at_helm_then_ai_with_helm_primary_does_its_secondary() -> 
 	assert_eq(_ship.get_node("Helm").occupant, _crew[1], "the human keeps the helm")
 
 
-func test_given_ai_at_engine_when_human_takes_it_then_ai_steps_aside() -> void:
-	await _human_at_helm()
-	_ai(4, "engine")
-	await wait_seconds(4.0)
-	assert_eq(_ship.get_node("Engine").occupant, _crew[4], "AI went to the engine")
-	await _place(_crew[2], _ship.get_node("Engine").position + Vector3(0.6, 0, -0.4))
-	_crew[2].use_requested = true
+func test_given_ai_at_helm_when_human_takes_it_then_ai_steps_aside() -> void:
+	_ai(2, "helm")
+	await wait_seconds(6.0)
+	assert_eq(_ship.get_node("Helm").occupant, _crew[2], "AI went to the helm")
+	await _place(_crew[1], _ship.get_node("Helm").position + Vector3(0.3, 0, 0.9))
+	_crew[1].use_requested = true
 	await wait_physics_frames(3)
-	assert_eq(_ship.get_node("Engine").occupant, _crew[2], "the human takes over")
-	assert_null(_crew[4].station, "the AI let go")
+	assert_eq(_ship.get_node("Helm").occupant, _crew[1], "the human takes over")
+	assert_null(_crew[2].station, "the AI let go")
 
 
-func test_given_ai_engineer_then_shovels_low_coal_and_vents_hot_engine() -> void:
+func test_given_ai_engineer_then_carries_coal_and_vents_hot_engine() -> void:
 	await _human_at_helm()
 	_ai(4, "engine")
-	await wait_seconds(4.0)
 	var engine := _ship.get_node("EngineSystem")
 	engine.fuel = 0.3
-	await wait_seconds(1.5)
-	assert_gt(engine.fuel, 0.4, "shovelling")
+	await wait_seconds(12.0)
+	assert_gt(engine.fuel, 0.4, "shovelled coal from the pile into the furnace")
 	engine.heat = 0.95
-	await wait_seconds(0.5)
-	assert_lt(engine.heat, 0.6, "vented")
+	await wait_seconds(6.0)
+	assert_lt(engine.heat, 0.8, "vented")
+
+
+func test_given_three_ais_and_work_to_do_then_nobody_stands_around_more_than_3_s() -> void:
+	await _human_at_helm()
+	var ais := [_ai(2, "navigator", "carpenter"), _ai(3, "engine", "carpenter"), _ai(4, "carpenter", "pump")]
+	_ship.get_node("ShipHandling").throttle = 0.6
+	var breach: Node3D = _ship.get_node("HullSystem").add_breach(Vector3(3, 0, 3))
+	breach._warning_left = 0.0
+	_ship.get_node("EngineSystem").fuel = 0.4
+	var idle := {}
+	var worst := {}
+	for i in 60 * 40:
+		await wait_physics_frames(1)
+		if i % 6 != 0:
+			continue
+		for ai in ais:
+			idle[ai] = 0.0 if ai.is_working() else idle.get(ai, 0.0) + 0.1
+			worst[ai] = maxf(worst.get(ai, 0.0), idle[ai])
+			if idle[ai] > 1.0 and OS.get_environment("AI_DEBUG") != "":
+				var p: Node3D = ai.get_parent()
+				print("IDLE P%d job=%s target=%s pos=%s carried=%s station=%s rudder=%d pins=%d loose=%s" % [p.player_index, ai.job, ai.target, _ship.to_local(p.global_position).snapped(Vector3.ONE * 0.1), p.carried, p.station, _ship.get_node("RudderSystem").state, _ship.get_node("PinBox").stock, _pin_info(p)])
+	for ai in ais:
+		assert_lt(worst[ai], 3.0, "P%d (%s) stood around too long" % [ai.get_parent().player_index, ai.primary])
 
 
 func test_given_leak_then_ai_carpenter_patches_it() -> void:
@@ -126,3 +147,11 @@ func test_given_ai_navigator_then_chart_stays_off_screen_and_rocks_are_called_ou
 	await wait_seconds(5.0)
 	assert_true(_ship.get_node("MapTable").is_active(), "the AI reads the chart")
 	assert_false(_level.get_node("HUD/MapChart").visible, "but only a human reader puts it on screen")
+
+
+func _pin_info(p: Node3D) -> String:
+	var pin: Node3D = _level.get_node("CrewBrain").loose_item("pin")
+	if pin == null:
+		return "none"
+	return "%s d=%.2f can=%s carrier=%s lashed=%s parent=%s" % [_ship.to_local(pin.global_position).snapped(Vector3.ONE * 0.1),
+			pin.distance_to_player(p), pin.can_interact(p), pin.carrier, pin.lashed, pin.get_parent().name]
