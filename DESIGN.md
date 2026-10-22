@@ -1,7 +1,7 @@
 # You Piece of Ship — Design Document
 
-> **Current phase:** 4 — Art & content (2026-10-22 evening: painted-kawaii look, battles, fishing, stars, world map). Before that: 3 — Ugly Prototype. Milestone A and the Milestone B systems were built overnight on 2026-10-22 but nobody has played them yet: the fun gate (a real 4-player couch playtest) comes next.
-> **Last updated:** 2026-10-22
+> **Current phase:** 4 — Art & content (version 0.4.0, 2026-10-22 evening: painted-kawaii look, AI crew by default, developer mode, battles, fishing, three stars, world map). Before that: 3 — Ugly Prototype. Olivier has played solo with AI crew; the fun gate (a real 4-player couch playtest) is still to come.
+> **Last updated:** 2026-10-22 (0.4.0)
 > This file is the Committee's memory. Read it before every Godot or Blender action. Update it after every approved decision.
 
 ## 1. Pitch
@@ -41,7 +41,8 @@ Advancement (upgrades) supports these but is not a pillar: if an upgrade makes t
 ## 3. Core Loops
 - **Micro (every 1–5 s): read, shout, act.** Read your station, call out what matters, act on a call (turn the wheel, open a valve, slap a patch, run to a problem). Must be fun in a grey box with four players and no art.
 - **Mid (every 30–90 s): routine → complication → crisis → recover.** A hazard director guarantees at least 20 s of routine after every recovery.
-- **Macro (one voyage, 5–8 min): contract → sail → deliver → upgrade.** Paid on cargo, time and hull; spend on one upgrade; take a harder contract.
+- **Macro (one voyage, 5–8 min): contract → sail → deliver → upgrade.** Paid on cargo, time, hull, fish and loot; spend on one upgrade; take a harder contract.
+- **Meta (a session, 30–90 min): world map → route → stars → new ocean.** Stars (1–3 per route, from the score) open routes and oceans; each ocean brings one new kind of trouble; stars also unlock hats (section 14).
 - **How macro feeds back into micro:** every upgrade changes a post's job rather than removing it (overclocked engine = more for the engineer to watch; reinforced hull = captain plans turns earlier). Contract modifiers (fog, night, fragile cargo) change which station is busiest.
 
 ## 4. Genre, Mood & Audience
@@ -78,15 +79,22 @@ The damage itself is the level design: a broken ship handles differently, so eac
 | Upgrade shop with trade-offs | Standard | Advancement | 4 upgrades in the slice |
 | Couch play on one shared screen | Standard | Social | Milestone A |
 | Online lobby, drop-in and reassign | Standard | Social | Milestone B, host-authoritative |
-| Contract modifiers | Standard | Danger | Fog only in the slice |
+| Contract modifiers | Standard | Danger | Fog, storm, shifting cargo, engine failure, flooded bow, sail-less ship |
+| AI crewmates fill every empty post; humans take one over | Standard | Social | All 4 AI by default (Olivier 2026-10-22) |
+| Thought bubbles above crew (plans, callouts, shouts) | Standard | Comedy, Social | Replaced the band captions |
+| Sea battles: pirates alongside, side cannons, fight or outrun, loot | Standard | Danger, Comedy | Added by Olivier 2026-10-22 (was Parked) |
+| Fishing at the rail for idle crew | Standard | Comedy | Points into the score; nobody idles |
+| Three stars per route, world map with 3 oceans x 3 routes, hats | Standard | Advancement | Overcooked-style progression, Olivier 2026-10-22 |
+| Developer mode on Esc (sliders, forced events) | Tool | — | For tuning and testing only |
 | Fire | Next | Danger | Fourth system once the first three are fun |
 | Crew overboard and rescue | Next | Comedy | Costly to network |
 | Floating cargo recovery, extra upgrades | Later | Advancement | |
-| Secret objectives, ship combat, many classes, crafting, campaign, permadeath | Parked | — | |
+| Secret objectives, many classes, crafting, permadeath | Parked | — | |
 
 ## 7. Pacing
 - **One voyage (5–8 min):** calm departure (45 s) → first complication (one system) → recovery + calm (≥ 20 s) → rising section, two systems overlap → peak crisis in the last third → port in sight, release. Hazards are hand-placed; the director only enforces fairness rules and calm windows.
 - **The slice (~30 min):** four contracts of rising intensity; the shop between them is the rest stop. Contract 4 adds fog.
+- **The world map (since 0.4.0):** nine routes in three oceans of rising intensity (Calm Cove, Whale Waters, Pirate Sea), ending with Kraken's Gate in a storm. Stars gate progress, so a crew replays a route to get better rather than grinding.
 
 ## 8. Onboarding
 Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
@@ -103,6 +111,8 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 **Milestone B — Vertical Slice. Target length:** ~30 minutes.
 - **IN:** one ship; four stations; four hand-made contracts (last in fog); four systems (hull, heat, rudder, load); two two-player tasks; the three deck comedy rules; upgrade shop with 4 trade-off upgrades (overclocked engine, reinforced hull, bigger pumps, second spare-parts crate); results with event recap; couch play on one shared screen; online lobby for 3–4 players with drop-in reassignment; final art, sound and juice for all of the above.
 - **OUT (explicitly not building):** fire, crew overboard, floating cargo, second ship, procedural routes, campaign map, more than 4 upgrades, 2-player mode, split screen, mixed couch-plus-online groups, cosmetics, secret objectives, combat, crafting, persistent progression.
+
+**Scope change (Olivier, 2026-10-22 evening):** Olivier explicitly brought into scope a campaign-style world map, star ratings, cosmetics (hats), combat (pirate ships) and fishing. The OUT list above is kept as the original plan; those five items are now IN. Still out: fire, crew overboard, second ship, procedural routes, 2-player mode, split screen, mixed couch-plus-online, secret objectives, crafting.
 
 **Playtest survey (every Milestone A session):** Did you have something useful to do most of the time? Did you understand why things went wrong? Did your actions help the team? Did the crew recover from something that seemed hopeless? Did you immediately want another attempt? Who did you talk to most, and about what?
 
@@ -186,6 +196,14 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | French version: every interface text, prompt, hint, callout, band comment, voyage-log line and result is translated (translations/strings.csv, built from tools/translations_fr.py; English text is the key); the title 'You Piece of Ship' and the P1-P4 tags stay as they are; language follows the computer and can be switched in Settings | Olivier asked for a French version leaving the title intact | Olivier 2026-10-22 |
 | 2026-10-22 | Internet hosting without any service: Host asks the router (UPnP) to open UDP 7777, compares the router's outside address with the public address from an HTTPS what's-my-IP check (api.ipify.org), and tells the host in plain words: friends can join at X (with Copy), or the connection can't host (CGNAT: let the friend host), or the router didn't open the door (UPnP off); the mapping is removed on leave/quit | Olivier and his dad are in different countries; Parsec and Tailscale don't work for them; his dad hosts first, a relay only if that fails | Olivier 2026-10-22 |
 | 2026-10-22 | Olivier's home connection: router without UPnP and a provider-shared address (CGNAT, 100.72.x after the router); on his phone hotspot also no UPnP. He can't host for his dad; his dad hosts | Measured on Olivier's Mac 2026-10-22 | network check |
+| 2026-10-22 | Superseded: the layered adaptive soundtrack and the band captions are replaced by one Drunken Sailor loop that climbs in pitch (0, +2, +4, +7, +12 semitones) as stability drops | Olivier: same theme, simply higher as things get worse; captions didn't read | Olivier 2026-10-22 |
+| 2026-10-22 | Esc opens a pause menu with a Developer panel: live sliders for every tunable, buttons to force events (crash, flood, reach port, pirates, storm...), time scale, saved presets | Fast tuning without code; Olivier tests alone | Olivier 2026-10-22 |
+| 2026-10-22 | All four crew are AI by default; a human replaces an AI at the dock, online, or mid-voyage by pressing Jump or Use; comic thought bubbles show AI plans and navigator callouts | Olivier can play alone or with any number of friends; Social and Comedy stay readable | Olivier 2026-10-22 |
+| 2026-10-22 | Painted kawaii art: real ship silhouette (curved hull, raised bow and stern decks, mast and sail, gunports), chubby 3D crew with hats, treasure chests, a hand pump that rocks and gushes, visibly heating engine, Gerstner-wave sea; new obstacles: wreck, whale, siren, atoll | Every asset shows its affordance; Olivier's title-screen style | Olivier 2026-10-22 |
+| 2026-10-22 | Three stars per voyage from the score (1 = delivered, 2 and 3 = good and great), thresholds per route and tunable in Developer | Clear goal to replay a route; Overcooked model | Olivier 2026-10-22 |
+| 2026-10-22 | Fishing: two spots on the rail, cast with Use, strike with Jump; fish add points; AI fishes only when nothing needs doing | Nobody idles; small comic side job | Olivier 2026-10-22 |
+| 2026-10-22 | Sea battles: pirates come alongside and fire broadsides (they only attack from the sides, where the cannons are); 2 cannons a side and a cannonball rack; 3 hits sink them and leave 3 loot barrels (60 points each); they give up when left 45 m behind or after 75 s; AI gunner job | Fight or outrun is a crew decision (Social); loot is points for now, purpose open | Olivier 2026-10-22 |
+| 2026-10-22 | World map: 3 oceans x 3 routes (Calm Cove: Maiden Voyage, Coral Hop, Reef Run; Whale Waters: Siren Strait, The Narrows, Whale Road; Pirate Sea: Fog Bank, Smugglers' Run, Kraken's Gate); star gates 0/1/3, 5/7/9, 12/14/17; one new trouble per ocean; hats unlock at 6 (captain) and 15 (crown) stars; old saves get one star per delivered contract. Version 0.4.0 | Overcooked-style progression Olivier asked for | Olivier 2026-10-22 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.
@@ -212,3 +230,16 @@ Rules: nobody idles while their system is fine; posts are swappable any time; no
 **Deck comedy rules:** carried items drop on knockdown; the deck tilts with waves and load and loose things slide to the low side; player bumps are exaggerated. All visible and predictable.
 
 **Fairness rules:** every failure has a warning of at least 5 s; one impact starts at most one new failure directly; no new hazard spawns while two systems are failing; the ship cannot sink within 60 s of its first failure.
+
+## 14. Progression, Battles and Side Jobs (0.4.0)
+| Ocean | Routes (star gate) | New trouble |
+|---|---|---|
+| Calm Cove | Maiden Voyage (0), Coral Hop (1), Reef Run (3) | Rocks, waves, first pirates on Reef Run |
+| Whale Waters | Siren Strait (5), The Narrows (7), Whale Road (9) | Sirens pull the wheel, whales dive, cargo shifts |
+| Pirate Sea | Fog Bank (12), Smugglers' Run (14), Kraken's Gate (17) | Fog, a ship with no sail, engine failure, storm with flooded deck |
+
+- **Stars:** 1 for delivering, 2 and 3 for good and great scores. Score = cargo + dry hull + time bonus + fish + loot.
+- **Unlocks:** routes and oceans by stars; hats per player (captain's hat 6 stars, crown 15). A card announces each new ocean.
+- **Battles:** pirates attack only from the sides; load, aim and fire the side cannons, or outrun them at full throttle.
+- **Fishing:** idle crew fish at the rail for points; anyone drops the rod for trouble.
+- **Open:** what loot is for (points only for now); star thresholds are first guesses.
