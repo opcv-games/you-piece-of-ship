@@ -16,6 +16,8 @@ var contract_buttons: Array[Button] = []
 var shop_buttons := {} ## upgrade id -> Button
 
 var _money: Label
+var _online_status: Label
+var _address: LineEdit
 var _details: Label
 var _message: Label
 var _crew_slots: Array[Panel] = []
@@ -25,12 +27,18 @@ func _ready() -> void:
 	PlayerControls.ensure_actions(4)
 	joined = Session.joined_players.duplicate()
 	_build()
+	Net.peers_changed.connect(refresh)
+	Net.connected.connect(func(_index): refresh())
+	Net.connection_failed.connect(func(): _message.text = "Couldn't reach the host. Check the address.")
+	Net.disconnected.connect(func(): _message.text = "The host left.")
 	refresh()
 	if not contract_buttons.is_empty():
 		contract_buttons[clampi(Session.unlocked - 1, 0, contract_buttons.size() - 1)].grab_focus()
 
 
 func _process(_delta: float) -> void:
+	if Net.role != "offline":
+		return # online: the crew is whoever is connected
 	for index in range(1, 5):
 		if Input.is_action_just_pressed(PlayerControls.action(index, "use")):
 			toggle_crew(index)
@@ -48,6 +56,9 @@ func toggle_crew(index: int) -> void:
 
 ## Starts a contract with the current crew. Returns false (with a message) if it can't.
 func start_contract(index: int) -> bool:
+	if Net.role == "client":
+		_message.text = "The host chooses the contract."
+		return false
 	if index >= Session.unlocked:
 		_message.text = "Locked: deliver the previous contract first."
 		return false
@@ -57,6 +68,9 @@ func start_contract(index: int) -> bool:
 	Session.contract_index = index
 	Session.joined_players = joined.duplicate()
 	contract_started.emit(index)
+	if Net.role == "host":
+		Net.start_voyage(index) # everyone sets sail together
+		return true
 	if is_inside_tree() and get_tree().current_scene == self:
 		get_tree().change_scene_to_file(VOYAGE_SCENE)
 	return true
@@ -70,7 +84,17 @@ func buy(id: String) -> bool:
 
 
 func refresh() -> void:
+	if Net.role != "offline":
+		joined = Net.crew() if Net.role == "host" else joined
 	_money.text = "Coins: %d" % Session.money
+	match Net.role:
+		"host":
+			_online_status.text = "Hosting: %d aboard. Friends join with your address: %s" % [
+					Net.crew().size(), ", ".join(Net.local_addresses())]
+		"client":
+			_online_status.text = "Online as P%d (your keyboard W A S D or controller). The host picks the contract." % Net.my_index
+		_:
+			_online_status.text = "Play online: one friend hosts, the others join with the host's address."
 	for i in 4:
 		var on := joined.has(i + 1)
 		var style := StyleBoxFlat.new()
@@ -109,9 +133,9 @@ func _build() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.offset_left = 40
 	root.offset_right = -40
-	root.offset_top = 24
-	root.offset_bottom = -20
-	root.add_theme_constant_override("separation", 12)
+	root.offset_top = 16
+	root.offset_bottom = -12
+	root.add_theme_constant_override("separation", 7)
 	add_child(root)
 	var header := HBoxContainer.new()
 	root.add_child(header)
@@ -127,7 +151,7 @@ func _build() -> void:
 	root.add_child(crew)
 	for i in 4:
 		var slot := Panel.new()
-		slot.custom_minimum_size = Vector2(120, 58)
+		slot.custom_minimum_size = Vector2(120, 50)
 		var text := _label("", 16, Color.WHITE)
 		text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -162,9 +186,47 @@ func _build() -> void:
 		button.pressed.connect(buy.bind(id))
 		right.add_child(button)
 		shop_buttons[id] = button
+	var online := HBoxContainer.new()
+	online.add_theme_constant_override("separation", 10)
+	root.add_child(online)
+	var host_button := _button()
+	host_button.text = "Host online game"
+	host_button.custom_minimum_size = Vector2(190, 36)
+	host_button.pressed.connect(_host)
+	online.add_child(host_button)
+	_address = LineEdit.new()
+	_address.text = "127.0.0.1"
+	_address.custom_minimum_size = Vector2(170, 36)
+	online.add_child(_address)
+	var join_button := _button()
+	join_button.text = "Join"
+	join_button.custom_minimum_size = Vector2(80, 36)
+	join_button.pressed.connect(_join)
+	online.add_child(join_button)
+	var leave_button := _button()
+	leave_button.text = "Leave"
+	leave_button.custom_minimum_size = Vector2(80, 36)
+	leave_button.pressed.connect(func(): Net.leave(); refresh())
+	online.add_child(leave_button)
+	_online_status = _label("", 15, Color(0.6, 0.85, 1.0))
+	online.add_child(_online_status)
 	_message = _label("", 17, Color(1, 0.6, 0.5))
 	root.add_child(_message)
 	root.add_child(_label("Arrows / D-pad: choose     Enter / Space / A: confirm", 15, Color(1, 1, 1, 0.6)))
+
+
+func _host() -> void:
+	if Net.host() != OK:
+		_message.text = "Couldn't start hosting (is another game already hosting on this computer?)."
+	refresh()
+
+
+func _join() -> void:
+	if Net.join(_address.text.strip_edges()) != OK:
+		_message.text = "That address doesn't look right."
+	else:
+		_message.text = "Joining %s..." % _address.text
+	refresh()
 
 
 func _label(text: String, size: int, color: Color) -> Label:
@@ -178,6 +240,6 @@ func _label(text: String, size: int, color: Color) -> Label:
 func _button() -> Button:
 	var button := Button.new()
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_font_size_override("font_size", 16)
-	button.custom_minimum_size = Vector2(0, 40)
+	button.add_theme_font_size_override("font_size", 15)
+	button.custom_minimum_size = Vector2(0, 36)
 	return button

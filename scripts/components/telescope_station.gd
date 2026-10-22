@@ -3,6 +3,8 @@ extends "res://scripts/components/station.gd"
 ## a cone around the bow) get a red marker above the water that everyone can see for a few seconds.
 ## It stands apart from the map table: one navigator can't use both (Social: split the job).
 
+signal spotted(rock: Node3D)
+
 @export var spot_range := 90.0
 @export var spot_cone_degrees := 35.0
 @export var marker_seconds := 5.0
@@ -26,6 +28,7 @@ func _physics_process(delta: float) -> void:
 	_scan_left = scan_interval
 	for rock in spotted_rocks():
 		mark(rock)
+		spotted.emit(rock)
 
 
 ## Hidden rocks ahead of the bow within the telescope's range and cone.

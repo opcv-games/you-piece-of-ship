@@ -19,6 +19,9 @@ const KINDS := {
 @export var slide_damping := 1.2
 @export var knock_speed := 1.6 ## a crate sliding faster than this knocks crew over
 
+static var _next_net_id := 1
+
+var net_id := 0 ## identity for online play (the host numbers every item it creates)
 var carrier: Node3D = null
 var lashed := false
 var velocity := Vector2.ZERO ## ship-local x/z metres per second while sliding
@@ -33,6 +36,9 @@ var display_name: String:
 
 
 func _ready() -> void:
+	if net_id == 0:
+		net_id = _next_net_id
+		_next_net_id += 1
 	add_to_group("items")
 	add_to_group("interactables")
 	if kind == "crate":
