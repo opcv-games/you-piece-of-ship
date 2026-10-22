@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://scripts/components/repair_station.gd" id="11_repair"]
 [ext_resource type="Script" path="res://scripts/components/helm_station.gd" id="12_helm"]
 [ext_resource type="Script" path="res://scripts/components/rudder_system.gd" id="13_rudder"]
+[ext_resource type="Script" path="res://scripts/components/load_system.gd" id="14_load"]
+[ext_resource type="Script" path="res://scripts/components/overboard_rail.gd" id="15_rail"]
 
 [sub_resource type="StandardMaterial3D" id="mat_hull"]
 albedo_color = Color(0.42, 0.31, 0.23, 1)
@@ -472,3 +474,9 @@ script = ExtResource("10_engine")
 
 [node name="RudderSystem" type="Node" parent="."]
 script = ExtResource("13_rudder")
+
+[node name="LoadSystem" type="Node" parent="."]
+script = ExtResource("14_load")
+
+[node name="OverboardRail" type="Node" parent="."]
+script = ExtResource("15_rail")

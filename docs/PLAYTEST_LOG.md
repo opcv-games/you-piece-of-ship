@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Load and balance  (#7)
+Hypothesis: If loose cargo tilts the deck and can be thrown overboard to save the ship, then the crew will argue about sacrificing cargo, increasing Social interaction and Comedy.
+Variable: heel per crate-metre 1.2 degrees
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main; tune after the first couch playtest
+
 ## 2026-10-22 — Rudder damage  (#6)
 Hypothesis: If a hard hit makes the wheel pull to one side until someone hauls the heavy pin to the helm, then the captain will call for help and the slow pin-carrier will be the centre of attention, increasing Comedy and Thrill of danger.
 Variable: pull strength 0.35 of full wheel
