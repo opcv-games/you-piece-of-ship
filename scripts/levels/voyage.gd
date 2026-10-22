@@ -16,6 +16,7 @@ const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const PauseMenu = preload("res://scripts/ui/pause_menu.gd")
 const Stars = preload("res://scripts/systems/stars.gd")
 const StarRules = preload("res://scripts/systems/star_rules.gd")
+const EnemyShip = preload("res://scripts/components/enemy_ship.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 const OBSTACLE_RADIUS := {"wreck": 4.0, "whale": 3.5, "siren": 2.5, "atoll": 12.0, "rock": 3.5}
 
@@ -31,6 +32,7 @@ var _crash_flash := 0.0
 var _show_help := false
 var net_puppet := false ## online client: the host runs the game, this copy only shows it
 var _next_event := 0
+var _next_enemy := 0
 var _hint_left := 0.0
 var god_mode := false
 var bonus_points := 0 ## fish caught and loot scooped up on the way (added to the score) ## developer mode: no flooding, no overheating, no running dry
@@ -169,6 +171,7 @@ func _physics_process(delta: float) -> void:
 		_check_takeovers()
 	if started and not finished:
 		_run_events()
+		_run_enemies()
 		elapsed += delta
 		if _ship.global_position.x >= finish_x:
 			_finish()
@@ -230,6 +233,48 @@ func take_over(index: int) -> void:
 		$CrewBrain.assignments.erase(player)
 
 
+# --- Pirates ------------------------------------------------------------------------------
+
+func _run_enemies() -> void:
+	while _next_enemy < contract.enemies.size() and _ship.global_position.x >= contract.enemies[_next_enemy][0]:
+		spawn_enemy(float(contract.enemies[_next_enemy][1]))
+		_next_enemy += 1
+
+
+## Pirates appear behind the ship on one side and come alongside.
+func spawn_enemy(side: float) -> Node3D:
+	var enemy := EnemyShip.new()
+	enemy.name = "Pirates%d" % get_tree().get_nodes_in_group("enemy_ships").size()
+	enemy.side = side
+	enemy.target = _ship
+	$Reef.add_child(enemy)
+	var right: Vector3 = _ship.global_basis.z
+	enemy.global_position = _ship.global_position - _handling.forward() * 35.0 + right * side * 22.0
+	enemy.global_position.y = 0.0
+	enemy.rotation.y = _ship.rotation.y
+	enemy.sunk.connect(func(_e): $VoyageLog.add("Pirates sunk! Scoop up the loot", "good"); show_hint(tr("Pirates sunk! Sail through the floating loot to scoop it up.")))
+	enemy.broadside.connect(func(): $VoyageLog.add("Pirates fired a broadside", "info"))
+	$VoyageLog.add("Pirates on the %s side!", "bad", ["starboard" if side > 0.0 else "port"])
+	show_hint(tr("PIRATES! Outrun them at full speed, or load the cannons on that side (cannonballs in the middle of the deck)."))
+	return enemy
+
+
+## An enemy cannonball landed on the deck: it cracks the hull there, like a rock would.
+func cannon_hit(point: Vector3) -> void:
+	hits += 1
+	$Ship/HullSystem.add_breach(_ship.to_local(point))
+	$VoyageLog.add("Cannonball hit!", "bad")
+	$Music.sting("sting_crash")
+	_banner.text = tr("BOOM!")
+	_banner.visible = true
+	_crash_flash = 0.8
+	$SharedCamera.add_trauma(0.5)
+	var local := _ship.to_local(point)
+	for player in get_tree().get_nodes_in_group("crew"):
+		if player.position.distance_to(local) < 2.5:
+			player.knock_down(Vector2(player.position.x - local.x, player.position.z - local.z).normalized())
+
+
 # --- Developer mode (Esc → Developer) ------------------------------------------------------
 
 const DEV_EVENTS := ["crash", "leak", "flood", "overheat", "stall", "out_of_coal", "rudder", "wave_port",
@@ -284,6 +329,8 @@ func dev_event(event: String) -> bool:
 			Session.save_game()
 		"god_mode":
 			god_mode = not god_mode
+		"spawn_enemy_port", "spawn_enemy_starboard":
+			spawn_enemy(-1.0 if event == "spawn_enemy_port" else 1.0)
 		"spawn_rock", "spawn_wreck", "spawn_whale", "spawn_siren", "spawn_atoll":
 			_spawn_ahead(event.trim_prefix("spawn_"))
 		_:
@@ -446,7 +493,8 @@ func _on_wave_warning(side: float) -> void:
 
 ## Developer events added by the obstacles: spawn each kind just ahead of the ship.
 func dev_extra_events() -> Array:
-	return [["spawn_rock", "Spawn: reef rock"], ["spawn_wreck", "Spawn: shipwreck"], ["spawn_whale", "Spawn: whale"],
+	return [["spawn_enemy_port", "Spawn: pirates (port)"], ["spawn_enemy_starboard", "Spawn: pirates (starboard)"],
+			["spawn_rock", "Spawn: reef rock"], ["spawn_wreck", "Spawn: shipwreck"], ["spawn_whale", "Spawn: whale"],
 			["spawn_siren", "Spawn: siren"], ["spawn_atoll", "Spawn: atoll"]]
 
 

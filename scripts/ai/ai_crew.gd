@@ -81,9 +81,13 @@ func _physics_process(delta: float) -> void:
 			_carpentry(delta)
 		"cargo":
 			_cargo(delta)
+		"gunner":
+			_gunner(delta)
 
 
 func _station_job(station: Node3D) -> String:
+	if station.is_in_group("cannons"):
+		return "gunner"
 	match String(station.name):
 		"Helm":
 			return "helm"
@@ -193,6 +197,8 @@ func _steer() -> void:
 	var wanted := 0.8
 	if engine.heat > 0.93 or engine.is_warning():
 		wanted = 0.45 # about to overheat: ease off until the engineer vents
+	if _brain and _brain.threat() != null and engine.heat < 0.9 and not engine.is_warning():
+		wanted = 1.0 # pirates: full speed to outrun them
 	if _reverse_left > 0.0:
 		wanted = -0.3 # just hit something: back off
 	var voyage := _ship.get_parent()
@@ -464,7 +470,8 @@ func _fishing_ok() -> bool:
 	for breach in hull.breaches():
 		if breach.state != 0:
 			return false
-	return engine.fuel >= 0.6 and engine.heat < engine.heat_cap_threshold and _brain.fraying_crate() == null
+	return engine.fuel >= 0.6 and engine.heat < engine.heat_cap_threshold and _brain.fraying_crate() == null \
+			and _brain.threat() == null
 
 
 func _free_fishing_spot() -> Node3D:
@@ -522,6 +529,68 @@ func _nearest_crate() -> Node3D:
 			best = crate
 			best_distance = distance
 	return best
+
+
+# --- Gunner ------------------------------------------------------------------------------
+
+## Fight the pirates: load a cannon on their side, aim at them, fire; fetch another ball.
+func _gunner(delta: float) -> void:
+	var enemy: Node3D = _brain.threat()
+	if enemy == null:
+		if _player.station:
+			_press_use()
+		return
+	var right: Vector3 = _ship.global_basis.z
+	var side := signf((enemy.global_position - _ship.global_position).dot(right))
+	var cannon: Node3D = _player.station if _player.station and _player.station.is_in_group("cannons") else null
+	if cannon:
+		if not cannon.loaded:
+			_press_use() # fired: go and fetch another ball
+			return
+		var wanted := _aim_for(cannon, enemy)
+		if absf(wanted - cannon.aim) > 0.06:
+			_player.move_input = Vector2(signf(wanted - cannon.aim) * cannon.side, 0.0)
+		else:
+			intend(tr("Fire!"))
+			_player.jump_requested = true
+		return
+	var loaded := _cannon_on(side, true)
+	if loaded and (_player.carried == null or _player.carried.kind != "ball"):
+		_drop_carried()
+		intend(tr("To the cannon!"))
+		if _walk_to(loaded.global_position, delta, 0.8):
+			_use_on(loaded)
+		return
+	var empty := _cannon_on(side, false)
+	if empty == null:
+		return
+	intend(tr("Load the cannon!"))
+	_fetch_and_bring("ball", _ship.get_node("BallRack"), empty, delta)
+
+
+## A free cannon on that side, loaded or not.
+func _cannon_on(side: float, loaded: bool) -> Node3D:
+	var best: Node3D = null
+	var best_distance := INF
+	for cannon in get_tree().get_nodes_in_group("cannons"):
+		if not _ship.is_ancestor_of(cannon) or cannon.side != side or cannon.loaded != loaded:
+			continue
+		if cannon.occupant != null and cannon.occupant != _player:
+			continue
+		var distance := _player.global_position.distance_to(cannon.global_position)
+		if distance < best_distance:
+			best = cannon
+			best_distance = distance
+	return best
+
+
+## The aim (-1..1) that points this cannon at the enemy.
+static func _aim_for(cannon: Node3D, enemy: Node3D) -> float:
+	var to := enemy.global_position - cannon.global_position
+	var out: Vector3 = cannon.global_basis.z * cannon.side
+	var along: Vector3 = cannon.global_basis.x
+	var angle := atan2(to.dot(along), to.dot(out))
+	return clampf(angle / deg_to_rad(cannon.aim_limit_degrees), -1.0, 1.0)
 
 
 # --- Cargo -----------------------------------------------------------------------------

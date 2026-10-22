@@ -183,6 +183,17 @@ FR = {
     # Fishing
     "FISHING": "PÊCHE", "Use: fish": "Utiliser : pêcher", "%s +%d": "%s +%d", "Too early!": "Trop tôt !",
     "It got away...": "Il s'est échappé...", "Gone fishing!": "Je vais pêcher !", "    Fish & loot +%d": "    Pêche et butin +%d",
+    # Battles
+    "CANNON": "CANON", "Use: aim   Jump: fire": "Utiliser : viser   Saut : feu", "loaded": "chargé", "Loaded!": "Chargé !",
+    "Not loaded!": "Pas chargé !", "CANNONBALLS": "BOULETS", "PIRATES!": "PIRATES !", "Fire!": "Feu !",
+    "To the cannon!": "Au canon !", "Load the cannon!": "Je charge le canon !", "BOOM!": "BOUM !",
+    "Pirates sunk! Scoop up the loot": "Pirates coulés ! Ramassez le butin", "Pirates fired a broadside": "Les pirates ont tiré une bordée",
+    "Pirates on the %s side!": "Pirates côté %s !", "Cannonball hit!": "Touchés par un boulet !",
+    "Pirates sunk! Sail through the floating loot to scoop it up.": "Pirates coulés ! Passez sur le butin flottant pour le ramasser.",
+    "PIRATES! Outrun them at full speed, or load the cannons on that side (cannonballs in the middle of the deck).":
+        "PIRATES ! Semez-les à pleine vitesse, ou chargez les canons de ce côté (boulets au milieu du pont).",
+    "Spawn: pirates (port)": "Ajouter : pirates (bâbord)", "Spawn: pirates (starboard)": "Ajouter : pirates (tribord)",
+    "Gunner": "Canonnier",
     "Sardine": "Sardine", "Goldfish": "Poisson doré", "Squid": "Calamar", "Pufferfish": "Poisson-globe", "Treasure!": "Trésor !",
 }
 

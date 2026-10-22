@@ -33,13 +33,18 @@ func _update_label() -> void:
 	var label := get_node_or_null("Label") as Label3D
 	if label == null:
 		return
-	label.visible = enabled
+	label.visible = enabled and _label_wanted()
 	var lines := PackedStringArray([tr(station_name)])
 	if status_text != "":
 		lines.append(status_text)
 	if prompt != "" and _show_prompt():
 		lines.append(tr(prompt))
 	label.text = "\n".join(lines)
+
+
+## Override: hide the label when it would only be clutter.
+func _label_wanted() -> bool:
+	return true
 
 
 func _show_prompt() -> bool:
