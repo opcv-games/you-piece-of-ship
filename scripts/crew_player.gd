@@ -1,5 +1,5 @@
 extends CharacterBody3D
-## One crew member: walk, run and jump, Overcooked-style.
+## One crew member: walk, run and jump, Overcooked-style, and take over stations with Use.
 ## Crew live inside the ship node, so the rocking deck carries them; they never need to
 ## fight the waves to stay on board, only to walk where they want (Comedy without frustration).
 
@@ -18,6 +18,8 @@ const COLORS := [
 
 var move_input := Vector2.ZERO ## x = right, y = towards the camera
 var jump_requested := false
+var use_requested := false
+var station: Node3D = null ## the station this player is operating, if any
 
 @onready var _visual: Node3D = $Visual
 
@@ -35,6 +37,16 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if use_requested:
+		_toggle_station()
+	use_requested = false
+	if station:
+		# Operating a station: stand at it, face the bow; the stick drives the station instead.
+		velocity = Vector3.ZERO
+		jump_requested = false
+		global_position = station.global_position
+		_visual.rotation.y = PI / 2.0
+		return
 	var direction := Vector3(move_input.x, 0.0, move_input.y).limit_length(1.0)
 	velocity.x = move_toward(velocity.x, direction.x * walk_speed, acceleration * delta)
 	velocity.z = move_toward(velocity.z, direction.z * walk_speed, acceleration * delta)
@@ -46,4 +58,15 @@ func _physics_process(delta: float) -> void:
 	jump_requested = false
 	move_and_slide()
 	if direction.length() > 0.1:
-		_visual.rotation.y = atan2(direction.x, direction.z)
+		# Face where we walk; the ship may have turned, so convert to our own frame.
+		var facing := global_basis.inverse() * direction
+		_visual.rotation.y = atan2(facing.x, facing.z)
+
+
+func _toggle_station() -> void:
+	if station:
+		station.release(self)
+		return
+	for candidate in get_tree().get_nodes_in_group("stations"):
+		if candidate.needs_use and candidate.crew_nearby().has(self) and candidate.occupy(self):
+			return

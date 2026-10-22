@@ -7,7 +7,7 @@ const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 func test_given_four_players_when_game_starts_then_each_has_own_controls() -> void:
 	PlayerControls.ensure_actions(4)
 	for index in range(1, 5):
-		for verb in ["left", "right", "up", "down", "jump"]:
+		for verb in ["left", "right", "up", "down", "jump", "use"]:
 			var action := PlayerControls.action(index, verb)
 			assert_true(InputMap.has_action(action), action + " exists")
 			assert_gt(InputMap.action_get_events(action).size(), 0, action + " has a button")

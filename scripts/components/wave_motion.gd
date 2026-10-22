@@ -13,14 +13,14 @@ extends Node
 @export var heave_period := 5.1
 
 var _time := 0.0
-var _rest_position := Vector3.ZERO
+var _rest_height := 0.0
 var _parent: Node3D
 
 
 func _ready() -> void:
 	_parent = get_parent() as Node3D
 	if _parent:
-		_rest_position = _parent.position
+		_rest_height = _parent.position.y
 
 
 func _physics_process(delta: float) -> void:
@@ -30,7 +30,7 @@ func _physics_process(delta: float) -> void:
 	var pose := sample(_time)
 	# The bow points along +X, so roll turns around X and pitch around Z.
 	_parent.rotation = Vector3(pose.roll, _parent.rotation.y, pose.pitch)
-	_parent.position = _rest_position + Vector3(0.0, pose.heave, 0.0)
+	_parent.position.y = _rest_height + pose.heave # x and z belong to ShipHandling
 
 
 ## Returns {roll, pitch} in radians and {heave} in metres at time t (seconds).

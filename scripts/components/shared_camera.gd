@@ -6,6 +6,7 @@ extends Camera3D
 @export var target_group := "camera_focus" ## crew members and the ship's corner markers
 @export_range(20.0, 85.0) var view_pitch_degrees := 55.0 ## how steeply we look down
 @export var margin := 1.5 ## metres of room around the outermost point
+@export_range(0.0, 0.5) var reserve_right := 0.0 ## share of the screen kept free on the right for the HUD (map chart)
 @export var min_distance := 12.0
 @export var max_distance := 45.0
 @export var follow_speed := 4.0
@@ -41,8 +42,11 @@ func _frame(weight: float) -> void:
 	var screen := get_viewport().get_visible_rect().size
 	var aspect := screen.x / screen.y if screen.y > 0.0 else 16.0 / 9.0
 	var tan_half_v := tan(deg_to_rad(fov) * 0.5) # fov is vertical
-	var distance := maxf(half_height / tan_half_v, half_width / (tan_half_v * aspect))
+	var usable_aspect := aspect * (1.0 - reserve_right)
+	var distance := maxf(half_height / tan_half_v, half_width / (tan_half_v * usable_aspect))
 	distance = clampf(distance, min_distance, max_distance)
 	var goal := center + Vector3(0.0, sin(pitch), cos(pitch)) * distance
 	global_position = global_position.lerp(goal, weight)
 	rotation = Vector3(-pitch, 0.0, 0.0)
+	# Slide the view right so the ship sits in the free part of the screen.
+	h_offset = reserve_right * distance * tan_half_v * aspect
