@@ -2,6 +2,14 @@
 
 One entry per hypothesis. Newest first.
 
+## 2026-10-22 — Engine heat caps speed  (#4)
+Hypothesis: If full throttle overheats the engine and only the engineer can see the gauge, then the engineer will shout "slow down!" while the navigator wants speed, increasing Social interaction.
+Variable: heat rise (full throttle reaches 80% in about 18 s, 100% in about 22 s)
+Sessions: 0 — built overnight, not yet player-tested
+Observed: pending
+Biggest weakness: pending
+Decision: merged to main; tune after the first couch playtest
+
 ## 2026-10-22 — Hull breach changes handling  (#3)
 Hypothesis: If a rock hit cracks the hull and water visibly slows and tilts the ship, then the crew will split up (someone pumps, two patch, the captain slows down) and argue about priorities, increasing Social interaction and Thrill of danger.
 Variable: flow rate (1 open leak fills the ship in 70 s)
