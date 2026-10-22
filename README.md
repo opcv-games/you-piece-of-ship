@@ -4,6 +4,37 @@
 
 Built with Godot 4.7.2. Design: [DESIGN.md](DESIGN.md) · Backlog: [BACKLOG.md](BACKLOG.md) · Playtests: [docs/PLAYTEST_LOG.md](docs/PLAYTEST_LOG.md)
 
+## How to play
+Start the game (in Godot press ▶ or F5). You arrive at **the dock**.
+
+1. **Crew:** each player presses **Use** to come aboard (P1: E, P2: Right Shift, controllers: X).
+2. **Contract:** pick one with the arrow keys / D-pad and Enter / A. Start with the **Maiden Voyage**: it teaches everything and can't be lost.
+3. **Sail** to the yellow buoys at port before the deadline. **Results** show your score and what went wrong; Enter goes back to the dock, R sails again.
+4. **Shop:** spend coins on upgrades. Every upgrade has a catch.
+
+| | P1 | P2 | Controller (1-4) |
+|---|---|---|---|
+| Move | W A S D (Z Q S D on a French keyboard) | Arrow keys | Left stick |
+| Jump | Space | Enter | A |
+| Use (pick up, put down, apply, take a station) | E | Right Shift | X |
+
+**Stations** (walk up and press Use; press Use again to leave):
+
+| Station | Where | What you do there |
+|---|---|---|
+| Helm | stern (back) | left/right steer, up/down throttle (pull below zero to go astern) |
+| Map table | bow (front), port side | just stand there: only you see the hidden rocks on the chart |
+| Telescope | bow, fog only | marks rocks ahead for everyone |
+| Engine | stern, starboard | only you see heat and coal; hold up = shovel coal, Jump = vent steam (knocks bystanders over) |
+| Pump | stern, port side | pumps water out |
+| Leaks | along the rails | bring a plank (Use), hammer it (2 crew = fast), or stuff a cargo crate in it |
+| Cooling pipe | stern, starboard | when it bursts: fix it (2 crew = fast) |
+| Spare parts | port side | planks and the rudder pin (bring the pin to the helm when the rudder breaks) |
+
+Big waves warn for 5 seconds: hold on to a station or you fall over and drop what you carry.
+Carry a cargo crate to the rail and press Use to throw it overboard (lighter ship, less pay).
+M mutes the music. **Online:** one player clicks *Host online game* at the dock; friends type the host's address and click *Join*.
+
 ## Getting started
 1. Install [Godot 4.7.2](https://godotengine.org/download) and [Git LFS](https://git-lfs.com) (`git lfs install`).
 2. Clone the repo and open `project.godot` in Godot.
@@ -14,7 +45,7 @@ Tests use [GUT](https://github.com/bitwes/Gut). BDD specs live in `features/`, t
 godot --headless --import
 godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit
 ```
-CI runs the same suite on every push and pull request.
+CI runs the same suite on every push and pull request. Online play is checked separately with two game processes: see [tests/net/README.md](tests/net/README.md).
 
 ## Workflow
 Hypothesis → spec → test → greybox → playtest → keep or revert → update docs. See [CLAUDE.md](CLAUDE.md).
