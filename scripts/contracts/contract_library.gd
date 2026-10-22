@@ -75,6 +75,7 @@ static func reef_run() -> Resource:
 	]
 	contract.waves = [[380, 1], [760, -1], [1100, 1]]
 	contract.obstacles = [[470, 22, "wreck"], [570, 0, "whale"], [920, -26, "atoll", 10.0]]
+	contract.enemies = [[430, -1]] # in the calm stretch: pirates, not rocks
 	return contract
 
 

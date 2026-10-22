@@ -14,9 +14,10 @@ const KINDS := {
 	"pin": {"size": Vector3(0.9, 0.22, 0.22), "color": Color(0.6, 0.62, 0.66), "carry_speed": 0.5, "name": "rudder pin"},
 	"crate": {"size": Vector3(0.8, 0.8, 0.8), "color": Color(0.78, 0.45, 0.2), "carry_speed": 0.6, "name": "cargo crate"},
 	"coal": {"size": Vector3(0.9, 0.15, 0.35), "color": Color(0.12, 0.12, 0.13), "carry_speed": 0.9, "name": "shovel of coal"},
+	"ball": {"size": Vector3(0.4, 0.4, 0.4), "color": Color(0.2, 0.2, 0.24), "carry_speed": 0.7, "name": "cannonball"},
 }
 
-@export_enum("plank", "pin", "crate", "coal") var kind := "plank"
+@export_enum("plank", "pin", "crate", "coal", "ball") var kind := "plank"
 @export var value := 0 ## score value delivered to port (cargo crates)
 @export var static_friction := 0.09 ## deck tilt (as gravity fraction) needed before it starts sliding
 @export var slide_damping := 1.2
@@ -51,10 +52,11 @@ func _ready() -> void:
 	ship = _find_ship()
 	if ship and "art_style" in ship and ship.art_style == "painted":
 		# Painted props: a treasure chest, a plank, the rudder pin, a shovel of coal.
-		var model: Node3D = ship.prop({"crate": "chest", "plank": "plank", "pin": "pin", "coal": "shovel"}[kind], "Mesh")
+		var model: Node3D = ship.prop({"crate": "chest", "plank": "plank", "pin": "pin", "coal": "shovel",
+				"ball": "cannonball"}[kind], "Mesh")
 		add_child(model)
 		return
-	if ship and "pixel_art" in ship and ship.pixel_art:
+	if ship and "pixel_art" in ship and ship.pixel_art and kind != "ball":
 		# Pixel-art sprite: a crate, a plank or the iron pin (sizes match the grey boxes).
 		var sizes := {"crate": 0.06, "plank": 0.06, "pin": 0.045, "coal": 0.05}
 		var sprite := PixelArt.make_sprite(PixelArt.texture("shovel_coal" if kind == "coal" else kind), sizes[kind])

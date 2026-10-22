@@ -198,7 +198,62 @@ def leak_hole():
     return p
 
 
+def cannon():
+    """A chubby cannon on a wheeled carriage, pointing out over the rail along +z (the game turns it
+    for the port side). Origin on the deck at the station; the barrel is a separate "Barrel" part."""
+    p = [kit.box("Carriage", (0, 0.32, 0.25), (0.8, 0.36, 1.0), "wood_hull", bevel=0.08)]
+    for x in (-0.42, 0.42):
+        for z in (-0.1, 0.6):
+            p.append(kit.cylinder("Wheel%.0f%.0f" % (x * 10, z * 10), (x - 0.06, 0.2, z), (x + 0.06, 0.2, z), 0.2,
+                                  mat="wood_dark", verts=14))
+            p.append(kit.cylinder("Hub%.0f%.0f" % (x * 10, z * 10), (x - 0.08, 0.2, z), (x + 0.08, 0.2, z), 0.06,
+                                  mat="gold", verts=8))
+    return p
+
+
+def cannon_barrel():
+    """The barrel, centred on its pivot at (0, 0.65, 0.2), pointing along +z."""
+    p = [kit.cylinder("BarrelTube", (0, 0.65, -0.35), (0, 0.65, 1.15), 0.24, 0.19, "iron", verts=18)]
+    p.append(kit.sphere("BarrelBack", (0, 0.65, -0.38), 0.25, "iron"))
+    p.append(kit.torus("Muzzle", (0, 0.65, 1.15), 0.2, 0.06, "gold", axis="z"))
+    p.append(kit.torus("Band", (0, 0.65, 0.35), 0.24, 0.04, "gold", axis="z"))
+    p.append(kit.sphere("Fuse", (0, 0.92, -0.3), 0.05, "paint_red"))
+    return p
+
+
+def cannonball():
+    return [kit.sphere("Ball", (0, 0.2, 0), 0.2, "iron")]
+
+
+def ball_rack():
+    """A low wooden tray with a pyramid of cannonballs (origin at the station)."""
+    p = [kit.box("Tray", (0, 0.1, 0), (1.1, 0.2, 1.1), "wood_dark", bevel=0.05)]
+    k = 0
+    for layer, (n, y) in enumerate(((3, 0.38), (2, 0.66), (1, 0.94))):
+        off = (n - 1) * 0.18
+        for i in range(n):
+            for j in range(n):
+                p.append(kit.sphere("RackBall%d" % k, (i * 0.36 - off, y, j * 0.36 - off), 0.18, "iron", segments=12,
+                                    rings=8))
+                k += 1
+    return p
+
+
+def loot():
+    """Floating loot from a sunk ship: a barrel with gold spilling out and a little flag."""
+    p = [kit.cylinder("LootBarrel", (0, -0.4, 0), (0, 0.5, 0), 0.5, 0.45, "wood_hull", verts=16)]
+    p.append(kit.torus("LootHoop", (0, 0.1, 0), 0.5, 0.04, "iron"))
+    for i in range(6):
+        a = i * 1.05
+        p.append(kit.cylinder("LootCoin%d" % i, (math.cos(a) * 0.2, 0.5 + i * 0.03, math.sin(a) * 0.2),
+                              (math.cos(a) * 0.2, 0.53 + i * 0.03, math.sin(a) * 0.2), 0.11, mat="gold", verts=12))
+    p.append(kit.cylinder("LootPole", (0.3, 0.5, 0), (0.3, 1.4, 0), 0.03, mat="wood_dark", verts=6))
+    p.append(kit.mesh_from("LootFlag", [(0.3, 1.4, 0), (0.3, 1.1, 0), (0.75, 1.25, 0)], [(0, 1, 2)], "gold", smooth=False))
+    return p
+
+
 PROPS = {
+    "cannon": cannon, "cannon_barrel": cannon_barrel, "cannonball": cannonball, "ball_rack": ball_rack, "loot": loot,
     "leak_hole": leak_hole,
     "chest": chest, "plank": plank, "pin": pin, "shovel": shovel, "coal_pile": coal_pile, "pump": pump,
     "pump_lever": pump_lever, "helm": helm, "wheel": wheel, "map_table": map_table,

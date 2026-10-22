@@ -4,7 +4,7 @@ extends Node3D
 
 const ItemScene = preload("res://scenes/greybox/item.tscn")
 
-@export_enum("plank", "pin", "crate") var kind := "plank"
+@export_enum("plank", "pin", "crate", "ball") var kind := "plank"
 @export var stock := 4
 @export var radius := 1.2
 @export var title := "PLANKS"

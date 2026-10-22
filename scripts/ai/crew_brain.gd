@@ -4,10 +4,10 @@ extends Node
 ## an urgent secondary (a leak, a flooding hold) beats a routine primary (a calm sea at the chart).
 ## With neither needed, it goes wherever help is most urgent.
 
-const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo"]
+const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo", "gunner"]
 const STATION_FOR := {"helm": "Helm", "navigator": "MapTable", "engine": "Engine", "pump": "Pump"}
 const LABELS := {"helm": "Helm", "navigator": "Navigator", "engine": "Engine", "pump": "Pump",
-		"carpenter": "Carpenter", "cargo": "Cargo"}
+		"carpenter": "Carpenter", "cargo": "Cargo", "gunner": "Gunner"}
 
 @export var ship: Node3D
 @export var think_interval := 0.5
@@ -48,6 +48,8 @@ func need(job: String) -> int:
 			return 3 if ship.get_node("HullSystem").water > 0.5 else 2
 		"cargo":
 			return 1 if not loose_crates().is_empty() or _fraying_crate() != null else 0
+		"gunner":
+			return 2 if threat() != null else 0
 	return 0
 
 
@@ -112,8 +114,11 @@ func think() -> void:
 		if player.carried and player.carried.kind in ["plank", "pin"] and need("carpenter") > 0:
 			assignments[player] = "carpenter"
 			free.erase(player)
+		elif player.carried and player.carried.kind == "ball" and need("gunner") > 0:
+			assignments[player] = "gunner"
+			free.erase(player)
 	var wanted := []
-	for job in ["helm", "engine", "navigator", "carpenter", "pump", "cargo"]:
+	for job in ["helm", "engine", "navigator", "gunner", "carpenter", "pump", "cargo"]:
 		var level := need(job)
 		if level > 0:
 			wanted.append([job, level])
@@ -161,6 +166,20 @@ func _best_for(job: String, level: int, free: Array) -> Node3D:
 		if score > best_score:
 			best = player
 			best_score = score
+	return best
+
+
+## The nearest pirate ship that's close enough to matter, or null.
+func threat() -> Node3D:
+	var best: Node3D = null
+	var best_distance := INF
+	for enemy in get_tree().get_nodes_in_group("enemy_ships"):
+		if not enemy.is_threat():
+			continue
+		var distance: float = enemy.global_position.distance_to(ship.global_position)
+		if distance < best_distance:
+			best = enemy
+			best_distance = distance
 	return best
 
 

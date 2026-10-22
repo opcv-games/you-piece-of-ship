@@ -12,6 +12,8 @@ extends Resource
 ## Other things at sea: each entry is [x, z, kind] or [x, z, kind, radius];
 ## kinds: "wreck", "whale", "siren", "atoll", "rock" (a reef rock, hidden).
 @export var obstacles: Array = []
+## Pirate ships: each entry is [x, side]: when the ship passes x, pirates come up on that side.
+@export var enemies: Array = []
 ## Big waves: each entry is [x, side] (side +1 starboard, -1 port).
 @export var waves: Array = []
 @export var fog := false

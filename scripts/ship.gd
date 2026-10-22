@@ -9,7 +9,12 @@ const PixelArt = preload("res://scripts/systems/pixel_art.gd")
 const EngineHeatVisual = preload("res://scripts/components/engine_heat_visual.gd")
 const FishingSpot = preload("res://scripts/components/fishing_spot.gd")
 ## Fishing spots along the starboard rail, clear of the leak spots and stations.
-const FISHING_SPOTS := [Vector3(0.6, 0.0, 2.75), Vector3(5.6, 0.0, 2.75)]
+const FISHING_SPOTS := [Vector3(5.6, 0.0, 2.75), Vector3(8.3, 0.0, 2.6)]
+const Cannon = preload("res://scripts/components/cannon.gd")
+const ItemDispenser = preload("res://scripts/components/item_dispenser.gd")
+## Two cannons a side, at the gunports, clear of the leak spots and stations.
+const CANNONS := [Vector3(2.4, 0.0, -2.8), Vector3(5.9, 0.0, -2.8), Vector3(-0.4, 0.0, 2.8), Vector3(2.0, 0.0, 2.8)]
+const BALL_RACK := Vector3(-1.4, 0.0, 0.3)
 const Toon = preload("res://scripts/systems/toon.gd")
 const SHIP_MODEL := "res://assets/art/export/models/ship.glb"
 const MODELS := "res://assets/art/export/models/"
@@ -52,6 +57,13 @@ func _ready() -> void:
 	elif art_style == "painted":
 		_paint()
 	$Engine.add_child(EngineHeatVisual.new())
+	for i in CANNONS.size():
+		var cannon := Cannon.new()
+		cannon.name = "Cannon%d" % (i + 1)
+		cannon.side = signf(CANNONS[i].z)
+		cannon.position = CANNONS[i]
+		add_child(cannon)
+	_add_ball_rack()
 	for i in FISHING_SPOTS.size():
 		var spot := FishingSpot.new()
 		spot.name = "FishingSpot%d" % (i + 1)
@@ -87,6 +99,28 @@ func _paint() -> void:
 	$Pump.add_child(_lever)
 	_gush = _water_gush()
 	$Pump.add_child(_gush)
+
+
+## The cannonball rack in the middle of the deck (it never runs out).
+func _add_ball_rack() -> void:
+	var rack := ItemDispenser.new()
+	rack.name = "BallRack"
+	rack.kind = "ball"
+	rack.stock = 999
+	rack.title = "CANNONBALLS"
+	rack.radius = 1.1
+	rack.position = BALL_RACK
+	var label := Label3D.new()
+	label.name = "Label"
+	label.position = Vector3(0, 1.6, 0)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.font_size = 56
+	label.outline_size = 12
+	rack.add_child(label)
+	if art_style == "painted":
+		rack.add_child(prop("ball_rack", "Painted"))
+	add_child(rack)
 
 
 ## A painted model from assets/art/export/models/ (toon-painted, ready to add).

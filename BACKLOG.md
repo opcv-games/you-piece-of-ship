@@ -18,6 +18,7 @@
 - Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- Block 5 (2026-10-22 evening): sea battles — pirate ships come alongside on one side and fire a broadside when level with you (1 ball, half land on deck and crack the hull); two cannons a side plus a cannonball rack mid-deck; load (Use with a ball), aim (stick), fire (Jump); 3 hits sink them and leave 3 floating loot barrels (60 points each) to sail through; they're slower than full throttle and give up when left 45 m behind or after 75 s; AI "gunner" job (and the AI helm goes full speed to escape); camera pulls back to show the fight; Developer spawn buttons. Reef Run has pirates at 430 m.
 - Block 4 (2026-10-22 evening): fishing — two spots on the starboard rail; Use casts, Jump strikes when the float dips (sardine 20, goldfish 50, squid 40, pufferfish 35, rare treasure 150); points go into the score ("Fish & loot" in the timer pill, bonus line on the results); AI carpenters fish only when nothing needs doing and reel in for any trouble. The Narrows widened to 28 m (the painted ship is longer).
 - Block 3 (2026-10-22 evening): three stars per voyage from the score (1 = delivered, 2 and 3 = good and great scores; thresholds per contract or worked out from the pay; tunable live in Developer → Tune → Stars); stars pop in one by one on the results; best stars saved and shown on the dock.
 - Block 2 (2026-10-22 evening): painted-kawaii look — a real ship (curved hull, pointed bow, raised bow and stern decks with a cabin, mast with sail and crow's nest, bowsprit and jib, fish figurehead, gunports), chubby 3D crew with faces and per-player hats, treasure chests, a hand pump whose lever rocks and gushes water over the side, painted props for every station, Gerstner-wave sea with foam around everything, sun glints and swells for big waves, pastel sky; new obstacles (wreck, whale that swims and dives, siren whose song pulls the wheel, atoll) with chart icons and navigator call-outs; camera looks 14 m ahead of the bow; HUD timer pill. Pixel art kept as a switch (Ship art_style).
@@ -49,6 +50,7 @@
 - Phase 1: Committee Summary approved (2026-10-22)
 
 ## Questions for Olivier
+- Loot from sunk pirates currently just adds points (so coins). What should loot be for? Ideas: buy cosmetics, rare ship parts, a "treasure" star, crew outfits.
 - Lashing the wheel (design's emergency measure for the rudder) is not built: the throttle already changes the turn rate, and the pull continues with nobody at the wheel. Is that enough, or do you want an explicit 'lash the wheel' action?
 - The Reef Run deadline (5:30) was calibrated with a simulated crew. After the first real playtest: too tight, too loose?
 - Simulated crews (perfect navigator, venting engineer, pumper, but nobody repairing) finished the Maiden Voyage in 4:05, the Reef Run in 4:53 and the Fog Bank in 5:42, and sank in The Narrows near the end. Is The Narrows the right kind of hard once real crews repair things?
