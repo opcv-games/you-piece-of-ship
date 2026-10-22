@@ -39,7 +39,7 @@ func test_offline_voyage_has_no_network_role() -> void:
 func test_shared_addresses_are_detected_as_cgnat() -> void:
 	assert_true(Net.is_shared_address("100.72.160.1"), "provider-shared range (CGNAT)")
 	assert_true(Net.is_shared_address("192.168.0.1"))
-	assert_false(Net.is_shared_address("179.152.174.239"), "a real public address")
+	assert_false(Net.is_shared_address("8.8.8.8"), "a real public address")
 	assert_false(Net.is_shared_address(""))
 
 
