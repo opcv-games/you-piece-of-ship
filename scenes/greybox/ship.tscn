@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/ship.gd" id="1_ship"]
 [ext_resource type="Script" path="res://scripts/components/wave_motion.gd" id="2_waves"]
+[ext_resource type="Script" path="res://scripts/components/ship_handling.gd" id="3_handling"]
+[ext_resource type="Script" path="res://scripts/components/station.gd" id="4_station"]
 
 [sub_resource type="StandardMaterial3D" id="mat_hull"]
 albedo_color = Color(0.42, 0.31, 0.23, 1)
@@ -53,6 +55,33 @@ height = 6.0
 [sub_resource type="BoxMesh" id="mesh_bowsprit"]
 material = SubResource("mat_bow")
 size = Vector3(3, 0.25, 0.25)
+
+[sub_resource type="StandardMaterial3D" id="mat_chart"]
+albedo_color = Color(0.2, 0.45, 0.75, 1)
+
+[sub_resource type="BoxMesh" id="mesh_post"]
+material = SubResource("mat_rail")
+size = Vector3(0.25, 1, 0.25)
+
+[sub_resource type="BoxShape3D" id="shape_post"]
+size = Vector3(0.25, 1, 0.25)
+
+[sub_resource type="CylinderMesh" id="mesh_wheel"]
+material = SubResource("mat_bow")
+top_radius = 0.5
+bottom_radius = 0.5
+height = 0.08
+
+[sub_resource type="BoxMesh" id="mesh_table"]
+material = SubResource("mat_deck")
+size = Vector3(1.6, 0.9, 0.8)
+
+[sub_resource type="BoxShape3D" id="shape_table"]
+size = Vector3(1.6, 0.9, 0.8)
+
+[sub_resource type="BoxMesh" id="mesh_chart_top"]
+material = SubResource("mat_chart")
+size = Vector3(1.5, 0.02, 0.7)
 
 [node name="Ship" type="AnimatableBody3D"]
 sync_to_physics = false
@@ -131,3 +160,59 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 3)
 
 [node name="CameraBowTip" type="Marker3D" parent="." groups=["camera_focus"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.9, 0.5, 0)
+
+[node name="ShipHandling" type="Node" parent="." node_paths=PackedStringArray("helm")]
+script = ExtResource("3_handling")
+helm = NodePath("../Helm")
+
+[node name="Helm" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3, 0, 0)
+script = ExtResource("4_station")
+station_name = "Helm"
+
+[node name="PostMesh" type="MeshInstance3D" parent="Helm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.5, 0)
+mesh = SubResource("mesh_post")
+
+[node name="Wheel" type="MeshInstance3D" parent="Helm"]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0.55, 1.1, 0)
+mesh = SubResource("mesh_wheel")
+
+[node name="Label" type="Label3D" parent="Helm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 2.6, 0)
+billboard = 1
+no_depth_test = true
+font_size = 64
+outline_size = 12
+text = "HELM press Use"
+
+[node name="HelmPost" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.6, 0.5, 0)
+shape = SubResource("shape_post")
+
+[node name="MapTable" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -1.5)
+script = ExtResource("4_station")
+station_name = "Map table"
+radius = 1.2
+needs_use = false
+
+[node name="TableMesh" type="MeshInstance3D" parent="MapTable"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -0.95)
+mesh = SubResource("mesh_table")
+
+[node name="ChartTop" type="MeshInstance3D" parent="MapTable"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.91, -0.95)
+mesh = SubResource("mesh_chart_top")
+
+[node name="Label" type="Label3D" parent="MapTable"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, -0.95)
+billboard = 1
+no_depth_test = true
+font_size = 64
+outline_size = 12
+text = "MAP TABLE (stand here)"
+
+[node name="MapTableBody" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.45, -2.45)
+shape = SubResource("shape_table")

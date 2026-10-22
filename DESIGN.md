@@ -130,6 +130,9 @@ Contract 1, "Maiden voyage", teaches by doing and cannot be lost:
 | 2026-10-22 | Fog hides hazards from the helm | Gives the navigator unique, necessary information | Design review of v0.1 |
 | 2026-10-22 | Ship is one moving body rocked by scripted waves (roll 8°, pitch 3°, heave 0.3 m); crew are children of the ship | Players stay on board without a physics sim; the motion is predictable and ship-local, ready for networking (Risk 1) | #1, tests/integration/test_rocking_deck.gd |
 | 2026-10-22 | One shared camera, level with the horizon, always framing the whole ship and all crew | Couch play on one screen; nobody hunts for themselves; the deck visibly rocks against a steady view | #1 |
+| 2026-10-22 | Stations are spots on the deck: the helm (stern) needs Use and takes over the stick; the map table (bow) works by standing at it | Information and controls belong to the station, not the player (section 12); captain and navigator are 10 m apart so they must shout | #2 |
+| 2026-10-22 | Map table chart is heading-up, 70 m range, shown in a screen corner only while someone stands at the table; the camera leaves that corner free | "Rock at 2 o'clock" means the same to captain and navigator; the shared couch screen is a known risk (section 10) | #2 |
+| 2026-10-22 | Rock hits stop the ship, bounce it back and reveal the rock; no hull damage yet | Damage arrives with #3; this keeps #2 about callouts only | #2 |
 
 ## 12. Posts (roles)
 Information and controls belong to the station, not the player. Anyone can use any station.

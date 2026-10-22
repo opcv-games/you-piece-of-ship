@@ -24,3 +24,5 @@ func _physics_process(_delta: float) -> void:
 		PlayerControls.action(i, "up"), PlayerControls.action(i, "down"))
 	if Input.is_action_just_pressed(PlayerControls.action(i, "jump")):
 		_player.jump_requested = true
+	if Input.is_action_just_pressed(PlayerControls.action(i, "use")):
+		_player.use_requested = true

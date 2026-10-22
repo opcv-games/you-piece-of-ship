@@ -1,0 +1,180 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/reef_run.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://scenes/greybox/ship.tscn" id="2_ship"]
+[ext_resource type="PackedScene" path="res://scenes/greybox/crew_player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://scripts/components/shared_camera.gd" id="4_camera"]
+[ext_resource type="PackedScene" path="res://scenes/greybox/rock.tscn" id="5_rock"]
+[ext_resource type="Script" path="res://scripts/components/map_chart.gd" id="6_chart"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.62, 0.8, 0.93, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.85, 0.9, 1, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_water"]
+albedo_color = Color(0.13, 0.42, 0.62, 1)
+
+[sub_resource type="PlaneMesh" id="mesh_water"]
+material = SubResource("mat_water")
+size = Vector2(400, 400)
+
+[sub_resource type="StandardMaterial3D" id="mat_buoy"]
+albedo_color = Color(1, 0.85, 0.2, 1)
+
+[sub_resource type="CylinderMesh" id="mesh_buoy"]
+material = SubResource("mat_buoy")
+top_radius = 0.6
+bottom_radius = 0.8
+height = 3.0
+
+[node name="ReefRun" type="Node3D"]
+script = ExtResource("1_level")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, 30, 0)
+shadow_enabled = true
+
+[node name="Water" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh_water")
+
+[node name="Ship" parent="." instance=ExtResource("2_ship")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+
+[node name="Crew" type="Node3D" parent="Ship"]
+
+[node name="P1" parent="Ship/Crew" instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -1.6)
+player_index = 1
+
+[node name="P2" parent="Ship/Crew" instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -0.7)
+player_index = 2
+
+[node name="P3" parent="Ship/Crew" instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 0.7)
+player_index = 3
+
+[node name="P4" parent="Ship/Crew" instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 1.6)
+player_index = 4
+
+[node name="Reef" type="Node3D" parent="."]
+
+[node name="Rock1" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0, 0)
+radius = 3.5
+
+[node name="Rock2" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0, -9)
+radius = 4
+
+[node name="Rock3" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, 8)
+radius = 3.5
+
+[node name="Rock4" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112, 0, 1)
+radius = 4
+
+[node name="Rock5" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 140, 0, -7)
+radius = 3.5
+
+[node name="Rock6" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 0, 9)
+radius = 4
+
+[node name="Rock7" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 0, -1)
+radius = 3.5
+
+[node name="Rock8" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 205, 0, -11)
+radius = 4
+
+[node name="Rock9" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210, 0, 6)
+radius = 3.5
+
+[node name="Rock10" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 240, 0, -3)
+radius = 4
+
+[node name="Rock11" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 265, 0, 9)
+radius = 3.5
+
+[node name="Rock12" parent="Reef" instance=ExtResource("5_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 270, 0, -10)
+radius = 3.5
+
+[node name="BuoyPort" type="MeshInstance3D" parent="." groups=["finish"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 1, -12)
+mesh = SubResource("mesh_buoy")
+
+[node name="BuoyStarboard" type="MeshInstance3D" parent="." groups=["finish"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 1, 12)
+mesh = SubResource("mesh_buoy")
+
+[node name="SharedCamera" type="Camera3D" parent="."]
+fov = 50.0
+script = ExtResource("4_camera")
+reserve_right = 0.25
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Controls" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 1100.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
+theme_override_font_sizes/font_size = 16
+text = "P1: W A S D (Z Q S D on French keyboard) move, Space jump, E use     P2: arrows move, Enter jump, Right Shift use
+Controllers: left stick move, A jump, X use     At the helm: left/right steer, up/down throttle     R: restart"
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 58.0
+offset_right = 700.0
+offset_bottom = 90.0
+theme_override_colors/font_color = Color(0.1, 0.15, 0.25, 1)
+theme_override_font_sizes/font_size = 20
+text = "Speed 0%"
+
+[node name="MapChart" type="Control" parent="HUD" node_paths=PackedStringArray("station", "ship")]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -350.0
+offset_right = -20.0
+offset_bottom = -30.0
+mouse_filter = 2
+script = ExtResource("6_chart")
+station = NodePath("../../Ship/MapTable")
+ship = NodePath("../../Ship")
+
+[node name="Banner" type="Label" parent="HUD"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -70.0
+offset_right = 450.0
+offset_bottom = 70.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.1, 0.2, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "PORT REACHED"
