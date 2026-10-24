@@ -7,16 +7,16 @@ Non-developer: Claude runs every command, uses plain language, and gives click-b
 
 ## Every session (keep the reading small)
 1. `git pull`, then read only the **Current phase** line of `DESIGN.md` and the **Now** section of `BACKLOG.md`.
-2. Use the **Code map** below to open only the files the task touches. Don't read whole folders, and don't read `DESIGN.md`, `docs/PLAYTEST_LOG.md` or `.tscn` files end to end: `grep -n "^## " DESIGN.md` lists its sections (1 Pitch … 11 Decision Log, 12 Posts, 13 Ship Systems, 14 Progression/Battles/Side Jobs), then read just the section you need. Big files (`voyage.gd`, `ai_crew.gd`, `pause_menu.gd`, `ship.tscn`): `grep -n "^func "` first, then read only the function you need.
+2. Use the **Code map** below to open only the files the task touches. Don't read whole folders, and don't read `DESIGN.md`, `docs/PLAYTEST_LOG.md` or `.tscn` files end to end: `grep -n "^## " DESIGN.md` lists its sections (1 Pitch … 11 Decision Log, 12 Posts, 13 Ship Systems, 14 Progression/Battles/Side Jobs), then read just the section you need. Big files (`voyage.gd`, `pause_menu.gd`, `ship.tscn`): `grep -n "^func "` first, then read only the function you need.
 3. Work only on the top "Now" item unless the user explicitly re-prioritizes.
 4. Resume the pipeline from the current phase. Never restart ideation.
 
 ## Code map
 Every script starts with a `##` line saying what it does; `grep -m1 "^##" path` is a cheap way to check one.
-- `scripts/levels/voyage.gd` — one voyage: builds the route, port, sky/storm/fog, runs the clock, contract events, pirates, Developer mode, results.
+- `scripts/levels/voyage.gd` — one voyage: setup, the clock, crew/AI takeovers, contract events, hints, results. Helpers in `scripts/levels/voyage/`: `voyage_route` (rocks, cliffs, port, dev spawns), `voyage_sky` (sky, fog, storm, lightning), `voyage_pirates` (enemy ships, cannonball hits), `voyage_dev` (Developer mode, Test Drive, collision view).
 - `scripts/ship.gd` — the ship; everything on board is its child. Scene: `scenes/greybox/ship.tscn`.
 - `scripts/crew_player.gd` — one crew member: walk, jump, carry, use. Controls: `scripts/components/player_input.gd`, `scripts/systems/player_controls.gd`.
-- `scripts/ai/` — AI crewmates: `ai_crew.gd` (one AI's body and jobs), `crew_brain.gd` (shared brain, who takes which station).
+- `scripts/ai/` — AI crewmates: `ai_crew.gd` (one AI's body: moving, pressing, picking a job), `crew_brain.gd` (shared brain, who takes which station). One script per job in `scripts/ai/jobs/`: `ai_steering` (helm, pump, engine, autopilot), `ai_navigator` (callouts, bearings), `ai_carpenter` (leaks, pipe, fetch and bring), `ai_idle` (idle work, fishing, cargo), `ai_gunner` (cannons).
 - `scripts/components/` — one small node per job:
   - Ship systems: `hull_system` + `breach` (leaks), `engine_system` + `engine_station` + `coal_pile` + `engine_gauge` + `engine_heat_visual`, `rudder_system`, `load_system` + `cargo_bay`, `repair_station` (cooling pipe).
   - Sailing and sea: `ship_handling` (speed/steering), `wave_motion` (rocking), `sea`, `ship_wake`, `shared_camera`.

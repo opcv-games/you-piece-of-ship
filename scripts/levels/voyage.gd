@@ -8,18 +8,18 @@ signal hint_shown(text: String)
 signal voyage_over(delivered: bool)
 
 const ContractLibrary = preload("res://scripts/contracts/contract_library.gd")
-const RockScene = preload("res://scenes/greybox/rock.tscn")
+const VoyageDev = preload("res://scripts/levels/voyage/voyage_dev.gd")
+const VoyageSky = preload("res://scripts/levels/voyage/voyage_sky.gd")
+const VoyageRoute = preload("res://scripts/levels/voyage/voyage_route.gd")
+const VoyagePirates = preload("res://scripts/levels/voyage/voyage_pirates.gd")
 const Upgrades = preload("res://scripts/systems/upgrades.gd")
 const AICrew = preload("res://scripts/ai/ai_crew.gd")
-const Toon = preload("res://scripts/systems/toon.gd")
 const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const PauseMenu = preload("res://scripts/ui/pause_menu.gd")
 const Stars = preload("res://scripts/systems/stars.gd")
 const StarRules = preload("res://scripts/systems/star_rules.gd")
-const EnemyShip = preload("res://scripts/components/enemy_ship.gd")
 const DOCK_SCENE := "res://scenes/levels/dock.tscn"
 const WORLD_MAP_SCENE := "res://scenes/ui/world_map.tscn"
-const OBSTACLE_RADIUS := {"wreck": 4.0, "whale": 3.5, "siren": 2.5, "atoll": 12.0, "rock": 3.5}
 
 @export var contract: Resource ## leave empty to use the session's chosen contract
 
@@ -39,6 +39,11 @@ var god_mode := false
 var test_drive := false ## developer mode: no obstacles, no port, just open sea
 var bonus_points := 0 ## fish caught and loot scooped up on the way (added to the score) ## developer mode: no flooding, no overheating, no running dry
 
+var _dev := VoyageDev.new(self) ## Developer mode
+var _sky := VoyageSky.new(self) ## sky, fog, storm
+var _route := VoyageRoute.new(self) ## rocks, cliffs, port
+var _pirates := VoyagePirates.new(self)
+
 @onready var _ship: Node3D = $Ship
 @onready var _handling: Node = $Ship/ShipHandling
 @onready var _water: Node3D = $Water
@@ -51,12 +56,12 @@ func _ready() -> void:
 	if contract == null:
 		contract = ContractLibrary.by_index(Session.contract_index)
 	finish_x = contract.length
-	_build_route()
+	_route.build_route()
 	$HUD/MapChart.port_x = finish_x
 	$Music.finish_x = finish_x
 	$HazardDirector.setup(contract.waves)
 	$HUD/MapChart.range_metres = contract.chart_range
-	_apply_fog(contract.fog)
+	_sky.apply_fog(contract.fog)
 	for crate in get_tree().get_nodes_in_group("cargo"):
 		crate.value = contract.pay_per_crate # each contract pays its own rate
 	Upgrades.apply(_ship, Session.upgrades)
@@ -91,7 +96,7 @@ func _ready() -> void:
 	pause.name = "PauseMenu"
 	pause.voyage = self
 	add_child(pause)
-	_setup_sky()
+	_sky.setup_sky()
 	var pill := StyleBoxFlat.new()
 	pill.bg_color = Color(0.09, 0.15, 0.27, 0.85)
 	pill.set_corner_radius_all(18)
@@ -177,7 +182,7 @@ func _physics_process(delta: float) -> void:
 	if not started:
 		_handling.throttle = 0.0 # moored until the crew sets sail
 	if has_node("CollisionView"):
-		_draw_collision_view()
+		_dev.draw_collision_view()
 	if god_mode:
 		$Ship/HullSystem.water = 0.0
 		$Ship/EngineSystem.heat = minf($Ship/EngineSystem.heat, 0.6)
@@ -186,7 +191,7 @@ func _physics_process(delta: float) -> void:
 		_check_takeovers()
 	if started and not finished:
 		_run_events()
-		_run_enemies()
+		_pirates.run_enemies()
 		elapsed += delta
 		if _ship.global_position.x >= finish_x:
 			_finish()
@@ -264,186 +269,7 @@ func take_over(index: int) -> void:
 		$CrewBrain.assignments.erase(player)
 
 
-## Developer "Test Drive": clears every obstacle, pirate, scripted event and wave, removes the port
-## and the cliffs, and makes the sea endless, to try the ship's handling in peace.
-func set_test_drive(on: bool) -> void:
-	if not on:
-		if test_drive and is_inside_tree() and get_tree().current_scene == self:
-			get_tree().reload_current_scene() # back to the real route
-		return
-	test_drive = true
-	for child in $Reef.get_children():
-		child.queue_free()
-	for loot in get_tree().get_nodes_in_group("loot"):
-		loot.queue_free()
-	for node in get_tree().get_nodes_in_group("finish"):
-		node.queue_free()
-	if has_node("Dock"):
-		$Dock.queue_free()
-	contract = contract.duplicate()
-	contract.events = []
-	contract.enemies = []
-	contract.obstacles = []
-	contract.coast_half_width = INF
-	_next_event = 0
-	_next_enemy = 0
-	$HazardDirector.setup([])
-	finish_x = INF
-	$HUD/MapChart.port_x = INF
-	$Music.finish_x = INF
-
-
-## Developer: draws the hull's collision outline and every obstacle's collision circle on the sea,
-## to check they match what you see.
-func _toggle_collision_view() -> void:
-	if has_node("CollisionView"):
-		$CollisionView.queue_free()
-		return
-	var view := MeshInstance3D.new()
-	view.name = "CollisionView"
-	view.mesh = ImmediateMesh.new()
-	var red := StandardMaterial3D.new()
-	red.albedo_color = Color(1.0, 0.15, 0.4)
-	red.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	red.no_depth_test = true
-	view.material_override = red
-	add_child(view)
-
-
-func _draw_collision_view() -> void:
-	var mesh: ImmediateMesh = $CollisionView.mesh
-	mesh.clear_surfaces()
-	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-	var fwd: Vector3 = _handling.forward()
-	var right := Vector3(-fwd.z, 0.0, fwd.x)
-	var outline: PackedVector2Array = _handling.hull_outline()
-	var origin := Vector3(_ship.global_position.x, 0.3, _ship.global_position.z)
-	for i in outline.size():
-		var a := outline[i]
-		var b := outline[(i + 1) % outline.size()]
-		mesh.surface_add_vertex(origin + fwd * a.x + right * a.y)
-		mesh.surface_add_vertex(origin + fwd * b.x + right * b.y)
-	for rock in get_tree().get_nodes_in_group("rocks"):
-		if rock.global_position.distance_to(_ship.global_position) > 140.0:
-			continue
-		var c := Vector3(rock.global_position.x, 0.3, rock.global_position.z)
-		for k in 24:
-			mesh.surface_add_vertex(c + Vector3.FORWARD.rotated(Vector3.UP, k * TAU / 24.0) * rock.radius)
-			mesh.surface_add_vertex(c + Vector3.FORWARD.rotated(Vector3.UP, (k + 1) * TAU / 24.0) * rock.radius)
-	mesh.surface_end()
-
-
-# --- Pirates ------------------------------------------------------------------------------
-
-func _run_enemies() -> void:
-	while _next_enemy < contract.enemies.size() and _ship.global_position.x >= contract.enemies[_next_enemy][0]:
-		spawn_enemy(float(contract.enemies[_next_enemy][1]))
-		_next_enemy += 1
-
-
-## Pirates appear behind the ship on one side and come alongside.
-func spawn_enemy(side: float) -> Node3D:
-	var enemy := EnemyShip.new()
-	enemy.name = "Pirates%d" % get_tree().get_nodes_in_group("enemy_ships").size()
-	enemy.side = side
-	enemy.target = _ship
-	$Reef.add_child(enemy)
-	var right: Vector3 = _ship.global_basis.z
-	enemy.global_position = _ship.global_position - _handling.forward() * 35.0 + right * side * 22.0
-	enemy.global_position.y = 0.0
-	enemy.rotation.y = _ship.rotation.y
-	enemy.sunk.connect(func(_e): $VoyageLog.add("Pirates sunk! Scoop up the loot", "good"); show_hint(tr("Pirates sunk! Sail through the floating loot to scoop it up.")))
-	enemy.broadside.connect(func(): $VoyageLog.add("Pirates fired a broadside", "info"))
-	$VoyageLog.add("Pirates on the %s side!", "bad", ["starboard" if side > 0.0 else "port"])
-	show_hint(tr("PIRATES! Outrun them at full speed, or load the cannons on that side (cannonballs in the middle of the deck)."))
-	return enemy
-
-
-## An enemy cannonball landed on the deck: it cracks the hull there, like a rock would.
-func cannon_hit(point: Vector3) -> void:
-	hits += 1
-	$Ship/HullSystem.add_breach(_ship.to_local(point))
-	$VoyageLog.add("Cannonball hit!", "bad")
-	$Music.sting("sting_crash")
-	_banner.text = tr("BOOM!")
-	_banner.visible = true
-	_crash_flash = 0.8
-	$SharedCamera.add_trauma(0.5)
-	var local := _ship.to_local(point)
-	for player in get_tree().get_nodes_in_group("crew"):
-		if player.position.distance_to(local) < 2.5:
-			player.knock_down(Vector2(player.position.x - local.x, player.position.z - local.z).normalized())
-
-
-# --- Developer mode (Esc → Developer) ------------------------------------------------------
-
-const DEV_EVENTS := ["crash", "leak", "flood", "overheat", "stall", "out_of_coal", "rudder", "wave_port",
-		"wave_starboard", "loose_cargo", "reach_port", "sink", "add_coins", "unlock_all", "god_mode"]
-
-
-## Forces an event right now, for testing and tuning. Returns false for an unknown event.
-func dev_event(event: String) -> bool:
-	var ship := _ship
-	match event:
-		"crash":
-			var rock: Node3D = RockScene.instantiate()
-			rock.radius = 1.0
-			rock.position = ship.global_position + _handling.forward() * 8.0
-			$Reef.add_child(rock)
-			_handling.speed = maxf(_handling.speed, _handling.max_speed * 0.8)
-			_handling._hit(rock)
-		"leak":
-			$Ship/HullSystem.add_breach(Vector3(randf_range(-6.0, 6.0), 0.0, 3.0 * (1.0 if randf() < 0.5 else -1.0)))
-		"flood":
-			$Ship/HullSystem.water = minf(1.0, $Ship/HullSystem.water + 0.3)
-		"overheat":
-			$Ship/EngineSystem.heat = 1.0
-		"stall":
-			var engine := $Ship/EngineSystem
-			engine.heat = 1.0
-			engine.warning_left = 0.01
-		"out_of_coal":
-			$Ship/EngineSystem.fuel = 0.0
-		"rudder":
-			$Ship/RudderSystem.try_damage(1.0)
-		"wave_port", "wave_starboard":
-			$Ship/WaveMotion.big_wave(-1.0 if event == "wave_port" else 1.0)
-		"loose_cargo":
-			var cargo := $Ship/LoadSystem
-			for crate in cargo.crates():
-				if crate.lashed:
-					get_tree().get_first_node_in_group("cargo_bay").unlash(crate)
-					crate.velocity = Vector2(0.0, 3.0)
-					cargo.crate_loose.emit(crate)
-					break
-		"reach_port":
-			if test_drive:
-				return false # an endless sea has no port
-			ship.position.x = finish_x + 1.0
-		"sink":
-			$Ship/HullSystem.sink_grace_seconds = 0.0
-			$Ship/HullSystem.water = 1.0
-		"add_coins":
-			Session.money += 500
-			Session.save_game()
-		"unlock_all":
-			Session.unlocked = ContractLibrary.all_contracts().size()
-			Session.unlock_everything = true
-			Session.save_game()
-		"god_mode":
-			god_mode = not god_mode
-		"show_collisions":
-			_toggle_collision_view()
-		"spawn_enemy_port", "spawn_enemy_starboard":
-			spawn_enemy(-1.0 if event == "spawn_enemy_port" else 1.0)
-		"spawn_rock", "spawn_wreck", "spawn_whale", "spawn_siren", "spawn_atoll":
-			_spawn_ahead(event.trim_prefix("spawn_"))
-		_:
-			return false
-	return true
-
-
-# --- Contract events and fog --------------------------------------------------------
+# --- Contract events and hints ------------------------------------------------------
 
 func _run_events() -> void:
 	while _next_event < contract.events.size() and _ship.global_position.x >= contract.events[_next_event][0]:
@@ -490,178 +316,6 @@ func show_hint(text: String, seconds := 7.0) -> void:
 	_hint_left = seconds
 
 
-func _apply_fog(on: bool) -> void:
-	var telescope := $Ship/Telescope
-	telescope.enabled = on
-	telescope.visible = on
-	var environment: Environment = $WorldEnvironment.environment
-	environment.fog_enabled = on
-	if on:
-		# Light enough that the deck (about 30 m from the camera) stays readable; the sea beyond fades.
-		environment.fog_light_color = Color(0.72, 0.75, 0.78)
-		environment.fog_density = 0.016
-		environment.background_color = Color(0.72, 0.75, 0.78)
-	else:
-		environment.background_color = Color(0.62, 0.8, 0.93)
-
-
-## A soft pastel sky, warm sunlight, a little glow on bright things (lanterns, glints).
-func _setup_sky() -> void:
-	var environment: Environment = $WorldEnvironment.environment
-	var sky_material := ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color(0.36, 0.62, 0.92)
-	sky_material.sky_horizon_color = Color(0.8, 0.9, 0.98)
-	sky_material.ground_horizon_color = Color(0.7, 0.86, 0.95)
-	sky_material.ground_bottom_color = Color(0.2, 0.45, 0.7)
-	sky_material.sun_angle_max = 20.0
-	var sky := Sky.new()
-	sky.sky_material = sky_material
-	environment.sky = sky
-	if not contract.fog:
-		environment.background_mode = Environment.BG_SKY
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.82, 0.86, 1.0)
-	environment.ambient_light_energy = 0.75
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.tonemap_white = 6.0
-	environment.glow_enabled = true
-	environment.glow_intensity = 0.5
-	environment.glow_bloom = 0.05
-	environment.glow_hdr_threshold = 1.1
-	var sun := $Sun as DirectionalLight3D
-	sun.light_color = Color(1.0, 0.95, 0.85)
-	sun.light_energy = 1.25
-	sun.shadow_blur = 2.0
-	if contract.storm:
-		_setup_storm(sky_material, environment, sun)
-
-
-## A storm: bruised purple sky, dim light, rough sea, rain around the camera, lightning now and then.
-func _setup_storm(sky_material: ProceduralSkyMaterial, environment: Environment, sun: DirectionalLight3D) -> void:
-	sky_material.sky_top_color = Color(0.22, 0.2, 0.32)
-	sky_material.sky_horizon_color = Color(0.45, 0.45, 0.55)
-	sky_material.ground_horizon_color = Color(0.4, 0.42, 0.5)
-	environment.ambient_light_color = Color(0.6, 0.62, 0.78)
-	environment.ambient_light_energy = 0.6
-	sun.light_energy = 0.55
-	sun.light_color = Color(0.8, 0.82, 0.95)
-	if _water.has_method("set_storm"):
-		_water.set_storm(true)
-	var rain := CPUParticles3D.new()
-	rain.name = "Rain"
-	rain.amount = 1400
-	rain.lifetime = 0.9
-	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	rain.emission_box_extents = Vector3(30, 1, 22)
-	var streak := QuadMesh.new()
-	streak.size = Vector2(0.07, 1.4)
-	var wet := StandardMaterial3D.new()
-	wet.albedo_color = Color(0.85, 0.9, 1.0, 0.7)
-	wet.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	wet.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	wet.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
-	streak.material = wet
-	rain.mesh = streak
-	rain.direction = Vector3(0.25, -1, 0)
-	rain.spread = 4.0
-	rain.gravity = Vector3(0, -30, 0)
-	rain.initial_velocity_min = 18.0
-	rain.initial_velocity_max = 24.0
-	rain.position = Vector3(0, 16, 0)
-	_ship.add_child(rain)
-	var lightning := Timer.new()
-	lightning.name = "Lightning"
-	lightning.wait_time = 9.0
-	lightning.autostart = true
-	lightning.timeout.connect(_lightning)
-	add_child(lightning)
-
-
-func _lightning() -> void:
-	var environment: Environment = $WorldEnvironment.environment
-	var flash := create_tween()
-	flash.tween_property(environment, "ambient_light_energy", 2.6, 0.05)
-	flash.tween_property(environment, "ambient_light_energy", 0.6, 0.12)
-	flash.tween_property(environment, "ambient_light_energy", 2.0, 0.05)
-	flash.tween_property(environment, "ambient_light_energy", 0.6, 0.4)
-	($Lightning as Timer).wait_time = randf_range(7.0, 15.0)
-
-
-# --- Route ---------------------------------------------------------------------
-
-func _build_route() -> void:
-	var reef := $Reef
-	var count := 0
-	for row in contract.rock_rows:
-		var radius: float = row[2] if row.size() > 2 else 3.5
-		for z in row[1]:
-			count += 1
-			_add_rock(reef, "Rock%d" % count, Vector3(row[0], 0.0, z), radius, true)
-	for entry in contract.obstacles:
-		count += 1
-		var kind: String = entry[2]
-		var size: float = entry[3] if entry.size() > 3 else OBSTACLE_RADIUS.get(kind, 3.5)
-		_add_rock(reef, "%s%d" % [kind.capitalize(), count], Vector3(entry[0], 0.0, entry[1]), size, kind == "rock", kind)
-	# Visible cliffs along both sides keep the ship in the channel.
-	var x := -40.0
-	var i := 0
-	while x < finish_x + 80.0:
-		for side in [-1.0, 1.0]:
-			i += 1
-			var wobble := sin(x * 0.07 + side) * 3.0
-			_add_rock(reef, "Cliff%d" % i, Vector3(x, 0.0, side * (contract.coast_half_width + 6.0 + wobble)), 6.0, false)
-		x += 11.0
-	_build_port()
-
-
-func _add_rock(parent: Node, rock_name: String, where: Vector3, radius: float, hidden: bool, kind := "") -> Node3D:
-	var rock: Node3D = RockScene.instantiate()
-	rock.name = rock_name
-	rock.radius = radius
-	rock.hidden = hidden
-	rock.kind = kind if kind != "" else ("rock" if hidden else "cliff")
-	rock.position = where
-	parent.add_child(rock)
-	return rock
-
-
-func _build_port() -> void:
-	var buoy_mesh := CylinderMesh.new()
-	buoy_mesh.top_radius = 0.6
-	buoy_mesh.bottom_radius = 0.8
-	buoy_mesh.height = 3.0
-	var yellow := StandardMaterial3D.new()
-	yellow.albedo_color = Color(1, 0.85, 0.2)
-	buoy_mesh.material = yellow
-	if Toon.painted:
-		for side in [-1.0, 1.0]:
-			var buoy: Node3D = _ship.prop("buoy", "Buoy%s" % ("Port" if side < 0.0 else "Starboard"))
-			buoy.position = Vector3(finish_x, 0.0, side * 12.0)
-			buoy.add_to_group("finish")
-			add_child(buoy)
-		var harbour: Node3D = _ship.prop("port", "Dock")
-		harbour.position = Vector3(finish_x + 30.0, 0.0, 0.0)
-		add_child(harbour)
-		return
-	for side in [-1.0, 1.0]:
-		var buoy := MeshInstance3D.new()
-		buoy.name = "Buoy%s" % ("Port" if side < 0.0 else "Starboard")
-		buoy.mesh = buoy_mesh
-		buoy.position = Vector3(finish_x, 1.0, side * 12.0)
-		buoy.add_to_group("finish")
-		add_child(buoy)
-	var dock_mesh := BoxMesh.new()
-	dock_mesh.size = Vector3(30, 3, 70)
-	var stone := StandardMaterial3D.new()
-	stone.albedo_color = Color(0.55, 0.53, 0.5)
-	dock_mesh.material = stone
-	var dock := MeshInstance3D.new()
-	dock.name = "Dock"
-	dock.mesh = dock_mesh
-	dock.position = Vector3(finish_x + 45.0, 1.0, 0.0)
-	add_child(dock)
-
-
 # --- Events --------------------------------------------------------------------
 
 ## A big wave: the sea shows the swell rolling in from that side.
@@ -670,23 +324,6 @@ func _on_wave_warning(side: float) -> void:
 		var starboard: Vector3 = _ship.global_basis * Vector3(0, 0, 1)
 		_water.swell(_ship.global_position, -starboard * side)
 
-
-## Developer events added by the obstacles: spawn each kind just ahead of the ship.
-func dev_extra_events() -> Array:
-	return [["show_collisions", "Show collision shapes"], ["spawn_enemy_port", "Spawn: pirates (port)"], ["spawn_enemy_starboard", "Spawn: pirates (starboard)"],
-			["spawn_rock", "Spawn: reef rock"], ["spawn_wreck", "Spawn: shipwreck"], ["spawn_whale", "Spawn: whale"],
-			["spawn_siren", "Spawn: siren"], ["spawn_atoll", "Spawn: atoll"]]
-
-
-func _spawn_ahead(kind: String) -> Node3D:
-	var ahead: Vector3 = _ship.global_position + _handling.forward() * (45.0 + OBSTACLE_RADIUS[kind])
-	ahead.y = 0.0
-	if kind == "siren":
-		ahead += Vector3(0, 0, 16.0) # beside the lane: she lures rather than blocks
-	var rock := _add_rock($Reef, "Dev%s%d" % [kind.capitalize(), $Reef.get_child_count()], ahead, OBSTACLE_RADIUS[kind],
-			kind == "rock", kind)
-	rock.home = ahead
-	return rock
 
 
 func _on_rock_hit(_rock: Node3D) -> void:
@@ -748,23 +385,34 @@ func _show_results() -> void:
 	results.show_results(outcome, $VoyageLog.recap())
 
 
-func _spawn_foam() -> void:
-	var flecks := MultiMeshInstance3D.new()
-	var multimesh := MultiMesh.new()
-	multimesh.transform_format = MultiMesh.TRANSFORM_3D
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.8, 0.04, 0.35)
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.85, 0.93, 1.0)
-	mesh.material = material
-	multimesh.mesh = mesh
-	var area: float = (finish_x + 120.0) * contract.coast_half_width * 2.0
-	multimesh.instance_count = int(area / 25.0)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	for i in multimesh.instance_count:
-		var spot := Vector3(rng.randf_range(-60.0, finish_x + 60.0), 0.03,
-				rng.randf_range(-contract.coast_half_width, contract.coast_half_width))
-		multimesh.set_instance_transform(i, Transform3D(Basis(Vector3.UP, rng.randf() * TAU), spot))
-	flecks.multimesh = multimesh
-	add_child(flecks)
+# --- Forwarders (callers outside this script use these names) -----------------------------
+
+## Pirates appear behind the ship on one side and come alongside.
+func spawn_enemy(side: float) -> Node3D:
+	return _pirates.spawn_enemy(side)
+
+
+## An enemy cannonball landed on the deck: it cracks the hull there, like a rock would.
+func cannon_hit(point: Vector3) -> void:
+	_pirates.cannon_hit(point)
+
+
+## Developer: forces an event right now. Returns false for an unknown event.
+func dev_event(event: String) -> bool:
+	return _dev.dev_event(event)
+
+
+func dev_extra_events() -> Array:
+	return _dev.dev_extra_events()
+
+
+func set_test_drive(on: bool) -> void:
+	_dev.set_test_drive(on)
+
+
+func _spawn_ahead(kind: String) -> Node3D:
+	return _route.spawn_ahead(kind)
+
+
+func _lightning() -> void:
+	_sky.lightning()
