@@ -8,6 +8,7 @@ extends AnimatableBody3D
 const PixelArt = preload("res://scripts/systems/pixel_art.gd")
 const EngineHeatVisual = preload("res://scripts/components/engine_heat_visual.gd")
 const FishingSpot = preload("res://scripts/components/fishing_spot.gd")
+const ShipWake = preload("res://scripts/components/ship_wake.gd")
 ## Fishing spots along the starboard rail, clear of the leak spots and stations.
 const FISHING_SPOTS := [Vector3(5.6, 0.0, 2.75), Vector3(8.3, 0.0, 2.6)]
 const Cannon = preload("res://scripts/components/cannon.gd")
@@ -57,6 +58,7 @@ func _ready() -> void:
 	elif art_style == "painted":
 		_paint()
 	$Engine.add_child(EngineHeatVisual.new())
+	add_child(ShipWake.new())
 	for i in CANNONS.size():
 		var cannon := Cannon.new()
 		cannon.name = "Cannon%d" % (i + 1)

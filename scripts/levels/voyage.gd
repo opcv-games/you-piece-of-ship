@@ -176,6 +176,8 @@ func _physics_process(delta: float) -> void:
 	$HazardDirector.set_physics_process(started and not finished)
 	if not started:
 		_handling.throttle = 0.0 # moored until the crew sets sail
+	if has_node("CollisionView"):
+		_draw_collision_view()
 	if god_mode:
 		$Ship/HullSystem.water = 0.0
 		$Ship/EngineSystem.heat = minf($Ship/EngineSystem.heat, 0.6)
@@ -291,6 +293,46 @@ func set_test_drive(on: bool) -> void:
 	$Music.finish_x = INF
 
 
+## Developer: draws the hull's collision outline and every obstacle's collision circle on the sea,
+## to check they match what you see.
+func _toggle_collision_view() -> void:
+	if has_node("CollisionView"):
+		$CollisionView.queue_free()
+		return
+	var view := MeshInstance3D.new()
+	view.name = "CollisionView"
+	view.mesh = ImmediateMesh.new()
+	var red := StandardMaterial3D.new()
+	red.albedo_color = Color(1.0, 0.15, 0.4)
+	red.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	red.no_depth_test = true
+	view.material_override = red
+	add_child(view)
+
+
+func _draw_collision_view() -> void:
+	var mesh: ImmediateMesh = $CollisionView.mesh
+	mesh.clear_surfaces()
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	var fwd: Vector3 = _handling.forward()
+	var right := Vector3(-fwd.z, 0.0, fwd.x)
+	var outline: PackedVector2Array = _handling.hull_outline()
+	var origin := Vector3(_ship.global_position.x, 0.3, _ship.global_position.z)
+	for i in outline.size():
+		var a := outline[i]
+		var b := outline[(i + 1) % outline.size()]
+		mesh.surface_add_vertex(origin + fwd * a.x + right * a.y)
+		mesh.surface_add_vertex(origin + fwd * b.x + right * b.y)
+	for rock in get_tree().get_nodes_in_group("rocks"):
+		if rock.global_position.distance_to(_ship.global_position) > 140.0:
+			continue
+		var c := Vector3(rock.global_position.x, 0.3, rock.global_position.z)
+		for k in 24:
+			mesh.surface_add_vertex(c + Vector3.FORWARD.rotated(Vector3.UP, k * TAU / 24.0) * rock.radius)
+			mesh.surface_add_vertex(c + Vector3.FORWARD.rotated(Vector3.UP, (k + 1) * TAU / 24.0) * rock.radius)
+	mesh.surface_end()
+
+
 # --- Pirates ------------------------------------------------------------------------------
 
 func _run_enemies() -> void:
@@ -390,6 +432,8 @@ func dev_event(event: String) -> bool:
 			Session.save_game()
 		"god_mode":
 			god_mode = not god_mode
+		"show_collisions":
+			_toggle_collision_view()
 		"spawn_enemy_port", "spawn_enemy_starboard":
 			spawn_enemy(-1.0 if event == "spawn_enemy_port" else 1.0)
 		"spawn_rock", "spawn_wreck", "spawn_whale", "spawn_siren", "spawn_atoll":
@@ -629,7 +673,7 @@ func _on_wave_warning(side: float) -> void:
 
 ## Developer events added by the obstacles: spawn each kind just ahead of the ship.
 func dev_extra_events() -> Array:
-	return [["spawn_enemy_port", "Spawn: pirates (port)"], ["spawn_enemy_starboard", "Spawn: pirates (starboard)"],
+	return [["show_collisions", "Show collision shapes"], ["spawn_enemy_port", "Spawn: pirates (port)"], ["spawn_enemy_starboard", "Spawn: pirates (starboard)"],
 			["spawn_rock", "Spawn: reef rock"], ["spawn_wreck", "Spawn: shipwreck"], ["spawn_whale", "Spawn: whale"],
 			["spawn_siren", "Spawn: siren"], ["spawn_atoll", "Spawn: atoll"]]
 
@@ -647,7 +691,7 @@ func _spawn_ahead(kind: String) -> Node3D:
 
 func _on_rock_hit(_rock: Node3D) -> void:
 	hits += 1
-	if not finished:
+	if not finished and _handling.impact_strength() > 0.3:
 		_banner.text = tr("CRASH!")
 		_banner.visible = true
 		_crash_flash = 1.0

@@ -29,6 +29,7 @@ func _crash() -> Node3D:
 	var rock: Node3D = RockScene.instantiate()
 	_level.add_child(rock)
 	rock.global_position = _ship.global_position + Vector3(9, -_ship.global_position.y, 0)
+	_ship.get_node("ShipHandling").impact_speed = _ship.get_node("ShipHandling").max_speed # a full-speed crash
 	_ship.get_node("ShipHandling").rock_hit.emit(rock)
 	return rock
 
@@ -69,7 +70,7 @@ func test_given_effects_off_when_rock_hit_then_nothing_happens() -> void:
 
 
 func test_given_ship_stopped_then_no_wake_and_moving_then_wake() -> void:
-	var wake: CPUParticles3D = _ship.get_node("BowWake")
+	var wake: CPUParticles3D = _ship.get_node("Wake").get_child(0) # the first step of stern foam
 	_ship.get_node("ShipHandling").sail_speed = 0.0 # no sail: really stopped
 	await wait_seconds(3.0)
 	assert_false(wake.emitting, "no foam when stopped")

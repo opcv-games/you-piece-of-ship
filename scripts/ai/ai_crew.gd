@@ -338,15 +338,39 @@ func callout() -> String:
 			best_distance = offset.length()
 	if best:
 		var offset: Vector3 = best.global_position - _ship.global_position
-		var hour := clock_hour(offset.dot(fwd), offset.dot(right))
+		var bearing := nautical_bearing(offset.dot(fwd), offset.dot(right))
 		var what: String = best.call_name() if best.has_method("call_name") else "Rock"
 		if what == "Siren":
-			return tr("Siren, %d o'clock! Don't listen!") % hour
-		return tr(what + ", %d o'clock, %d m!") % [hour, roundi(best_distance)]
+			return tr("Siren, %s! Don't listen!") % tr(bearing)
+		return tr("%s, %s, %s!") % [tr(what), nautical_distance(best_distance), tr(bearing)]
 	var voyage := _ship.get_parent()
 	if "finish_x" in voyage and voyage.finish_x - _ship.global_position.x < 150.0:
-		return tr("Port ahead, %d m!") % roundi(voyage.finish_x - _ship.global_position.x)
+		return tr("Land ho! %s dead ahead!") % nautical_distance(voyage.finish_x - _ship.global_position.x)
 	return tr("Clear ahead!") if _rng.randf() < 0.3 else ""
+
+
+## Where something is, the way sailors say it: dead ahead, off the starboard bow, on the port beam,
+## off the starboard quarter, dead astern.
+static func nautical_bearing(along: float, across: float) -> String:
+	var degrees := rad_to_deg(atan2(across, along)) # 0 = ahead, +90 = starboard
+	var side := "starboard" if degrees > 0.0 else "port"
+	var angle := absf(degrees)
+	if angle < 12.0:
+		return "dead ahead"
+	if angle < 67.5:
+		return "off the %s bow" % side
+	if angle < 112.5:
+		return "on the %s beam" % side
+	if angle < 168.0:
+		return "off the %s quarter" % side
+	return "dead astern"
+
+
+## Distance in sailor's units: fathoms (1.83 m) up close, cables (185 m) further out.
+static func nautical_distance(metres: float) -> String:
+	if metres < 185.0:
+		return TranslationServer.translate("%d fathoms") % maxi(1, roundi(metres / 1.83))
+	return TranslationServer.translate("%.1f cables") % (metres / 185.2)
 
 
 ## Clock bearing from the bow: 12 = dead ahead, 3 = starboard, 9 = port.

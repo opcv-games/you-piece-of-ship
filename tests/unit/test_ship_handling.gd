@@ -80,3 +80,11 @@ func test_given_throttle_pulled_below_zero_then_ship_backs_off() -> void:
 	_sail(5.0)
 	assert_lt(_ship.position.x, -2.0, "going astern")
 	assert_lt(_handling.speed, 0.0)
+
+
+func test_collision_follows_the_pointed_bow() -> void:
+	var Handling = load("res://scripts/components/ship_handling.gd")
+	assert_true(Handling.touches_hull(Vector2(13.8, 0.0), 0.5), "the bow tip hits")
+	assert_false(Handling.touches_hull(Vector2(13.0, 3.5), 1.0), "beside the narrow bow is open water")
+	assert_true(Handling.touches_hull(Vector2(0.0, 4.5), 1.0), "the side of the hull")
+	assert_false(Handling.touches_hull(Vector2(0.0, 6.0), 1.0))

@@ -325,6 +325,31 @@ Pirates sunk! Sail through the floating loot to scoop it up.,Pirates sunk! Sail 
 Spawn: pirates (port),Spawn: pirates (port),Ajouter : pirates (bâbord)
 Spawn: pirates (starboard),Spawn: pirates (starboard),Ajouter : pirates (tribord)
 Gunner,Gunner,Canonnier
+%.1f knots,%.1f knots,%.1f nœuds
+"%s, %s, %s!","%s, %s, %s!","%s, %s, %s !"
+"Siren, %s! Don't listen!","Siren, %s! Don't listen!","Sirène, %s ! N'écoutez pas !"
+Land ho! %s dead ahead!,Land ho! %s dead ahead!,Terre ! %s droit devant !
+%d fathoms,%d fathoms,%d brasses
+%.1f cables,%.1f cables,%.1f encablures
+dead ahead,dead ahead,droit devant
+dead astern,dead astern,droit derrière
+off the starboard bow,off the starboard bow,par tribord avant
+off the port bow,off the port bow,par bâbord avant
+on the starboard beam,on the starboard beam,par le travers tribord
+on the port beam,on the port beam,par le travers bâbord
+off the starboard quarter,off the starboard quarter,par tribord arrière
+off the port quarter,off the port quarter,par bâbord arrière
+Rock,Rock,Rocher
+Wreck,Wreck,Épave
+Whale,Whale,Baleine
+Atoll,Atoll,Atoll
+Coast,Coast,Côte
+Show collision shapes,Show collision shapes,Voir les formes de collision
+"Test Drive: open ocean, no obstacles","Test Drive: open ocean, no obstacles","Essai libre : océan ouvert, sans obstacles"
+Sail again  (R),Sail again  (R),Repartir  (R)
+World map  (Enter),World map  (Enter),Carte  (Entrée)
+Change crew  (J),Change crew  (J),Changer d'équipage  (J)
+"CREW: press Use (E, Right Shift or X) to take an AI sailor's place. Press it again to hand back.","CREW: press Use (E, Right Shift or X) to take an AI sailor's place. Press it again to hand back.","ÉQUIPAGE : appuie sur Utiliser (E, Maj droite ou X) pour remplacer un marin IA. Appuie encore pour lui rendre sa place."
 World Map,World Map,Carte du monde
 "Oceans, ports and routes","Oceans, ports and routes","Océans, ports et routes"
 WORLD MAP,WORLD MAP,CARTE DU MONDE
