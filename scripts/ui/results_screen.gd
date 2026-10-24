@@ -3,8 +3,16 @@ extends Control
 ## story of what went wrong. HD cartoon panel; the numbers roll up, coins burst, records get stamped.
 ## R / Start sails again with the same crew; Enter / A goes back to the dock; J changes the crew.
 
-const GOOD := Color(0.55, 0.95, 0.55)
-const BAD := Color(1.0, 0.55, 0.45)
+signal sail_again_pressed
+signal map_pressed
+signal change_crew_pressed
+
+## Ink on parchment (Olivier, 2026-10-24: the old dark panel didn't match the painted look).
+const GOOD := Color(0.18, 0.5, 0.22)
+const BAD := Color(0.78, 0.2, 0.15)
+const INK := Color(0.27, 0.16, 0.1)
+const PAPER := Color(1.0, 0.95, 0.84)
+const WOOD := Color(0.45, 0.26, 0.13)
 
 var outcome := {}
 var recap: Array[Dictionary] = []
@@ -50,7 +58,7 @@ func show_results(data: Dictionary, story: Array[Dictionary]) -> void:
 
 func _fill() -> void:
 	_title.text = tr("DELIVERED!") if outcome.delivered else tr("SUNK!")
-	_title.add_theme_color_override("font_color", UI.YELLOW if outcome.delivered else BAD)
+	_title.add_theme_color_override("font_color", UI.YELLOW if outcome.delivered else Color(1.0, 0.42, 0.32))
 	_subtitle.text = tr(outcome.contract)
 	for child in _rows.get_children():
 		child.queue_free()
@@ -66,11 +74,13 @@ func _fill() -> void:
 	for line in lines:
 		var key := Label.new()
 		key.text = line[0]
-		key.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
+		key.add_theme_color_override("font_color", Color(INK, 0.7))
+		key.add_theme_constant_override("outline_size", 0)
 		_rows.add_child(key)
 		var value := Label.new()
 		value.text = line[1]
 		value.add_theme_color_override("font_color", GOOD if line[2] else BAD)
+		value.add_theme_constant_override("outline_size", 0)
 		_rows.add_child(value)
 	var s: Dictionary = outcome.score
 	_breakdown.text = tr("cargo %d + dry hull %d + early %d") % [s.cargo, s.hull, s.time]
@@ -79,7 +89,7 @@ func _fill() -> void:
 	var earned: int = outcome.get("stars", 0)
 	var limits: Array = outcome.get("star_limits", [])
 	for i in _stars.size():
-		_stars[i].add_theme_color_override("font_color", Color(1, 1, 1, 0.18))
+		_stars[i].add_theme_color_override("font_color", Color(INK, 0.18))
 	_next_star.text = ""
 	if earned < 3 and limits.size() == 3 and outcome.delivered:
 		_next_star.text = tr("Next star at %d points") % int(limits[earned])
@@ -92,12 +102,12 @@ func _fill() -> void:
 	for child in _story.get_children():
 		child.queue_free()
 	if recap.is_empty():
-		_story.add_child(_line("", tr("Nothing went wrong. Suspicious."), Color.WHITE))
+		_story.add_child(_line("", tr("Nothing went wrong. Suspicious."), INK))
 	for entry in recap:
 		var stamp := "%d:%02d" % [int(entry.time) / 60, int(entry.time) % 60]
-		var color := BAD if entry.kind == "bad" else (GOOD if entry.kind == "good" else Color.WHITE)
+		var color := BAD if entry.kind == "bad" else (GOOD if entry.kind == "good" else INK)
 		_story.add_child(_line(stamp, _translate(entry), color))
-	_footer.text = tr("Enter / A: world map     R / Start: sail again     J: change crew")
+	_footer.text = ""
 
 
 func _translate(entry: Dictionary) -> String:
@@ -167,19 +177,23 @@ func _line(stamp: String, text: String, color: Color) -> HBoxContainer:
 	time.text = stamp
 	time.custom_minimum_size = Vector2(56, 0)
 	time.add_theme_font_size_override("font_size", 14)
-	time.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
+	time.add_theme_color_override("font_color", Color(INK, 0.5))
+	time.add_theme_constant_override("outline_size", 0)
 	row.add_child(time)
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 14)
 	label.add_theme_color_override("font_color", color)
+	label.add_theme_constant_override("outline_size", 0)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(label)
 	return row
 
 
 func _build() -> void:
 	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.6)
+	dim.color = Color(0.03, 0.06, 0.12, 0.55)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(dim)
@@ -187,69 +201,129 @@ func _build() -> void:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
+	# A parchment card in a wooden frame; two columns so it stays short enough for any window.
 	_panel = PanelContainer.new()
-	_panel.custom_minimum_size = Vector2(700, 0)
+	_panel.custom_minimum_size = Vector2(880, 0)
+	var paper := StyleBoxFlat.new()
+	paper.bg_color = PAPER
+	paper.border_color = WOOD
+	paper.set_border_width_all(10)
+	paper.set_corner_radius_all(26)
+	paper.content_margin_left = 30
+	paper.content_margin_right = 30
+	paper.content_margin_top = 16
+	paper.content_margin_bottom = 18
+	paper.shadow_color = Color(0, 0, 0, 0.4)
+	paper.shadow_size = 16
+	paper.shadow_offset = Vector2(0, 8)
+	_panel.add_theme_stylebox_override("panel", paper)
 	center.add_child(_panel)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", 4)
 	_panel.add_child(box)
 	_stamp = Label.new()
 	_stamp.add_theme_font_size_override("font_size", 22)
-	_stamp.add_theme_color_override("font_color", Color(1, 0.3, 0.25))
+	_stamp.add_theme_color_override("font_color", BAD)
 	_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	box.add_child(_stamp)
 	_title = Label.new()
-	_title.add_theme_font_size_override("font_size", 52)
-	_title.add_theme_constant_override("outline_size", 10)
+	_title.add_theme_font_size_override("font_size", 56)
+	_title.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.06))
+	_title.add_theme_constant_override("outline_size", 14)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_title)
 	_subtitle = Label.new()
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subtitle.add_theme_color_override("font_color", INK)
+	_subtitle.add_theme_constant_override("outline_size", 0)
 	box.add_child(_subtitle)
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 30)
+	box.add_child(columns)
+	var left := VBoxContainer.new()
+	left.custom_minimum_size = Vector2(390, 0)
+	columns.add_child(left)
 	var star_row := HBoxContainer.new()
 	star_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	star_row.add_theme_constant_override("separation", 18)
-	box.add_child(star_row)
+	star_row.add_theme_constant_override("separation", 14)
+	left.add_child(star_row)
 	for i in 3:
 		var star := Label.new()
 		star.text = "★"
 		star.add_theme_font_size_override("font_size", 64 if i == 1 else 52)
+		star.add_theme_color_override("font_outline_color", Color(0.25, 0.12, 0.06))
 		star.add_theme_constant_override("outline_size", 10)
 		star_row.add_child(star)
 		_stars.append(star)
 	_next_star = Label.new()
 	_next_star.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_next_star.add_theme_font_size_override("font_size", 14)
-	_next_star.add_theme_color_override("font_color", Color(1, 1, 1, 0.65))
-	box.add_child(_next_star)
+	_next_star.add_theme_color_override("font_color", Color(INK, 0.7))
+	_next_star.add_theme_constant_override("outline_size", 0)
+	left.add_child(_next_star)
 	_rows = GridContainer.new()
 	_rows.columns = 2
-	_rows.add_theme_constant_override("h_separation", 24)
-	box.add_child(_rows)
+	_rows.add_theme_constant_override("h_separation", 20)
+	left.add_child(_rows)
 	var score_row := HBoxContainer.new()
-	box.add_child(score_row)
+	left.add_child(score_row)
 	_score = Label.new()
-	_score.add_theme_font_size_override("font_size", 34)
-	_score.add_theme_color_override("font_color", UI.YELLOW)
+	_score.add_theme_font_size_override("font_size", 32)
+	_score.add_theme_color_override("font_color", WOOD)
+	_score.add_theme_constant_override("outline_size", 0)
 	_score.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	score_row.add_child(_score)
 	_coins = Label.new()
-	_coins.add_theme_font_size_override("font_size", 26)
-	_coins.add_theme_color_override("font_color", UI.YELLOW)
+	_coins.add_theme_font_size_override("font_size", 24)
+	_coins.add_theme_color_override("font_color", Color(0.75, 0.5, 0.05))
+	_coins.add_theme_constant_override("outline_size", 0)
 	score_row.add_child(_coins)
 	_breakdown = Label.new()
-	_breakdown.add_theme_font_size_override("font_size", 14)
-	_breakdown.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
-	box.add_child(_breakdown)
+	_breakdown.add_theme_font_size_override("font_size", 13)
+	_breakdown.add_theme_color_override("font_color", Color(INK, 0.6))
+	_breakdown.add_theme_constant_override("outline_size", 0)
+	_breakdown.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	left.add_child(_breakdown)
+	var right := VBoxContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(right)
 	var heading := Label.new()
 	heading.text = tr("WHAT HAPPENED")
-	heading.add_theme_color_override("font_color", Color(1, 1, 1, 0.75))
-	box.add_child(heading)
+	heading.add_theme_color_override("font_color", WOOD)
+	heading.add_theme_constant_override("outline_size", 0)
+	right.add_child(heading)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, 250)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right.add_child(scroll)
 	_story = VBoxContainer.new()
+	_story.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_story.add_theme_constant_override("separation", 0)
-	box.add_child(_story)
+	scroll.add_child(_story)
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 14)
+	box.add_child(buttons)
+	for spec in [["Sail again  (R)", sail_again_pressed], ["World map  (Enter)", map_pressed], ["Change crew  (J)", change_crew_pressed]]:
+		var button := Button.new()
+		button.text = tr(spec[0])
+		button.custom_minimum_size = Vector2(220, 46)
+		for state in ["normal", "hover", "pressed", "focus"]:
+			var plank := StyleBoxFlat.new()
+			plank.bg_color = WOOD.lightened(0.15) if state == "hover" else (WOOD.darkened(0.2) if state == "pressed" else WOOD)
+			if state == "focus":
+				plank.bg_color = Color(0, 0, 0, 0)
+				plank.border_color = UI.YELLOW
+				plank.set_border_width_all(4)
+			plank.set_corner_radius_all(14)
+			plank.set_content_margin_all(8)
+			button.add_theme_stylebox_override(state, plank)
+		button.add_theme_color_override("font_color", PAPER)
+		button.add_theme_color_override("font_hover_color", Color.WHITE)
+		button.add_theme_color_override("font_focus_color", Color.WHITE)
+		var on_press: Signal = spec[1]
+		button.pressed.connect(func(): on_press.emit())
+		buttons.add_child(button)
 	_footer = Label.new()
-	_footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_footer.add_theme_color_override("font_color", UI.YELLOW)
-	_footer.add_theme_font_size_override("font_size", 15)
+	_footer.visible = false
 	box.add_child(_footer)

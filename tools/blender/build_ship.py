@@ -119,13 +119,10 @@ def decks():
 def stern_cabin():
     parts = [kit.box("Cabin", (-9.95, 1.65, 0), (1.3, 1.7, 4.6), "wood_light", bevel=0.12)]
     parts.append(kit.box("CabinRoof", (-9.95, 2.6, 0), (1.6, 0.22, 5.1), "paint_teal", bevel=0.1))
-    for z in (-1.4, 0.0, 1.4):  # round windows facing the deck, glowing warmly
-        win = kit.cylinder("Window%.0f" % (z * 10), (-9.28, 1.75, z), (-9.24, 1.75, z), 0.32, mat="glow", verts=20)
+    for z in (-1.4, 0.0, 1.4):  # round windows facing the deck (dark glass: no lamps in the 1700s)
+        win = kit.cylinder("Window%.0f" % (z * 10), (-9.28, 1.75, z), (-9.24, 1.75, z), 0.32, mat="glass", verts=20)
         parts.append(win)
         parts.append(kit.torus("WindowRim%.0f" % (z * 10), (-9.26, 1.75, z), 0.34, 0.06, "gold", axis="x"))
-    for z in (-2.5, 2.5):  # lanterns at the corners
-        parts.append(kit.cylinder("LanternPost%.0f" % z, (-10.4, 2.7, z), (-10.4, 3.3, z), 0.05, mat="iron", verts=8))
-        parts.append(kit.sphere("Lantern%.0f" % z, (-10.4, 3.45, z), 0.2, "glow", scale=(1, 1.25, 1)))
     return parts
 
 

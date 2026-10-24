@@ -75,7 +75,7 @@ player_index = 4
 [node name="SharedCamera" type="Camera3D" parent="."]
 fov = 50.0
 script = ExtResource("4_camera")
-reserve_right = 0.25
+reserve_right = 0.1
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

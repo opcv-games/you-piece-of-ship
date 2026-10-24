@@ -120,8 +120,6 @@ def map_table():
     p.append(kit.box("ChartX", (0.35, 0.935, -0.75), (0.2, 0.01, 0.05), "paint_red", bevel=0.0, rot=(0, 0.8, 0)))
     p.append(kit.box("ChartX2", (0.35, 0.935, -0.75), (0.2, 0.01, 0.05), "paint_red", bevel=0.0, rot=(0, -0.8, 0)))
     p.append(kit.cylinder("Compass", (-0.5, 0.92, -1.05), (-0.5, 0.97, -1.05), 0.12, mat="gold", verts=16))
-    p.append(kit.cylinder("Candle", (0.65, 0.9, -1.1), (0.65, 1.1, -1.1), 0.05, mat="trim_cream", verts=8))
-    p.append(kit.sphere("Flame", (0.65, 1.16, -1.1), 0.045, "glow", scale=(1, 1.6, 1)))
     return p
 
 
@@ -179,7 +177,7 @@ def buoy():
     p = [kit.cylinder("BuoyBody", (0, -0.4, 0), (0, 1.2, 0), 0.75, 0.5, "paint_red", verts=20)]
     p.append(kit.torus("BuoyStripe", (0, 0.6, 0), 0.6, 0.1, "trim_cream"))
     p.append(kit.cylinder("BuoyMast", (0, 1.2, 0), (0, 2.6, 0), 0.08, mat="iron", verts=8))
-    p.append(kit.sphere("BuoyLight", (0, 2.75, 0), 0.22, "glow"))
+    p.append(kit.mesh_from("BuoyFlag", [(0, 2.6, 0), (0, 2.1, 0), (0.6, 2.35, 0)], [(0, 1, 2)], "flag", smooth=False))
     return p
 
 

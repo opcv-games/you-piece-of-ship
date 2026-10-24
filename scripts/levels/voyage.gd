@@ -36,6 +36,7 @@ var _next_event := 0
 var _next_enemy := 0
 var _hint_left := 0.0
 var god_mode := false
+var test_drive := false ## developer mode: no obstacles, no port, just open sea
 var bonus_points := 0 ## fish caught and loot scooped up on the way (added to the score) ## developer mode: no flooding, no overheating, no running dry
 
 @onready var _ship: Node3D = $Ship
@@ -82,6 +83,10 @@ func _ready() -> void:
 	rules.star_2 = limits[1]
 	rules.star_3 = limits[2]
 	add_child(rules)
+	var results := $HUD/Results
+	results.sail_again_pressed.connect(_sail_again)
+	results.map_pressed.connect(_back_to_map)
+	results.change_crew_pressed.connect(_change_crew)
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	pause.voyage = self
@@ -197,19 +202,35 @@ func _unhandled_input(event: InputEvent) -> void:
 	if Net.role == "client":
 		return # online: the host decides when to sail again or go back to the dock
 	if restart:
-		if Net.role == "host":
-			Net.start_voyage(Session.contract_index)
-		else:
-			get_tree().reload_current_scene()
+		_sail_again()
 	if finished and event.is_action_pressed("ui_accept"):
-		if Net.role == "host":
-			Net.back_to_dock()
-		else:
-			UI.go(WORLD_MAP_SCENE) # back to the map: see the stars, pick the next route
+		_back_to_map()
 	var change_crew: bool = finished and event is InputEventKey and event.pressed and event.physical_keycode == KEY_J
 	if change_crew:
-		Session.joined_players.clear()
-		UI.go(DOCK_SCENE)
+		_change_crew()
+
+
+func _sail_again() -> void:
+	if Net.role == "client":
+		return
+	if Net.role == "host":
+		Net.start_voyage(Session.contract_index)
+	elif is_inside_tree() and get_tree().current_scene == self:
+		get_tree().reload_current_scene()
+
+
+func _back_to_map() -> void:
+	if Net.role == "host":
+		Net.back_to_dock()
+	elif Net.role == "offline" and is_inside_tree() and get_tree().current_scene == self:
+		UI.go(WORLD_MAP_SCENE) # back to the map: see the stars, pick the next route
+
+
+func _change_crew() -> void:
+	if Net.role != "offline" or not (is_inside_tree() and get_tree().current_scene == self):
+		return
+	Session.joined_players.clear()
+	UI.go(DOCK_SCENE)
 
 
 ## A player presses Jump or Use on their controller mid-voyage: they take over their AI crewmate.
@@ -239,6 +260,35 @@ func take_over(index: int) -> void:
 			Session.joined_players.sort()
 		Session.ai_crew.erase(index)
 		$CrewBrain.assignments.erase(player)
+
+
+## Developer "Test Drive": clears every obstacle, pirate, scripted event and wave, removes the port
+## and the cliffs, and makes the sea endless, to try the ship's handling in peace.
+func set_test_drive(on: bool) -> void:
+	if not on:
+		if test_drive and is_inside_tree() and get_tree().current_scene == self:
+			get_tree().reload_current_scene() # back to the real route
+		return
+	test_drive = true
+	for child in $Reef.get_children():
+		child.queue_free()
+	for loot in get_tree().get_nodes_in_group("loot"):
+		loot.queue_free()
+	for node in get_tree().get_nodes_in_group("finish"):
+		node.queue_free()
+	if has_node("Dock"):
+		$Dock.queue_free()
+	contract = contract.duplicate()
+	contract.events = []
+	contract.enemies = []
+	contract.obstacles = []
+	contract.coast_half_width = INF
+	_next_event = 0
+	_next_enemy = 0
+	$HazardDirector.setup([])
+	finish_x = INF
+	$HUD/MapChart.port_x = INF
+	$Music.finish_x = INF
 
 
 # --- Pirates ------------------------------------------------------------------------------
@@ -325,6 +375,8 @@ func dev_event(event: String) -> bool:
 					cargo.crate_loose.emit(crate)
 					break
 		"reach_port":
+			if test_drive:
+				return false # an endless sea has no port
 			ship.position.x = finish_x + 1.0
 		"sink":
 			$Ship/HullSystem.sink_grace_seconds = 0.0

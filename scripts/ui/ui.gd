@@ -92,6 +92,12 @@ func play(sound: String) -> void:
 
 ## Every button anywhere gets the same bouncy feel: grow on hover/focus, squash on press, sounds.
 func _on_node_added(node: Node) -> void:
+	# In-world labels (station names, prompts, P1-P4) are drawn 1.7x bigger so they read from
+	# the couch (Olivier, 2026-10-24: "the texts indicating what is what are too small").
+	if node is Label3D and not node.has_meta("sized"):
+		node.set_meta("sized", true)
+		node.font_size = int(node.font_size * 1.7)
+		node.outline_size = int(node.outline_size * 1.7)
 	if node is BaseButton and not node.has_meta("juiced"):
 		node.set_meta("juiced", true)
 		node.mouse_entered.connect(_grow.bind(node))
