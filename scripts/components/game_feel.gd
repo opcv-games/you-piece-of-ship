@@ -49,9 +49,7 @@ func _ready() -> void:
 	for player in get_tree().get_nodes_in_group("crew"):
 		player.jumped.connect(_on_jumped.bind(player))
 		player.landed.connect(_on_landed.bind(player))
-	var half_length: float = ship.deck_length * 0.5
-	_wakes.append(_make_wake("BowWake", Vector3(half_length + 0.3, -1.0, 0.0), 0.4))
-	_wakes.append(_make_wake("SternWake", Vector3(-half_length - 0.2, -1.0, 0.0), ship.deck_width * 0.35))
+	# The foam itself is the ship's Wake (scripts/components/ship_wake.gd); this keeps wake_ratio.
 	var waves: Node = ship.get_node("WaveMotion")
 	waves.wave_warning.connect(_on_wave_warning)
 	waves.wave_struck.connect(_on_wave_struck)
@@ -76,21 +74,24 @@ func _physics_process(_delta: float) -> void:
 # --- Crash ------------------------------------------------------------------
 
 func _on_rock_hit(rock: Node3D) -> void:
+	# Everything scales with how fast we hit: a nudge barely shakes, full speed is a real crash.
+	var strength: float = ship.get_node("ShipHandling").impact_strength()
 	if shake_enabled:
-		camera.add_trauma(shake_strength)
-	if debris_enabled and debris_amount > 0:
+		camera.add_trauma(shake_strength * 0.75 * (0.12 + 0.88 * pow(strength, 1.4)))
+	var amount := roundi(debris_amount * strength)
+	if debris_enabled and amount > 2:
 		var toward_ship := ship.global_position - rock.global_position
 		toward_ship.y = 0.0
 		var contact: Vector3 = rock.global_position + toward_ship.normalized() * rock.radius + Vector3(0, 0.3, 0)
-		var chunks := _burst(contact, debris_amount, _box(Vector3(0.35, 0.15, 0.15), Color(0.45, 0.32, 0.22)),
+		var chunks := _burst(contact, amount, _box(Vector3(0.35, 0.15, 0.15), Color(0.45, 0.32, 0.22)),
 				4.0, 8.0, 60.0, 18.0, 1.4)
 		chunks.angular_velocity_min = -540.0
 		chunks.angular_velocity_max = 540.0
-		_burst(contact, debris_amount, _box(Vector3(0.22, 0.22, 0.22), Color(0.92, 0.97, 1.0)),
+		_burst(contact, amount, _box(Vector3(0.22, 0.22, 0.22), Color(0.92, 0.97, 1.0)),
 				6.0, 11.0, 35.0, 14.0, 1.0)
-	if crash_pop_enabled:
+	if crash_pop_enabled and strength > 0.3:
 		_pop(banner)
-	if hitstop_enabled and hitstop_ms > 0:
+	if hitstop_enabled and hitstop_ms > 0 and strength > 0.55:
 		Engine.time_scale = 0.05
 		# The timer ignores time scale, so it ends after real milliseconds.
 		get_tree().create_timer(hitstop_ms / 1000.0, true, false, true).timeout.connect(

@@ -19,6 +19,7 @@ const PALETTE := {
 	"gold": [Color(1.0, 0.8, 0.3), 0.15, true, 0.9],
 	"iron": [Color(0.3, 0.3, 0.38), 0.0, true, 0.6],
 	"sail": [Color(1.0, 0.97, 0.9), 0.08, false, 0.0],
+	"sail_stripe": [Color(0.94, 0.38, 0.36), 0.05, false, 0.0],
 	"rope": [Color(0.85, 0.72, 0.5), 0.0, false, 0.0],
 	"glow": [Color(1.0, 0.86, 0.45), 1.6, false, 0.0],
 	"glass": [Color(0.25, 0.35, 0.55), 0.0, true, 1.0],
@@ -56,9 +57,9 @@ static func material(name: String, tint := Color(-1, 0, 0)) -> ShaderMaterial:
 	mat.set_shader_parameter("albedo", tint if tint.r >= 0.0 else entry[0])
 	mat.set_shader_parameter("emission_strength", entry[1])
 	mat.set_shader_parameter("glossy", entry[3])
-	if name == "sail":
+	if name.begins_with("sail"):
 		mat.shader = TOON_SEE_THROUGH
-		mat.set_shader_parameter("alpha", 0.62) # see the crew working under the sails
+		mat.set_shader_parameter("alpha", 0.38) # see the crew working under the sails
 		mat.render_priority = 1
 	if entry[2]:
 		var outline := ShaderMaterial.new()

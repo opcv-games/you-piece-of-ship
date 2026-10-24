@@ -194,6 +194,18 @@ FR = {
         "PIRATES ! Semez-les à pleine vitesse, ou chargez les canons de ce côté (boulets au milieu du pont).",
     "Spawn: pirates (port)": "Ajouter : pirates (bâbord)", "Spawn: pirates (starboard)": "Ajouter : pirates (tribord)",
     "Gunner": "Canonnier",
+    # Nautical callouts and the helm
+    "%.1f knots": "%.1f nœuds", "%s, %s, %s!": "%s, %s, %s !", "Siren, %s! Don't listen!": "Sirène, %s ! N'écoutez pas !",
+    "Land ho! %s dead ahead!": "Terre ! %s droit devant !", "%d fathoms": "%d brasses", "%.1f cables": "%.1f encablures",
+    "dead ahead": "droit devant", "dead astern": "droit derrière",
+    "off the starboard bow": "par tribord avant", "off the port bow": "par bâbord avant",
+    "on the starboard beam": "par le travers tribord", "on the port beam": "par le travers bâbord",
+    "off the starboard quarter": "par tribord arrière", "off the port quarter": "par bâbord arrière",
+    "Rock": "Rocher", "Wreck": "Épave", "Whale": "Baleine", "Atoll": "Atoll", "Coast": "Côte",
+    "Show collision shapes": "Voir les formes de collision", "Test Drive: open ocean, no obstacles": "Essai libre : océan ouvert, sans obstacles",
+    "Sail again  (R)": "Repartir  (R)", "World map  (Enter)": "Carte  (Entrée)", "Change crew  (J)": "Changer d'équipage  (J)",
+    "CREW: press Use (E, Right Shift or X) to take an AI sailor's place. Press it again to hand back.":
+        "ÉQUIPAGE : appuie sur Utiliser (E, Maj droite ou X) pour remplacer un marin IA. Appuie encore pour lui rendre sa place.",
     # World map and progression
     "World Map": "Carte du monde", "Oceans, ports and routes": "Océans, ports et routes", "WORLD MAP": "CARTE DU MONDE",
     "★ %d stars": "★ %d étoiles", "Set sail!": "Larguez les amarres !", "The host picks the route": "L'hôte choisit la route",

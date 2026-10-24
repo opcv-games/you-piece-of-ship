@@ -46,6 +46,7 @@ func test_given_rock_hit_then_nearest_leak_cracks_with_warning() -> void:
 	var rock: Node3D = RockScene.instantiate()
 	_level.add_child(rock)
 	rock.global_position = _ship.to_global(Vector3(8, 0, 4))
+	_handling.impact_speed = _handling.max_speed * 0.4 # hard enough to crack, too soft for the rudder
 	_handling.rock_hit.emit(rock)
 	var breach: Node3D = _ship.get_node("Leak5") # bow starboard spot
 	assert_eq(breach.state, 1, "cracking first")
@@ -153,8 +154,10 @@ func test_given_same_rock_bumped_twice_quickly_then_only_one_leak() -> void:
 	var rock: Node3D = RockScene.instantiate()
 	_level.add_child(rock)
 	rock.global_position = _ship.to_global(Vector3(10, 0, 0))
+	_handling.impact_speed = _handling.max_speed * 0.4 # hard enough to crack, too soft for the rudder
 	_handling.rock_hit.emit(rock)
 	await wait_seconds(2.0)
+	_handling.impact_speed = _handling.max_speed * 0.4 # hard enough to crack, too soft for the rudder
 	_handling.rock_hit.emit(rock)
 	assert_eq(_hull.open_breach_count(), 1)
 
@@ -165,6 +168,18 @@ func test_given_ship_scrapes_along_coast_then_one_leak_not_many() -> void:
 		cliff.hidden = false
 		_level.add_child(cliff)
 		cliff.global_position = _ship.to_global(Vector3(10 + i * 11, 0, 8))
+		_handling.impact_speed = _handling.max_speed * 0.4 # hard enough to crack, too soft for the rudder
 		_handling.rock_hit.emit(cliff)
 		await wait_seconds(1.0)
 	assert_eq(_hull.open_breach_count(), 1)
+
+
+
+func test_given_a_gentle_bump_then_no_damage() -> void:
+	var rock: Node3D = RockScene.instantiate()
+	_level.add_child(rock)
+	_handling.impact_speed = _handling.max_speed * 0.1
+	_handling.rock_hit.emit(rock)
+	assert_eq(_ship.get_node("HullSystem").open_breach_count(), 0)
+	for breach in _ship.get_node("HullSystem").breaches():
+		assert_eq(breach.state, 0, "a nudge at low speed cracks nothing")

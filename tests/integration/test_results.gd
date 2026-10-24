@@ -32,6 +32,7 @@ func test_given_rock_hit_and_knockdown_then_logged_with_times() -> void:
 	var rock: Node3D = RockScene.instantiate()
 	_level.add_child(rock)
 	rock.global_position = ship.to_global(Vector3(12, 0, 0))
+	ship.get_node("ShipHandling").speed = ship.get_node("ShipHandling").max_speed * 0.4 # cracks the hull, spares the rudder
 	ship.get_node("ShipHandling")._hit(rock)
 	_level.get_tree().get_nodes_in_group("crew")[1].knock_down(Vector2(0, 1))
 	var log := _level.get_node("VoyageLog")

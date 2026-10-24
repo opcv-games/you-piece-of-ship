@@ -82,6 +82,10 @@ func add_breach(near_local: Vector3) -> Node3D:
 	return null
 
 
+## Hits slower than this share of top speed don't damage the hull.
+@export_range(0.0, 1.0) var min_damage_speed := 0.25
+
+
 func _on_rock_hit(rock: Node3D) -> void:
 	if not cracks_from_rocks:
 		return
@@ -91,6 +95,8 @@ func _on_rock_hit(rock: Node3D) -> void:
 		return
 	_last_rock = obstacle
 	_last_rock_at = elapsed
+	if _handling.impact_strength() < min_damage_speed:
+		return # a gentle bump: no damage
 	# One impact starts at most one new failure: a hard hit takes the rudder if it is intact.
 	var rudder := _ship.get_node_or_null("RudderSystem")
 	if rudder and rudder.try_damage(_handling.impact_speed / _handling.max_speed):

@@ -18,6 +18,7 @@
 - Secret objectives, many classes, crafting, campaign, permadeath, cosmetics
 
 ## Done
+- 2026-10-24 Block B: impacts scale with speed (shake, debris, hit-stop, bounce; under 25% of top speed no damage); collision uses the painted hull's real outline (pointed bow) and obstacle models match their collision circles; Developer "Show collision shapes"; reef rocks appear as soon as they're on screen; speed-scaled wake (stern V, propeller wash, bow spray, three steps); helm shows knots; callouts in sailor's terms ("Rock, 6 fathoms, off the starboard bow!"); sail higher, shorter and more see-through.
 - 2026-10-24 Block A: results card restyled (parchment in a wood frame, two columns, real buttons, fits any window); dock simplified (jobs, hats, shop and contract list hidden behind SHOW_ADVANCED in dock.gd); in-world labels 1.7x bigger; no lamps or glowing windows; camera min distance 30, reserve right 0.1; Developer → Tune → "Test Drive" (open ocean, no obstacles, no port).
 - Block 6 (2026-10-22 evening): Overcooked-style progression — World Map (main menu + dock + after every voyage) with 3 oceans x 3 routes (Calm Cove: Maiden Voyage, Coral Hop, Reef Run; Whale Waters: Siren Strait, The Narrows, Whale Road; Pirate Sea: Fog Bank, Smugglers' Run, Kraken's Gate); stars open routes (0/1/3, 5/7/9, 12/14/17); a "NEW OCEAN" card says what's new; new trouble: shifting cargo, engine failure, flooding bow, storm (rain, lightning, slate sea), a sail-less smuggler's ship; hats unlock with stars (captain 6, crown 15) and are picked per player at the dock; old saves get one star per delivered contract. Version 0.4.0.
 - Block 5 (2026-10-22 evening): sea battles — pirate ships come alongside on one side and fire a broadside when level with you (1 ball, half land on deck and crack the hull); two cannons a side plus a cannonball rack mid-deck; load (Use with a ball), aim (stick), fire (Jump); 3 hits sink them and leave 3 floating loot barrels (60 points each) to sail through; they're slower than full throttle and give up when left 45 m behind or after 75 s; AI "gunner" job (and the AI helm goes full speed to escape); camera pulls back to show the fight; Developer spawn buttons. Reef Run has pirates at 430 m.
@@ -52,6 +53,7 @@
 - Phase 1: Committee Summary approved (2026-10-22)
 
 ## Questions for Olivier
+- After the Block B collision change the AI crew finishes Reef Run ~20 s late (348 s vs 330 s deadline) and still sometimes loses The Narrows. Tune the deadline, or the AI's steering margins?
 - Star thresholds for routes and hats are first guesses: too stingy or too generous after a few evenings of play?
 - The Narrows still sometimes beats a crew of 3 AIs plus an idle human (the navigator is needed all the time, so nobody repairs). Fine as the hard one, or ease it?
 - Loot from sunk pirates currently just adds points (so coins). What should loot be for? Ideas: buy cosmetics, rare ship parts, a "treasure" star, crew outfits.

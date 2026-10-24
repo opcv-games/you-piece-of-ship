@@ -65,10 +65,17 @@ func forward() -> Vector3:
 	return Vector3(cos(yaw), 0.0, -sin(yaw))
 
 
+## Speed in knots (1 m/s = 1.944 knots).
+func knots() -> float:
+	return absf(speed) * 1.944
+
+
+## The helm's readout: speed in knots and the throttle (Olivier, 2026-10-24).
 func throttle_text() -> String:
+	var knots_text := tr("%.1f knots") % knots()
 	if throttle < -0.01:
-		return tr("ASTERN %d%%") % roundi(-throttle * 100.0)
-	return tr("throttle %d%%") % roundi(throttle * 100.0)
+		return knots_text + "\n" + tr("ASTERN %d%%") % roundi(-throttle * 100.0)
+	return knots_text + "\n" + tr("throttle %d%%") % roundi(throttle * 100.0)
 
 
 ## Top speed right now, after damage (water, heat...).
@@ -112,14 +119,55 @@ func _check_rocks() -> void:
 		if rock.has_method("is_solid") and not rock.is_solid():
 			continue # a diving whale passes under the keel
 		var offset: Vector3 = rock.global_position - _ship.global_position
-		var along := offset.dot(fwd) - hull_centre_x
-		var across := offset.dot(right)
-		# Closest point of the (rectangular) hull to the rock, in the ship's flat frame.
-		var closest := Vector2(clampf(along, -hull_half_length, hull_half_length),
-				clampf(across, -hull_half_width, hull_half_width))
-		if Vector2(along, across).distance_to(closest) < rock.radius:
+		if offset.length() > rock.radius + 16.0:
+			continue
+		if touches_hull(Vector2(offset.dot(fwd), offset.dot(right)), rock.radius):
 			_hit(rock)
 			return
+
+
+## The hull's outline at the waterline, in the ship's flat frame (x = toward the bow, y = starboard):
+## the same shape as the painted model (tools/blender/build_ship.py), pointed bow and all.
+static func hull_outline() -> PackedVector2Array:
+	if not _outline.is_empty():
+		return _outline
+	var side: Array[Vector2] = []
+	var x := -10.9
+	while x <= 14.6:
+		var half := 3.7
+		if x > 8.2:
+			half = maxf(0.06, 3.7 * pow(cos((x - 8.2) / (14.6 - 8.2) * PI / 2.0), 0.9))
+		elif x < -9.4:
+			var t := (x + 9.4) / (-10.9 + 9.4)
+			half = 3.7 - 0.5 * t * t
+		side.append(Vector2(x, half))
+		x += 0.5
+	for point in side:
+		_outline.append(point)
+	for i in range(side.size() - 1, -1, -1):
+		_outline.append(Vector2(side[i].x, -side[i].y))
+	return _outline
+
+
+static var _outline := PackedVector2Array()
+
+
+## Whether a circle (centre in the ship's flat frame) touches or overlaps the hull outline.
+static func touches_hull(centre: Vector2, radius: float) -> bool:
+	var outline := hull_outline()
+	if Geometry2D.is_point_in_polygon(centre, outline):
+		return true
+	for i in outline.size():
+		var a := outline[i]
+		var b := outline[(i + 1) % outline.size()]
+		if Geometry2D.get_closest_point_to_segment(centre, a, b).distance_to(centre) < radius:
+			return true
+	return false
+
+
+## How hard the last hit was: 0 (a nudge) to 1 (full speed).
+func impact_strength() -> float:
+	return clampf(absf(impact_speed) / max_speed, 0.0, 1.0)
 
 
 func _hit(rock: Node3D) -> void:
@@ -131,8 +179,10 @@ func _hit(rock: Node3D) -> void:
 	var across := (rock.global_position - _ship.global_position).dot(right)
 	var away := -1.0 if across >= 0.0 else 1.0 # +1 = toward starboard
 	var backwards := -1.0 if impact_speed >= 0.0 else 1.0 # bounce opposite to the way we were going
-	_ship.position += fwd * backwards * impact_pushback + right * away * impact_sidestep
-	_ship.rotation.y -= deg_to_rad(deflect_degrees) * away # positive yaw turns the bow to port
+	# Gentle at low speed, violent at full speed (Olivier, 2026-10-24).
+	var force := 0.3 + 0.7 * impact_strength()
+	_ship.position += fwd * backwards * impact_pushback * force + right * away * impact_sidestep * force
+	_ship.rotation.y -= deg_to_rad(deflect_degrees) * away * force # positive yaw turns the bow to port
 	_cooldown = impact_cooldown
 	rock.reveal()
 	impact.emit(rock)

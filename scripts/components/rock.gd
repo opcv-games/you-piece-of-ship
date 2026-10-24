@@ -14,8 +14,9 @@ const Toon = preload("res://scripts/systems/toon.gd")
 const PixelArt = preload("res://scripts/systems/pixel_art.gd")
 const MODELS := "res://assets/art/export/models/"
 ## kind -> [model, model size at scale 1 (its radius)]
-const LOOKS := {"rock": ["rock", 1.0], "cliff": ["cliff", 1.0], "wreck": ["wreck", 4.0], "whale": ["whale", 3.5],
-		"siren": ["siren", 2.5], "atoll": ["atoll", 12.0]}
+## The size is the model's real footprint at the waterline, so what you see is what you hit.
+const LOOKS := {"rock": ["rock", 1.45], "cliff": ["cliff", 1.4], "wreck": ["wreck", 4.4], "whale": ["whale", 4.4],
+		"siren": ["siren", 3.2], "atoll": ["atoll", 12.0]}
 ## What the navigator calls each one.
 const CALL_NAMES := {"rock": "Rock", "wreck": "Wreck", "whale": "Whale", "siren": "Siren", "atoll": "Atoll",
 		"cliff": "Coast"}
@@ -125,6 +126,12 @@ func call_name() -> String:
 
 func _physics_process(delta: float) -> void:
 	_time += delta
+	# A reef rock shows itself as soon as it comes into view (Olivier, 2026-10-24); the chart and
+	# the lookout still see it earlier.
+	if not revealed:
+		var camera := get_viewport().get_camera_3d()
+		if camera and camera.is_position_in_frustum(global_position):
+			reveal()
 	match kind:
 		"whale":
 			_swim(delta)

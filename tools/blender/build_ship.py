@@ -134,12 +134,14 @@ def mast_and_sails():
     parts.append(kit.cylinder("CrowsNest", (1, 7.0, 0), (1, 7.6, 0), 0.75, 0.85, "wood_light", verts=20))
     parts.append(kit.torus("CrowsNestRim", (1, 7.6, 0), 0.85, 0.08, "wood_dark"))
     # Yard and a billowing square sail hanging under it, high enough to keep the deck visible.
-    parts.append(kit.cylinder("Yard", (1.25, 6.4, -3.6), (1.25, 6.4, 3.6), 0.11, mat="wood_dark", verts=10))
+    # The yard sits just under the crow's nest and the sail hangs short, high above the deck
+    # (Olivier, 2026-10-24: the sail hid the crew).
+    parts.append(kit.cylinder("Yard", (1.25, 6.85, -3.6), (1.25, 6.85, 3.6), 0.11, mat="wood_dark", verts=10))
     cols, rows = 12, 8
     verts, faces = [], []
     for r in range(rows + 1):
         v = r / rows
-        y = 6.35 - v * 2.9
+        y = 6.8 - v * 2.1
         width = 3.4 - 0.25 * v
         for c in range(cols + 1):
             u = c / cols * 2 - 1
@@ -154,15 +156,15 @@ def mast_and_sails():
     parts.append(sail)
     # A stripe painted across the sail.
     sv, sf = [], []
-    for r, y in enumerate((5.2, 4.75)):
+    for r, y in enumerate((5.95, 5.6)):
         for c in range(cols + 1):
             u = c / cols * 2 - 1
-            v = (6.35 - y) / 2.9
+            v = (6.8 - y) / 2.1
             belly = (1 - u * u) * math.sin(v * math.pi * 0.9) * 0.95
             sv.append((1.37 + belly, y, u * (3.4 - 0.25 * v)))
     for c in range(cols):
         sf.append((c, c + 1, c + cols + 2, c + cols + 1))
-    parts.append(kit.mesh_from("SailStripe", sv, sf, "paint_red"))
+    parts.append(kit.mesh_from("SailStripe", sv, sf, "sail_stripe"))
     # Flag at the top.
     parts.append(kit.mesh_from("Flag", [(1, 9.1, 0), (1, 8.4, 0), (-0.4, 8.85, 0.15), (-0.2, 8.6, 0.1)],
                                [(0, 1, 3, 2)], "flag"))
