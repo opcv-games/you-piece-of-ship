@@ -88,3 +88,19 @@ func _cracked(ship: Node) -> int:
 		if breach.state != 0:
 			count += 1
 	return count - ship.get_node("HullSystem").open_breach_count()
+
+
+func test_test_drive_clears_the_sea() -> void:
+	_level.set_test_drive(true)
+	await wait_physics_frames(2)
+	assert_eq(get_tree().get_nodes_in_group("rocks").size(), 0, "no rocks, cliffs or obstacles")
+	assert_true(is_inf(_level.finish_x), "endless: no port")
+	_level.dev_event("reach_port") # nothing to reach
+	await wait_physics_frames(3)
+	assert_false(_level.finished)
+
+
+func test_camera_defaults() -> void:
+	var camera := _level.get_node("SharedCamera")
+	assert_eq(camera.min_distance, 30.0)
+	assert_almost_eq(camera.reserve_right, 0.1, 0.001)

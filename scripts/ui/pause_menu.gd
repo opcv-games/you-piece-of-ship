@@ -292,6 +292,11 @@ func _build_dev() -> void:
 	_filter.placeholder_text = tr("Search (e.g. heat, speed, leak)")
 	_filter.text_changed.connect(func(_t): _rebuild_tunables())
 	tune.add_child(_filter)
+	var drive := CheckBox.new()
+	drive.name = "TestDrive"
+	drive.text = tr("Test Drive: open ocean, no obstacles")
+	drive.toggled.connect(func(on): if voyage: voyage.set_test_drive(on))
+	tune.add_child(drive)
 	var presets := HBoxContainer.new()
 	tune.add_child(presets)
 	for slot in [1, 2, 3]:

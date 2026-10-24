@@ -8,7 +8,7 @@ extends Camera3D
 @export var margin := 2.5 ## metres of room around the outermost point
 @export var look_ahead := 14.0 ## metres of sea kept in view beyond the bow, to see what's coming
 @export_range(0.0, 0.5) var reserve_right := 0.0 ## share of the screen kept free on the right for the HUD (map chart)
-@export var min_distance := 12.0
+@export var min_distance := 30.0
 @export var max_distance := 45.0
 @export var follow_speed := 4.0
 @export var shake_max_offset := 0.8 ## metres the view jolts at full trauma

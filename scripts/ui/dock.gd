@@ -12,6 +12,9 @@ const PlayerControls = preload("res://scripts/systems/player_controls.gd")
 const VOYAGE_SCENE := "res://scenes/levels/voyage.tscn"
 const MENU_SCENE := "res://scenes/ui/main_menu.tscn"
 const WORLD_MAP_SCENE := "res://scenes/ui/world_map.tscn"
+## Advanced dock (AI jobs, hats, upgrade shop, contract list): switched off on 2026-10-24 while
+## Olivier focuses on core gameplay. The code stays; set true to bring it back.
+const SHOW_ADVANCED := false
 const JOBS := ["helm", "navigator", "engine", "pump", "carpenter", "cargo", "gunner"]
 const JOB_NAMES := {"helm": "Helm", "navigator": "Navigator", "engine": "Engine", "pump": "Pump",
 		"carpenter": "Carpenter", "cargo": "Cargo", "gunner": "Gunner", "": "nothing"}
@@ -225,7 +228,7 @@ func _build() -> void:
 	header.add_child(spacer)
 	_money = _label("Coins: 0", 26, Color(1, 0.85, 0.3))
 	header.add_child(_money)
-	var crew_help := _label("CREW: each player presses Use (E, Right Shift or X) to come aboard. Empty slots can be AI crewmates: a job, then a backup job.", 15, Color.WHITE)
+	var crew_help := _label("CREW: press Use (E, Right Shift or X) to take an AI sailor's place. Press it again to hand back.", 18, Color.WHITE)
 	crew_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(crew_help)
 	var crew := HBoxContainer.new()
@@ -264,6 +267,7 @@ func _build() -> void:
 				"hat":
 					button.pressed.connect(func(): Session.cycle_hat(i + 1); refresh())
 					hat_buttons.append(button)
+			button.visible = SHOW_ADVANCED or kind == "ai"
 			row.add_child(button)
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -274,12 +278,15 @@ func _build() -> void:
 	columns.add_child(left)
 	var map_button := _button()
 	map_button.text = tr("WORLD MAP: choose a route  ★ %d") % Session.total_stars()
-	map_button.custom_minimum_size = Vector2(0, 48)
-	map_button.add_theme_font_size_override("font_size", 20)
+	map_button.custom_minimum_size = Vector2(0, 90)
+	map_button.add_theme_font_size_override("font_size", 30)
 	map_button.pressed.connect(func(): UI.go(WORLD_MAP_SCENE))
 	left.add_child(map_button)
-	left.add_child(_label("CONTRACTS", 16, Color(1, 1, 1, 0.8)))
+	var contracts_title := _label("CONTRACTS", 16, Color(1, 1, 1, 0.8))
+	contracts_title.visible = SHOW_ADVANCED
+	left.add_child(contracts_title)
 	var list_scroll := ScrollContainer.new()
+	list_scroll.visible = SHOW_ADVANCED # the world map chooses routes now
 	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	left.add_child(list_scroll)
@@ -296,9 +303,11 @@ func _build() -> void:
 		contract_buttons.append(button)
 	_details = _label("", 15, Color(1, 1, 1, 0.75))
 	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_details.visible = SHOW_ADVANCED
 	left.add_child(_details)
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.visible = SHOW_ADVANCED # the upgrade shop, for later
 	columns.add_child(right)
 	right.add_child(_label("SHOP (every upgrade has a catch)", 20, Color(1, 1, 1, 0.8)))
 	for id in Upgrades.ORDER:

@@ -107,6 +107,8 @@ func draw_obstacle(rock: Node3D, at: Vector2, r: float) -> void:
 
 ## When the port is beyond the chart's range, an arrow on the rim points to it with the distance.
 func _draw_port_arrow(center: Vector2, radius: float) -> void:
+	if is_inf(port_x):
+		return # Test Drive: no port anywhere
 	var port := Vector3(port_x, 0.0, 0.0)
 	var mark := chart_point(port)
 	var distance := maxf(0.0, port_x - ship.global_position.x)
